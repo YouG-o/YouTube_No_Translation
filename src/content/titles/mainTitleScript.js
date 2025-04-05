@@ -50,10 +50,12 @@
 
     function getOriginalTitle() {
         // Try to get the specified player
-        let targetId = 'movie_player';
+        let targetId = 'movie_player'; // player for regular videos
         if (window.location.pathname.startsWith('/shorts')) {
-            targetId = 'shorts-player';
-        }
+            targetId = 'shorts-player'; // player for shorts
+        } else if (window.location.pathname.startsWith('/@')) {
+            targetId = 'c4-player'; // player for channels main video
+        } 
         const player = document.getElementById(targetId);
         //mainTitleLog(`Player is ${targetId}`);
         if (!player) {

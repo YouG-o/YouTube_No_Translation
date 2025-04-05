@@ -33,36 +33,27 @@
 
 (() => {
     const LOG_PREFIX = '[YNT]';
-    const LOG_STYLES = {
-        AUDIO: { context: '[AUDIO]', color: '#4CAF50' }
-    };
-
-    function createLogger(category) {
-        return (message, ...args) => {
-            console.log(
-                `%c${LOG_PREFIX}${category.context} ${message}`,
-                `color: ${category.color}`,
-                ...args
-            );
-        };
-    }
-
-    // Create error logger function
+    const LOG_CONTEXT = '[AUDIO]';
+    const LOG_COLOR = '#4CAF50';  // Green
     const ERROR_COLOR = '#F44336';  // Red
 
-    function createErrorLogger(category) {
-        return (message, ...args) => {
-            console.log(
-                `%c${LOG_PREFIX}${category.context} %c${message}`,
-                `color: ${category.color}`,  // Keep category color for prefix
-                `color: ${ERROR_COLOR}`,     // Red color for error message
-                ...args
-            );
-        };
+    // Simplified logger functions
+    function log(message, ...args) {
+        console.log(
+            `%c${LOG_PREFIX}${LOG_CONTEXT} ${message}`,
+            `color: ${LOG_COLOR}`,
+            ...args
+        );
     }
 
-    const audioLog = createLogger(LOG_STYLES.AUDIO);
-    const audioErrorLog = createErrorLogger(LOG_STYLES.AUDIO);
+    function errorLog(message, ...args) {
+        console.log(
+            `%c${LOG_PREFIX}${LOG_CONTEXT} %c${message}`,
+            `color: ${LOG_COLOR}`,  // Keep context color for prefix
+            `color: ${ERROR_COLOR}`,  // Red color for error message
+            ...args
+        );
+    }
 
     let retryCount = 0;
     const MAX_RETRIES = 5;
@@ -76,18 +67,18 @@
             targetId = 'c4-player'; // player for channels main video
         } 
         const player = document.getElementById(targetId);
-        //audioLog(`Player is ${targetId}`);
+        //log(`Player is ${targetId}`);
         if (!player) return false;
 
         try {
             const audioLanguage = localStorage.getItem('audioLanguage') || 'original';
-            //audioLog(`Using preferred language: ${audioLanguage}`);
+            //log(`Using preferred language: ${audioLanguage}`);
 
             const tracks = player.getAvailableAudioTracks();
             
             // Skip processing if there's only one audio track available
             if (tracks.length <= 1) {
-                audioLog('Only one audio track available, no change needed');
+                log('Only one audio track available, no change needed');
                 return true;
             }
             
@@ -101,7 +92,7 @@
                 if (audioLanguage === 'original') {
                     // For original language preference
                     if (decoded.includes('original')) {
-                        audioLog('Audio track is already original');
+                        log('Audio track is already original');
                         return true;
                     }
                 } else {
@@ -109,7 +100,7 @@
                     const langMatch = decoded.match(/lang..([-a-zA-Z]+)/);
                     const trackLangCode = langMatch ? langMatch[1].split('-')[0] : null;
                     if (trackLangCode === audioLanguage) {
-                        audioLog('Audio already in preferred language');
+                        log('Audio already in preferred language');
                         return true;
                     }
                 }
@@ -130,7 +121,7 @@
                     
                     const langCode = langMatch ? langMatch[1].split('-')[0] : 'unknown';
                     
-                    audioLog('Setting audio to original language: ' + langCode);
+                    log('Setting audio to original language: ' + langCode);
                     player.setAudioTrack(originalTrack);
                     return true;
                 }
@@ -145,27 +136,27 @@
                 });
 
                 if (preferredTrack) {
-                    audioLog('Setting audio to preferred language: ' + audioLanguage);
+                    log('Setting audio to preferred language: ' + audioLanguage);
                     player.setAudioTrack(preferredTrack);
                     return true;
                 }
-                audioLog(`Selected language "${audioLanguage}" not available`);
+                log(`Selected language "${audioLanguage}" not available`);
             }
             
             return false;
         } catch (error) {
-            //audioErrorLog(`${error.name}: ${error.message}`);
+            //errorLog(`${error.name}: ${error.message}`);
             // Implement fallback mechanism with progressive delay
             if (retryCount < MAX_RETRIES) {
                 retryCount++;
                 const delay = 50 * retryCount;
-                //audioLog(`Retrying in ${delay}ms (attempt ${retryCount}/${MAX_RETRIES})...`);
+                //log(`Retrying in ${delay}ms (attempt ${retryCount}/${MAX_RETRIES})...`);
                 
                 setTimeout(() => {
                     setPreferredTrack();
                 }, delay);
             } else {
-                //audioErrorLog(`Failed after ${MAX_RETRIES} retries`);
+                //errorLog(`Failed after ${MAX_RETRIES} retries`);
                 retryCount = 0;
             }
             

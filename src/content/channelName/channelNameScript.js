@@ -17,36 +17,27 @@
 
 (() => {
     const LOG_PREFIX = '[YNT]';
-    const LOG_STYLES = {
-        CHANNEL_NAME: { context: '[CHANNEL NAME]', color: '#06b6d4' }
-    };
-
-    function createLogger(category) {
-        return (message, ...args) => {
-            console.log(
-                `%c${LOG_PREFIX}${category.context} ${message}`,
-                `color: ${category.color}`,
-                ...args
-            );
-        };
-    }
-
-    // Create error logger function
+    const LOG_CONTEXT = '[CHANNEL NAME]';
+    const LOG_COLOR = '#06b6d4';  // Cyan
     const ERROR_COLOR = '#F44336';  // Red
 
-    function createErrorLogger(category) {
-        return (message, ...args) => {
-            console.log(
-                `%c${LOG_PREFIX}${category.context} %c${message}`,
-                `color: ${category.color}`,  // Keep category color for prefix
-                `color: ${ERROR_COLOR}`,     // Red color for error message
-                ...args
-            );
-        };
+    // Simplified logger functions
+    function log(message, ...args) {
+        console.log(
+            `%c${LOG_PREFIX}${LOG_CONTEXT} ${message}`,
+            `color: ${LOG_COLOR}`,
+            ...args
+        );
     }
 
-    const channelNameLog = createLogger(LOG_STYLES.CHANNEL_NAME);
-    const channelNameErrorLog = createErrorLogger(LOG_STYLES.CHANNEL_NAME);
+    function errorLog(message, ...args) {
+        console.log(
+            `%c${LOG_PREFIX}${LOG_CONTEXT} %c${message}`,
+            `color: ${LOG_COLOR}`,  // Keep context color for prefix
+            `color: ${ERROR_COLOR}`,  // Red color for error message
+            ...args
+        );
+    }
 
     function getOriginalChannelName() {
         // Try to get the specified player
@@ -57,7 +48,7 @@
         const player = document.getElementById(targetId);
         
         if (!player) {
-            channelNameLog('Player not found');
+            log('Player not found');
             window.dispatchEvent(new CustomEvent('ynt-channel-data', {
                 detail: { channelName: null }
             }));
@@ -71,18 +62,18 @@
             const channelName = response?.microformat?.playerMicroformatRenderer?.ownerChannelName;
             
             if (channelName) {
-                //channelNameLog('Found channel name from player response:', channelName);
+                //log('Found channel name from player response:', channelName);
                 window.dispatchEvent(new CustomEvent('ynt-channel-data', {
                     detail: { channelName }
                 }));
             } else {
-                channelNameLog('No channel name found in player response');
+                log('No channel name found in player response');
                 window.dispatchEvent(new CustomEvent('ynt-channel-data', {
                     detail: { channelName: null }
                 }));
             }
         } catch (error) {
-            channelNameErrorLog(`${error.name}: ${error.message}`);
+            errorLog(`${error.name}: ${error.message}`);
             window.dispatchEvent(new CustomEvent('ynt-channel-data', {
                 detail: { channelName: null }
             }));

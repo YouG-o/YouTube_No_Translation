@@ -32,36 +32,27 @@
 
 (() => {
     const LOG_PREFIX = '[YNT]';
-    const LOG_STYLES = {
-        SUBTITLES: { context: '[SUBTITLES]', color: '#FF9800' }
-    };
-
-    function createLogger(category) {
-        return (message, ...args) => {
-            console.log(
-                `%c${LOG_PREFIX}${category.context} ${message}`,
-                `color: ${category.color}`,
-                ...args
-            );
-        };
-    }
-
-    // Create error logger function
+    const LOG_CONTEXT = '[SUBTITLES]';
+    const LOG_COLOR = '#FF9800';  // Orange
     const ERROR_COLOR = '#F44336';  // Red
 
-    function createErrorLogger(category) {
-        return (message, ...args) => {
-            console.log(
-                `%c${LOG_PREFIX}${category.context} %c${message}`,
-                `color: ${category.color}`,  // Keep category color for prefix
-                `color: ${ERROR_COLOR}`,     // Red color for error message
-                ...args
-            );
-        };
+    // Simplified logger functions
+    function log(message, ...args) {
+        console.log(
+            `%c${LOG_PREFIX}${LOG_CONTEXT} ${message}`,
+            `color: ${LOG_COLOR}`,
+            ...args
+        );
     }
 
-    const subtitlesLog = createLogger(LOG_STYLES.SUBTITLES);
-    const subtitlesErrorLog = createErrorLogger(LOG_STYLES.SUBTITLES);
+    function errorLog(message, ...args) {
+        console.log(
+            `%c${LOG_PREFIX}${LOG_CONTEXT} %c${message}`,
+            `color: ${LOG_COLOR}`,  // Keep context color for prefix
+            `color: ${ERROR_COLOR}`,  // Red color for error message
+            ...args
+        );
+    }
 
     let retryCount = 0;
     const MAX_RETRIES = 5;
@@ -79,11 +70,11 @@
 
         // Get language preference from localStorage
         const subtitlesLanguage = localStorage.getItem('subtitlesLanguage') || 'original';
-        //subtitlesLog(`Using preferred language: ${subtitlesLanguage}`);
+        //log(`Using preferred language: ${subtitlesLanguage}`);
 
         // Check if subtitles are disabled
         if (subtitlesLanguage === 'disabled') {
-            subtitlesLog('Subtitles are disabled, disabling subtitles');
+            log('Subtitles are disabled, disabling subtitles');
             player.setOption('captions', 'track', {});
             return true;
         }
@@ -99,7 +90,7 @@
                 // Find ASR track to determine original language
                 const asrTrack = captionTracks.find(track => track.kind === 'asr');
                 if (!asrTrack) {
-                    subtitlesLog('Cannot determine original language, disabling subtitles');
+                    log('Cannot determine original language, disabling subtitles');
                     player.setOption('captions', 'track', {});
                     return true;
                 }
@@ -111,12 +102,12 @@
 
                 // If no manual track in original language exists
                 if (!originalTrack) {
-                    subtitlesLog('No manual track in original language, disabling subtitles');
+                    log('No manual track in original language, disabling subtitles');
                     player.setOption('captions', 'track', {});
                     return true;
                 }
 
-                subtitlesLog(`Setting subtitles to original language: "${originalTrack.name.simpleText}"`);
+                log(`Setting subtitles to original language: "${originalTrack.name.simpleText}"`);
                 player.setOption('captions', 'track', originalTrack);
                 return true;
             } 
@@ -127,27 +118,27 @@
             );
             
             if (languageTrack) {
-                subtitlesLog(`Setting subtitles to selected language: "${languageTrack.name.simpleText}"`);
+                log(`Setting subtitles to selected language: "${languageTrack.name.simpleText}"`);
                 player.setOption('captions', 'track', languageTrack);
                 return true;
             } else {
-                subtitlesLog(`Selected language "${subtitlesLanguage}" not available, disabling subtitles`);
+                log(`Selected language "${subtitlesLanguage}" not available, disabling subtitles`);
                 player.setOption('captions', 'track', {});
                 return true;
             }
         } catch (error) {
-            //subtitlesErrorLog(`${error.name}: ${error.message}`);
+            //errorLog(`${error.name}: ${error.message}`);
             // Implement fallback mechanism with progressive delay
             if (retryCount < MAX_RETRIES) {
                 retryCount++;
                 const delay = 50 * retryCount;
-                //subtitlesLog(`Retrying in ${delay}ms (attempt ${retryCount}/${MAX_RETRIES})...`);
+                //log(`Retrying in ${delay}ms (attempt ${retryCount}/${MAX_RETRIES})...`);
                 
                 setTimeout(() => {
                     setPreferredSubtitles();
                 }, delay);
             } else {
-                //subtitlesErrorLog(`Failed after ${MAX_RETRIES} retries`);
+                //errorLog(`Failed after ${MAX_RETRIES} retries`);
                 retryCount = 0;
             }
             

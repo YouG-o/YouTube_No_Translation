@@ -17,36 +17,27 @@
 
 (() => {
     const LOG_PREFIX = '[YNT]';
-    const LOG_STYLES = {
-        MAIN_TITLE: { context: '[MAIN TITLE]', color: '#fcd34d' }
-    };
-
-    function createLogger(category) {
-        return (message, ...args) => {
-            console.log(
-                `%c${LOG_PREFIX}${category.context} ${message}`,
-                `color: ${category.color}`,
-                ...args
-            );
-        };
-    }
-
-    // Create error logger function
+    const LOG_CONTEXT = '[MAIN TITLE]';
+    const LOG_COLOR = '#fcd34d';  // Yellow
     const ERROR_COLOR = '#F44336';  // Red
 
-    function createErrorLogger(category) {
-        return (message, ...args) => {
-            console.log(
-                `%c${LOG_PREFIX}${category.context} %c${message}`,
-                `color: ${category.color}`,  // Keep category color for prefix
-                `color: ${ERROR_COLOR}`,     // Red color for error message
-                ...args
-            );
-        };
+    // Simplified logger functions
+    function log(message, ...args) {
+        console.log(
+            `%c${LOG_PREFIX}${LOG_CONTEXT} ${message}`,
+            `color: ${LOG_COLOR}`,
+            ...args
+        );
     }
 
-    const mainTitleLog = createLogger(LOG_STYLES.MAIN_TITLE);
-    const mainTitleErrorLog = createErrorLogger(LOG_STYLES.MAIN_TITLE);
+    function errorLog(message, ...args) {
+        console.log(
+            `%c${LOG_PREFIX}${LOG_CONTEXT} %c${message}`,
+            `color: ${LOG_COLOR}`,  // Keep context color for prefix
+            `color: ${ERROR_COLOR}`,  // Red color for error message
+            ...args
+        );
+    }
 
     function getOriginalTitle() {
         // Try to get the specified player
@@ -57,9 +48,9 @@
             targetId = 'c4-player'; // player for channels main video
         } 
         const player = document.getElementById(targetId);
-        //mainTitleLog(`Player is ${targetId}`);
+        //log(`Player is ${targetId}`);
         if (!player) {
-            mainTitleLog('Player not found');
+            log('Player not found');
             window.dispatchEvent(new CustomEvent('ynt-title-data', {
                 detail: { title: null }
             }));
@@ -68,25 +59,24 @@
 
         try {
             const response = player.getPlayerResponse();
-            // Debug logs
-            //mainTitleLog('Player response:', response);            
-            //mainTitleLog('Video details:', response?.videoDetails);
+            //log('Player response:', response);            
+            //log('Video details:', response?.videoDetails);
             
             const title = response?.videoDetails?.title;
             
             if (title) {
-                //mainTitleLog('Found title from player response:', title);
+                //log('Found title from player response:', title);
                 window.dispatchEvent(new CustomEvent('ynt-title-data', {
                     detail: { title }
                 }));
             } else {
-                mainTitleLog('No title found in player response');
+                log('No title found in player response');
                 window.dispatchEvent(new CustomEvent('ynt-title-data', {
                     detail: { title: null }
                 }));
             }
         } catch (error) {
-            mainTitleErrorLog(`${error.name}: ${error.message}`);
+            errorLog(`${error.name}: ${error.message}`);
             window.dispatchEvent(new CustomEvent('ynt-title-data', {
                 detail: { title: null }
             }));

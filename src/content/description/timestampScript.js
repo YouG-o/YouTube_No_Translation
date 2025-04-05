@@ -13,41 +13,32 @@
  */
 (() => {
     const LOG_PREFIX = '[YNT]';
-    const LOG_STYLES = {
-        DESCRIPTION: { context: '[DESCRIPTION]', color: '#2196F3' }
-    };
-
-    function createLogger(category) {
-        return (message, ...args) => {
-            console.log(
-                `%c${LOG_PREFIX}${category.context} ${message}`,
-                `color: ${category.color}`,
-                ...args
-            );
-        };
-    }
-
-    // Create error logger function
+    const LOG_CONTEXT = '[DESCRIPTION]';
+    const LOG_COLOR = '#2196F3'; // Blue
     const ERROR_COLOR = '#F44336';  // Red
 
-    function createErrorLogger(category) {
-        return (message, ...args) => {
-            console.log(
-                `%c${LOG_PREFIX}${category.context} %c${message}`,
-                `color: ${category.color}`,  // Keep category color for prefix
-                `color: ${ERROR_COLOR}`,     // Red color for error message
-                ...args
-            );
-        };
+    // Simplified logger functions
+    function log(message, ...args) {
+        console.log(
+            `%c${LOG_PREFIX}${LOG_CONTEXT} ${message}`,
+            `color: ${LOG_COLOR}`,
+            ...args
+        );
     }
 
-    const descriptionLog = createLogger(LOG_STYLES.DESCRIPTION);
-    const descriptionErrorLog = createErrorLogger(LOG_STYLES.DESCRIPTION);
+    function errorLog(message, ...args) {
+        console.log(
+            `%c${LOG_PREFIX}${LOG_CONTEXT} %c${message}`,
+            `color: ${LOG_COLOR}`,  // Keep context color for prefix
+            `color: ${ERROR_COLOR}`,  // Red color for error message
+            ...args
+        );
+    }
 
     // Get timestamp from custom event
     const timestampEvent = document.currentScript.getAttribute('ynt-timestamp-event');
     if (!timestampEvent) {
-        descriptionErrorLog('No timestamp event found');
+        errorLog('No timestamp event found');
         return;
     }
 
@@ -57,15 +48,15 @@
     // Get player
     const player = document.getElementById('movie_player');
     if (!player) {
-        descriptionErrorLog('Player element not found');
+        log('Player element not found');
         return;
     }
 
     // Navigate to timestamp
     try {
         player.seekTo(seconds, true);
-        descriptionLog(`Navigated to timestamp: ${seconds}s`);
+        log(`Navigated to timestamp: ${seconds}s`);
     } catch (error) {
-        descriptionErrorLog(`Failed to navigate to timestamp: ${error}`);
+        errorLog(`Failed to navigate to timestamp: ${error}`);
     }
 })();

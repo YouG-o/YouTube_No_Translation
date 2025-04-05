@@ -17,41 +17,32 @@
 
 (() => {
     const LOG_PREFIX = '[YNT]';
-    const LOG_STYLES = {
-        DESCRIPTION: { context: '[DESCRIPTION]', color: '#2196F3' }
-    };
-
-    function createLogger(category) {
-        return (message, ...args) => {
-            console.log(
-                `%c${LOG_PREFIX}${category.context} ${message}`,
-                `color: ${category.color}`,
-                ...args
-            );
-        };
-    }
-
-    // Create error logger function
+    const LOG_CONTEXT = '[DESCRIPTION]';
+    const LOG_COLOR = '#2196F3'; // Blue
     const ERROR_COLOR = '#F44336';  // Red
 
-    function createErrorLogger(category) {
-        return (message, ...args) => {
-            console.log(
-                `%c${LOG_PREFIX}${category.context} %c${message}`,
-                `color: ${category.color}`,  // Keep category color for prefix
-                `color: ${ERROR_COLOR}`,     // Red color for error message
-                ...args
-            );
-        };
+    // Simplified logger functions
+    function log(message, ...args) {
+        console.log(
+            `%c${LOG_PREFIX}${LOG_CONTEXT} ${message}`,
+            `color: ${LOG_COLOR}`,
+            ...args
+        );
     }
 
-    const descriptionLog = createLogger(LOG_STYLES.DESCRIPTION);
-    const descriptionErrorLog = createErrorLogger(LOG_STYLES.DESCRIPTION);
-    
+    function errorLog(message, ...args) {
+        console.log(
+            `%c${LOG_PREFIX}${LOG_CONTEXT} %c${message}`,
+            `color: ${LOG_COLOR}`,  // Keep context color for prefix
+            `color: ${ERROR_COLOR}`,  // Red color for error message
+            ...args
+        );
+    }
+
     // Get player and video response
     const player = document.getElementById('movie_player');
     if (!player) {
-        descriptionErrorLog('Player not found');
+        errorLog('Player not found');
         window.dispatchEvent(new CustomEvent('ynt-description-data', {
             detail: { description: null }
         }));
@@ -62,12 +53,12 @@
     const description = response?.videoDetails?.shortDescription;
     
     if (description) {
-        //descriptionLog('Found description from player response');
+        //log('Found description from player response');
         window.dispatchEvent(new CustomEvent('ynt-description-data', {
             detail: { description }
         }));
     } else {
-        descriptionErrorLog('No description found in player response');
+        errorLog('No description found in player response');
         window.dispatchEvent(new CustomEvent('ynt-description-data', {
             detail: { description: null }
         }));

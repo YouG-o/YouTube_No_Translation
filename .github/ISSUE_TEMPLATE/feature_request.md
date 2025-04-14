@@ -12,8 +12,5 @@ assignees: 'YouG-o'
 ## Proposed Solution
 <!-- Describe the solution you'd like to see implemented -->
 
-## Alternatives Considered
-<!-- Have you considered any alternative solutions or workarounds? -->
-
-## Additional Context
+## Additional Context (Optionnal)
 <!-- Add any other context, screenshots, or examples about the feature request here -->

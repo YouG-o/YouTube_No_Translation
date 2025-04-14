@@ -599,6 +599,10 @@ function handleUrlChange() {
             refreshBrowsingTitles();
             refreshShortsAlternativeFormat();
         }, 5000);
+        setTimeout(() => {
+            refreshBrowsingTitles();
+            refreshShortsAlternativeFormat();
+        }, 10000);
     }
     
     // --- Check if URL contains patterns

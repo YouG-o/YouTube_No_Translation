@@ -86,21 +86,22 @@
 
 ###
 
-<div>
-  <h1 align="center">Build it yourself</h1>
-  
+
+<details>
+  <summary align="center"><h1>Build it yourself</h1></summary>
+
   <p>While the extension is available through the official stores, you can also build it from source:</p>
-  
+
   ### Prerequisites
   - Node.js
   - npm
-  
+
   ### Installation
   ```bash
   # Clone the repository
   git clone https://github.com/YouG-o/YouTube_No_Translation.git
   cd YouTube_No_Translation
-  
+
   # Install dependencies
   npm install
 
@@ -113,6 +114,7 @@
   # Build for both browsers
   npm run package
   ```
+</details>
 
 ###
 

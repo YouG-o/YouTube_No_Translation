@@ -594,7 +594,7 @@ function handleUrlChange() {
         setTimeout(() => {
             refreshBrowsingTitles();
             refreshShortsAlternativeFormat();
-        }, 1500);
+        }, 2000);
         setTimeout(() => {
             refreshBrowsingTitles();
             refreshShortsAlternativeFormat();
@@ -603,6 +603,10 @@ function handleUrlChange() {
             refreshBrowsingTitles();
             refreshShortsAlternativeFormat();
         }, 10000);
+        setTimeout(() => {
+            refreshBrowsingTitles();
+            refreshShortsAlternativeFormat();
+        }, 60000);
     }
     
     // --- Check if URL contains patterns
@@ -662,5 +666,38 @@ function handleUrlChange() {
         case '/embed': // --- Embed video page
             coreLog(`[URL] Detected embed video page`);
             break;
+    }
+}
+
+// --- Visibility change listener to refresh titles when tab becomes visible
+let visibilityChangeListener: ((event: Event) => void) | null = null;
+
+function setupVisibilityChangeListener(): void {
+    // Clean up existing listener first
+    cleanupVisibilityChangeListener();
+    
+    coreLog('Setting up visibility change listener');
+    
+    visibilityChangeListener = () => {
+        // Only execute when tab becomes visible again
+        if (document.visibilityState === 'visible') {
+            coreLog('Tab became visible, refreshing titles to fix potential duplicates');
+            
+            // Refresh titles to fix any potentially duplicated titles
+            if (currentSettings?.titleTranslation) {
+                refreshBrowsingTitles();
+                refreshShortsAlternativeFormat();
+            }
+        }
+    };
+    
+    // Add the event listener
+    document.addEventListener('visibilitychange', visibilityChangeListener);
+}
+
+function cleanupVisibilityChangeListener(): void {
+    if (visibilityChangeListener) {
+        document.removeEventListener('visibilitychange', visibilityChangeListener);
+        visibilityChangeListener = null;
     }
 }

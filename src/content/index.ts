@@ -30,6 +30,8 @@ async function initializeFeatures() {
     await fetchSettings();
     
     setupUrlObserver();
+
+    setupVisibilityChangeListener();
     
     if (isEmbedVideo()) {
         coreLog('Embed video detected;');

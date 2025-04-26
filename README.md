@@ -25,8 +25,7 @@
 
 <div align="center">
   <a href="https://youtube-no-translation.vercel.app/" target="_blank">
-    <img src="./assets/icons/icon.svg" alt="Project description"/>
-
+    <img src="./assets/images/icon.png" alt="Add-on icon"/>
   </a>
 </div>
 
@@ -70,7 +69,7 @@
 
   <div align="center">
     <a href="https://ko-fi.com/yougo" target="_blank">
-      <img src="./assets/images/ko-fi.png" alt="Support me on Ko-fi" height="40">
+      <img src="./assets/icons/ko-fi.png" alt="Support me on Ko-fi" height="40">
     </a>
     <br>
     <a href="https://youtube-no-translation.vercel.app/?donate=crypto" target="_blank">

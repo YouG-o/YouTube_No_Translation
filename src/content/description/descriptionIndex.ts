@@ -216,6 +216,9 @@ function updateDescriptionElement(element: HTMLElement, description: string): vo
     
     // Set up content observer to prevent re-translation
     setupDescriptionContentObserver();
+    
+    // Initialize chapters replacement with the original description
+    initializeChaptersReplacement(description);
 }
 
 

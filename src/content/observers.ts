@@ -587,6 +587,8 @@ function handleUrlChange() {
     cleanupDescriptionObservers();
     cleanupTimestampClickObserver();
     
+    cleanupChaptersObserver();
+    
     //coreLog('Observers cleaned up');
 
     

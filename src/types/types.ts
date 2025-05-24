@@ -62,3 +62,8 @@ interface TitleData {
 interface TitleDataEvent extends CustomEvent {
     detail: TitleData;
 }
+
+interface Chapter {
+    startTime: number;
+    title: string;
+}

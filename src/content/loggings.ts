@@ -43,6 +43,10 @@ const LOG_STYLES = {
     CHANNEL_NAME: {
         context: '[Channel Name]',
         color: '#06b6d4'  // light blue
+    },
+    CHAPTERS: {
+        context: '[CHAPTERS]',
+        color: '#9C27B0'  // purple
     }
 } as const;
 
@@ -95,3 +99,6 @@ const subtitlesErrorLog = createErrorLogger(LOG_STYLES.SUBTITLES);
 
 const channelNameLog = createLogger(LOG_STYLES.CHANNEL_NAME);
 const channelNameErrorLog = createErrorLogger(LOG_STYLES.CHANNEL_NAME);
+
+const chaptersLog = createLogger(LOG_STYLES.CHAPTERS);
+const chaptersErrorLog = createErrorLogger(LOG_STYLES.CHAPTERS);

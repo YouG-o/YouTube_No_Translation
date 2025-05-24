@@ -31,6 +31,7 @@
     "src/content/description/descriptionIndex.ts",
     "src/content/subtitles/subtitlesIndex.ts",
     "src/content/channelName/channelName.ts",
+    "src/content/chapters/chaptersIndex.ts",
     "src/content/observers.ts",
     "src/content/index.ts"
   ]

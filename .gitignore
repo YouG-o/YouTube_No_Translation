@@ -37,3 +37,11 @@ web-ext-artifacts/
 
 # Dev tests manifest
 /manifest.json
+
+# Xcode user-specific files
+**/*.xcuserdatad/
+**/*.xcuserdata/
+**/*.xcworkspace/xcuserdata/
+**/*.xcodeproj/project.xcworkspace/xcuserdata/
+**/*.xcodeproj/xcuserdata/
+**/*.xcuserstate

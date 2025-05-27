@@ -20,21 +20,7 @@
 		C651AE382DE2B11D0048A716 /* YouTube_No_TranslationUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C651AE372DE2B11D0048A716 /* YouTube_No_TranslationUITestsLaunchTests.swift */; };
 		C651AE3E2DE2B11D0048A716 /* YouTube No Translation Extension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = C651AE3D2DE2B11D0048A716 /* YouTube No Translation Extension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		C651AE432DE2B11D0048A716 /* SafariWebExtensionHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = C651AE422DE2B11D0048A716 /* SafariWebExtensionHandler.swift */; };
-		C651AE652DE2B11E0048A716 /* tsconfig.content.json in Resources */ = {isa = PBXBuildFile; fileRef = C651AE562DE2B11E0048A716 /* tsconfig.content.json */; };
-		C651AE662DE2B11E0048A716 /* tailwind.config.js in Resources */ = {isa = PBXBuildFile; fileRef = C651AE572DE2B11E0048A716 /* tailwind.config.js */; };
-		C651AE672DE2B11E0048A716 /* tsconfig.background.json in Resources */ = {isa = PBXBuildFile; fileRef = C651AE582DE2B11E0048A716 /* tsconfig.background.json */; };
-		C651AE682DE2B11E0048A716 /* LICENSE in Resources */ = {isa = PBXBuildFile; fileRef = C651AE592DE2B11E0048A716 /* LICENSE */; };
-		C651AE692DE2B11E0048A716 /* dist in Resources */ = {isa = PBXBuildFile; fileRef = C651AE5A2DE2B11E0048A716 /* dist */; };
-		C651AE6A2DE2B11E0048A716 /* manifest.firefox.json in Resources */ = {isa = PBXBuildFile; fileRef = C651AE5B2DE2B11E0048A716 /* manifest.firefox.json */; };
-		C651AE6B2DE2B11E0048A716 /* manifest.chrome.json in Resources */ = {isa = PBXBuildFile; fileRef = C651AE5C2DE2B11E0048A716 /* manifest.chrome.json */; };
-		C651AE6C2DE2B11E0048A716 /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = C651AE5D2DE2B11E0048A716 /* README.md */; };
-		C651AE6D2DE2B11E0048A716 /* package-lock.json in Resources */ = {isa = PBXBuildFile; fileRef = C651AE5E2DE2B11E0048A716 /* package-lock.json */; };
-		C651AE6E2DE2B11E0048A716 /* package.json in Resources */ = {isa = PBXBuildFile; fileRef = C651AE5F2DE2B11E0048A716 /* package.json */; };
-		C651AE6F2DE2B11E0048A716 /* manifest.json in Resources */ = {isa = PBXBuildFile; fileRef = C651AE602DE2B11E0048A716 /* manifest.json */; };
-		C651AE702DE2B11E0048A716 /* assets in Resources */ = {isa = PBXBuildFile; fileRef = C651AE612DE2B11E0048A716 /* assets */; };
-		C651AE712DE2B11E0048A716 /* tsconfig.popup.json in Resources */ = {isa = PBXBuildFile; fileRef = C651AE622DE2B11E0048A716 /* tsconfig.popup.json */; };
-		C651AE722DE2B11E0048A716 /* safari-extension in Resources */ = {isa = PBXBuildFile; fileRef = C651AE632DE2B11E0048A716 /* safari-extension */; };
-		C651AE732DE2B11E0048A716 /* src in Resources */ = {isa = PBXBuildFile; fileRef = C651AE642DE2B11E0048A716 /* src */; };
+
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -97,21 +83,6 @@
 		C651AE422DE2B11D0048A716 /* SafariWebExtensionHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SafariWebExtensionHandler.swift; sourceTree = "<group>"; };
 		C651AE442DE2B11D0048A716 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		C651AE452DE2B11D0048A716 /* YouTube_No_Translation_Extension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = YouTube_No_Translation_Extension.entitlements; sourceTree = "<group>"; };
-		C651AE562DE2B11E0048A716 /* tsconfig.content.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = tsconfig.content.json; path = ../../../tsconfig.content.json; sourceTree = "<group>"; };
-		C651AE572DE2B11E0048A716 /* tailwind.config.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; name = tailwind.config.js; path = ../../../tailwind.config.js; sourceTree = "<group>"; };
-		C651AE582DE2B11E0048A716 /* tsconfig.background.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = tsconfig.background.json; path = ../../../tsconfig.background.json; sourceTree = "<group>"; };
-		C651AE592DE2B11E0048A716 /* LICENSE */ = {isa = PBXFileReference; lastKnownFileType = text; name = LICENSE; path = ../../../LICENSE; sourceTree = "<group>"; };
-		C651AE5A2DE2B11E0048A716 /* dist */ = {isa = PBXFileReference; lastKnownFileType = folder; name = dist; path = ../../../dist; sourceTree = "<group>"; };
-		C651AE5B2DE2B11E0048A716 /* manifest.firefox.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = manifest.firefox.json; path = ../../../manifest.firefox.json; sourceTree = "<group>"; };
-		C651AE5C2DE2B11E0048A716 /* manifest.chrome.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = manifest.chrome.json; path = ../../../manifest.chrome.json; sourceTree = "<group>"; };
-		C651AE5D2DE2B11E0048A716 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; name = README.md; path = ../../../README.md; sourceTree = "<group>"; };
-		C651AE5E2DE2B11E0048A716 /* package-lock.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = "package-lock.json"; path = "../../../package-lock.json"; sourceTree = "<group>"; };
-		C651AE5F2DE2B11E0048A716 /* package.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = package.json; path = ../../../package.json; sourceTree = "<group>"; };
-		C651AE602DE2B11E0048A716 /* manifest.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = manifest.json; path = ../../../manifest.json; sourceTree = "<group>"; };
-		C651AE612DE2B11E0048A716 /* assets */ = {isa = PBXFileReference; lastKnownFileType = folder; name = assets; path = ../../../assets; sourceTree = "<group>"; };
-		C651AE622DE2B11E0048A716 /* tsconfig.popup.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = tsconfig.popup.json; path = ../../../tsconfig.popup.json; sourceTree = "<group>"; };
-		C651AE632DE2B11E0048A716 /* safari-extension */ = {isa = PBXFileReference; lastKnownFileType = folder; name = "safari-extension"; path = ../..; sourceTree = "<group>"; };
-		C651AE642DE2B11E0048A716 /* src */ = {isa = PBXFileReference; lastKnownFileType = folder; name = src; path = ../../../src; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -214,36 +185,12 @@
 		C651AE412DE2B11D0048A716 /* YouTube No Translation Extension */ = {
 			isa = PBXGroup;
 			children = (
-				C651AE552DE2B11E0048A716 /* Resources */,
 				C651AE422DE2B11D0048A716 /* SafariWebExtensionHandler.swift */,
 				C651AE442DE2B11D0048A716 /* Info.plist */,
 				C651AE452DE2B11D0048A716 /* YouTube_No_Translation_Extension.entitlements */,
 			);
 			path = "YouTube No Translation Extension";
 			sourceTree = "<group>";
-		};
-		C651AE552DE2B11E0048A716 /* Resources */ = {
-			isa = PBXGroup;
-			children = (
-				C651AE562DE2B11E0048A716 /* tsconfig.content.json */,
-				C651AE572DE2B11E0048A716 /* tailwind.config.js */,
-				C651AE582DE2B11E0048A716 /* tsconfig.background.json */,
-				C651AE592DE2B11E0048A716 /* LICENSE */,
-				C651AE5A2DE2B11E0048A716 /* dist */,
-				C651AE5B2DE2B11E0048A716 /* manifest.firefox.json */,
-				C651AE5C2DE2B11E0048A716 /* manifest.chrome.json */,
-				C651AE5D2DE2B11E0048A716 /* README.md */,
-				C651AE5E2DE2B11E0048A716 /* package-lock.json */,
-				C651AE5F2DE2B11E0048A716 /* package.json */,
-				C651AE602DE2B11E0048A716 /* manifest.json */,
-				C651AE612DE2B11E0048A716 /* assets */,
-				C651AE622DE2B11E0048A716 /* tsconfig.popup.json */,
-				C651AE632DE2B11E0048A716 /* safari-extension */,
-				C651AE642DE2B11E0048A716 /* src */,
-			);
-			name = Resources;
-			path = "YouTube No Translation Extension";
-			sourceTree = SOURCE_ROOT;
 		};
 /* End PBXGroup section */
 
@@ -408,21 +355,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				C651AE6B2DE2B11E0048A716 /* manifest.chrome.json in Resources */,
-				C651AE672DE2B11E0048A716 /* tsconfig.background.json in Resources */,
-				C651AE6D2DE2B11E0048A716 /* package-lock.json in Resources */,
-				C651AE652DE2B11E0048A716 /* tsconfig.content.json in Resources */,
-				C651AE6E2DE2B11E0048A716 /* package.json in Resources */,
-				C651AE6F2DE2B11E0048A716 /* manifest.json in Resources */,
-				C651AE692DE2B11E0048A716 /* dist in Resources */,
-				C651AE6A2DE2B11E0048A716 /* manifest.firefox.json in Resources */,
-				C651AE682DE2B11E0048A716 /* LICENSE in Resources */,
-				C651AE732DE2B11E0048A716 /* src in Resources */,
-				C651AE702DE2B11E0048A716 /* assets in Resources */,
-				C651AE6C2DE2B11E0048A716 /* README.md in Resources */,
-				C651AE662DE2B11E0048A716 /* tailwind.config.js in Resources */,
-				C651AE722DE2B11E0048A716 /* safari-extension in Resources */,
-				C651AE712DE2B11E0048A716 /* tsconfig.popup.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

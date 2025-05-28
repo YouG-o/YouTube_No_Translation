@@ -8,6 +8,7 @@
     "build": "npm run build:firefox && npm run build:chrome",
     "build:firefox": "npm run clean && npm run create-dirs && npm run pre:web-ext:firefox && npm run build:common && npm run copy:assets",
     "build:chrome": "npm run clean && npm run create-dirs && npm run pre:web-ext:chrome && npm run build:common && npm run copy:assets",
+    "build:safari": "npm run clean && npm run create-dirs && npm run pre:web-ext:safari && npm run build:common && npm run copy:assets",
     "build:common": "npm run build:polyfill && npm run build:content && npm run build:popup && npm run build:background && npm run build:css && npm run build:html && npm run copy:scripts && npm run post:build",
     "build:content": "tsc -p tsconfig.content.json",
     "build:popup": "tsc -p tsconfig.popup.json",
@@ -22,6 +23,7 @@
     "copy:scripts": "mkdir -p dist/content/scripts && cp src/content/audio/audioScript.js dist/content/scripts/ && cp src/content/description/descriptionScript.js dist/content/scripts/ && cp src/content/subtitles/subtitlesScript.js dist/content/scripts/ && cp src/content/titles/mainTitleScript.js dist/content/scripts/ && cp src/content/channelName/channelNameScript.js dist/content/scripts/ && cp src/content/description/timestampScript.js dist/content/scripts/",
     "pre:web-ext:firefox": "cp manifest.firefox.json manifest.json",
     "pre:web-ext:chrome": "cp manifest.chrome.json manifest.json",
+    "pre:web-ext:safari": "cp manifest.safari.json manifest.json",
     "web-ext:firefox": "web-ext build --overwrite-dest -a web-ext-artifacts/firefox --filename=firefox-ynt-${npm_package_version}.zip",
     "web-ext:chrome": "web-ext build --overwrite-dest -a web-ext-artifacts/chrome --filename=chrome-ynt-${npm_package_version}.zip",
     "post:web-ext": "rm manifest.json",
@@ -56,7 +58,8 @@
     "postcss": "^8.4.49",
     "rimraf": "^6.0.1",
     "tailwindcss": "^3.4.17",
-    "typescript": "^5.7.2"
+    "typescript": "^5.7.2",
+    "web-ext": "^7.0.0"
   },
   "dependencies": {
     "webextension-polyfill": "^0.12.0"

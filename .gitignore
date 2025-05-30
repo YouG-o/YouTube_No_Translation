@@ -45,3 +45,7 @@ web-ext-artifacts/
 **/*.xcodeproj/project.xcworkspace/xcuserdata/
 **/*.xcodeproj/xcuserdata/
 **/*.xcuserstate
+
+# Safari extension - avoid duplicated files
+safari-extension/YouTube\ No\ Translation/YouTube\ No\ Translation\ Extension/Resources/*
+safari-icons.sh

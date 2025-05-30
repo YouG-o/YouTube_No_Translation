@@ -33,9 +33,10 @@
 
 <h1 align="center">YouTube No Translation</h1>
 
-<p align="center">
+
   A web browser extension that keeps your YouTube experience authentic by preventing automatic translations.
-</p>
+  The extension is available on Chromium browsers, Firefox and Safari (credits goes to [Seva41](https://github.com/Seva41) for the Safari port)
+
 
 <div align="center">
   <a href="https://addons.mozilla.org/firefox/addon/youtube-no-translation/" target="_blank">
@@ -44,10 +45,10 @@
   <a href="https://chromewebstore.google.com/detail/youtube-no-translation/lmkeolibdeeglfglnncmfleojmakecjb" target="_blank">
     <img src="./assets/images/chrome.png" height="40" alt="Available on Chrome Web Store" title="Available on Chrome Web Store"/>
   </a>
-  
   <br>
-  
 </div>
+
+You can get the Firefox and Chrome extensions on their official stores, but for Safari you must [build it yourself](#build-it-yourself) or get a pre-built version in the [releases section](https://github.com/YouG-o/YouTube_No_Translation/releases) because I don't have an apple developer account to publish it on their store. Also, I don't provide support for Safari.
 
 ###
 
@@ -87,13 +88,14 @@
 
 
 <details>
-  <summary align="center"><h1>Build it yourself</h1></summary>
+  <summary align="center"><h1 id="build-it-yourself">Build it yourself</h1></summary>
 
   <p>While the extension is available through the official stores, you can also build it from source:</p>
 
   ### Prerequisites
   - Node.js
   - npm
+  - **For Safari**: macOS with Xcode installed
 
   ### Installation
   ```bash
@@ -110,9 +112,21 @@
   # Build for Chromium
   npm run package:chrome
 
-  # Build for both browsers
+  # Build for Safari (macOS only)
+  npm run build:safari
+  open "safari-extension/YouTube No Translation/YouTube No Translation.xcodeproj"
+  # Then build and run in Xcode to generate the .app
+  # Copy the generated .app to project root for Safari to find extension files
+
+  # Build for both Firefox and Chrome
   npm run package
   ```
+
+  ### Safari Build Notes
+  - Safari extension requires macOS and Xcode to build
+  - The extension must be wrapped in a macOS app (.app file)
+  - After building in Xcode, the app will automatically install the extension in Safari
+  - Enable the extension in Safari > Settings > Extensions
 </details>
 
 ###

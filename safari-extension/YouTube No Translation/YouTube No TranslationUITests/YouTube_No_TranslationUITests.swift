@@ -1,3 +1,6 @@
+//
+//  YouTube_No_TranslationUITests.swift
+//  YouTube No TranslationUITests
 /*
  * Copyright (C) 2025-present Sebastián Dinator (https://github.com/Seva41) - Safari port
  * Copyright (C) 2025-present YouGo (https://github.com/youg-o) - Original project

@@ -12,7 +12,7 @@
       "48": "dist/assets/icons/icon.png",
       "96": "dist/assets/icons/icon.png"
     },
-    "default_popup": "popup/popup.html",
+    "default_popup": "dist/popup/popup.html",
     "default_title": "YNT"
   },
   "permissions": [
@@ -27,13 +27,13 @@
         "*://*.youtube-nocookie.com/*"
       ],
       "js": [
-        "browser-polyfill.js",
-        "content/content.js"
+        "dist/browser-polyfill.js",
+        "dist/content/content.js"
       ]
     }
   ],
   "background": {
-    "scripts": ["background/background.js"],
+    "scripts": ["dist/background/background.js"],
     "persistent": false
   },
   "web_accessible_resources": [

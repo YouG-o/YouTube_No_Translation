@@ -59,7 +59,7 @@
     "rimraf": "^6.0.1",
     "tailwindcss": "^3.4.17",
     "typescript": "^5.7.2",
-    "web-ext": "^7.0.0"
+    "web-ext": "^8.7.1"
   },
   "dependencies": {
     "webextension-polyfill": "^0.12.0"

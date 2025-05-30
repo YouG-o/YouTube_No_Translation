@@ -1,57 +1,47 @@
 {
-    "manifest_version": 3,
-    "name": "YouTube No Translation",
-    "version": "2.2.30",
-    "description": "Stop YouTube's automatic translations! This extension keeps titles, descriptions and video audio in their original language.",
-    "icons": {
+  "manifest_version": 2,
+  "name": "YouTube No Translation",
+  "version": "2.2.30",
+  "description": "Stop YouTube's automatic translations! This extension keeps titles, descriptions and video audio in their original language.",
+  "icons": {
+    "48": "dist/assets/icons/icon.png",
+    "96": "dist/assets/icons/icon.png"
+  },
+  "browser_action": {
+    "default_icon": {
       "48": "dist/assets/icons/icon.png",
       "96": "dist/assets/icons/icon.png"
     },
-  
-    "action": {
-      "default_icon": {
-        "48": "dist/assets/icons/icon.png",
-        "96": "dist/assets/icons/icon.png"
-      },
-      "default_popup": "dist/popup/popup.html",
-      "default_title": "YNT"
-    },
-  
-    "permissions": [
-      "storage"
-    ],
-  
-    "host_permissions": [
-      "*://*.youtube.com/*",
-      "*://*.youtube-nocookie.com/*"
-    ],
-  
-    "content_scripts": [
-      {
-        "matches": [
-          "*://*.youtube.com/*",
-          "*://*.youtube-nocookie.com/*"
-        ],
-        "js": ["dist/browser-polyfill.js", "dist/content/content.js"]
-      }
-    ],
-  
-    "background": {
-      "service_worker": "dist/background/background.js"
-    },
-  
-    "web_accessible_resources": [{
-        "resources": [
-            "dist/content/scripts/audioScript.js",
-            "dist/content/scripts/descriptionScript.js",
-            "dist/content/scripts/subtitlesScript.js",
-            "dist/content/scripts/mainTitleScript.js",
-            "dist/content/scripts/channelNameScript.js",
-            "dist/content/scripts/timestampScript.js"
-        ],
-        "matches": [
-          "*://*.youtube.com/*",
-          "*://*.youtube-nocookie.com/*"
-        ]
-    }]
+    "default_popup": "popup/popup.html",
+    "default_title": "YNT"
+  },
+  "permissions": [
+    "storage",
+    "*://*.youtube.com/*",
+    "*://*.youtube-nocookie.com/*"
+  ],
+  "content_scripts": [
+    {
+      "matches": [
+        "*://*.youtube.com/*",
+        "*://*.youtube-nocookie.com/*"
+      ],
+      "js": [
+        "browser-polyfill.js",
+        "content/content.js"
+      ]
+    }
+  ],
+  "background": {
+    "scripts": ["background/background.js"],
+    "persistent": false
+  },
+  "web_accessible_resources": [
+    "dist/content/scripts/audioScript.js",
+    "dist/content/scripts/descriptionScript.js",
+    "dist/content/scripts/subtitlesScript.js",
+    "dist/content/scripts/mainTitleScript.js",
+    "dist/content/scripts/channelNameScript.js",
+    "dist/content/scripts/timestampScript.js"
+  ]
 }

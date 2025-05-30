@@ -20,7 +20,6 @@
 		C651AE382DE2B11D0048A716 /* YouTube_No_TranslationUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C651AE372DE2B11D0048A716 /* YouTube_No_TranslationUITestsLaunchTests.swift */; };
 		C651AE3E2DE2B11D0048A716 /* YouTube No Translation Extension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = C651AE3D2DE2B11D0048A716 /* YouTube No Translation Extension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		C651AE432DE2B11D0048A716 /* SafariWebExtensionHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = C651AE422DE2B11D0048A716 /* SafariWebExtensionHandler.swift */; };
-
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -557,6 +556,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = "YouTube No Translation Extension/YouTube_No_Translation_Extension.entitlements";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = K994267RZR;
@@ -588,6 +588,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CODE_SIGN_ENTITLEMENTS = "YouTube No Translation Extension/YouTube_No_Translation_Extension.entitlements";
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = K994267RZR;

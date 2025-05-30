@@ -48,3 +48,4 @@ web-ext-artifacts/
 
 # Safari extension - avoid duplicated files
 safari-extension/YouTube\ No\ Translation/YouTube\ No\ Translation\ Extension/Resources/*
+safari-icons.sh

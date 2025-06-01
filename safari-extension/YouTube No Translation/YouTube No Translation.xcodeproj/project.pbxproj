@@ -22,14 +22,12 @@
 		C62FBAFE2DE94D2C009AD7D3 /* SafariWebExtensionHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = C62FBAFD2DE94D2C009AD7D3 /* SafariWebExtensionHandler.swift */; };
 		C62FBB242DE94D2C009AD7D3 /* tsconfig.content.json in Resources */ = {isa = PBXBuildFile; fileRef = C62FBB112DE94D2C009AD7D3 /* tsconfig.content.json */; };
 		C62FBB252DE94D2C009AD7D3 /* tailwind.config.js in Resources */ = {isa = PBXBuildFile; fileRef = C62FBB122DE94D2C009AD7D3 /* tailwind.config.js */; };
-		C62FBB262DE94D2C009AD7D3 /* generate-icons.sh in Resources */ = {isa = PBXBuildFile; fileRef = C62FBB132DE94D2C009AD7D3 /* generate-icons.sh */; };
 		C62FBB272DE94D2C009AD7D3 /* tsconfig.background.json in Resources */ = {isa = PBXBuildFile; fileRef = C62FBB142DE94D2C009AD7D3 /* tsconfig.background.json */; };
 		C62FBB282DE94D2C009AD7D3 /* LICENSE in Resources */ = {isa = PBXBuildFile; fileRef = C62FBB152DE94D2C009AD7D3 /* LICENSE */; };
 		C62FBB292DE94D2C009AD7D3 /* dist in Resources */ = {isa = PBXBuildFile; fileRef = C62FBB162DE94D2C009AD7D3 /* dist */; };
 		C62FBB2A2DE94D2C009AD7D3 /* node_modules in Resources */ = {isa = PBXBuildFile; fileRef = C62FBB172DE94D2C009AD7D3 /* node_modules */; };
 		C62FBB2B2DE94D2C009AD7D3 /* manifest.firefox.json in Resources */ = {isa = PBXBuildFile; fileRef = C62FBB182DE94D2C009AD7D3 /* manifest.firefox.json */; };
 		C62FBB2C2DE94D2C009AD7D3 /* manifest.chrome.json in Resources */ = {isa = PBXBuildFile; fileRef = C62FBB192DE94D2C009AD7D3 /* manifest.chrome.json */; };
-		C62FBB2D2DE94D2C009AD7D3 /* AppIcon.appiconset in Resources */ = {isa = PBXBuildFile; fileRef = C62FBB1A2DE94D2C009AD7D3 /* AppIcon.appiconset */; };
 		C62FBB2E2DE94D2C009AD7D3 /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = C62FBB1B2DE94D2C009AD7D3 /* README.md */; };
 		C62FBB2F2DE94D2C009AD7D3 /* package-lock.json in Resources */ = {isa = PBXBuildFile; fileRef = C62FBB1C2DE94D2C009AD7D3 /* package-lock.json */; };
 		C62FBB302DE94D2C009AD7D3 /* package.json in Resources */ = {isa = PBXBuildFile; fileRef = C62FBB1D2DE94D2C009AD7D3 /* package.json */; };
@@ -37,7 +35,6 @@
 		C62FBB322DE94D2C009AD7D3 /* assets in Resources */ = {isa = PBXBuildFile; fileRef = C62FBB1F2DE94D2C009AD7D3 /* assets */; };
 		C62FBB332DE94D2C009AD7D3 /* tsconfig.popup.json in Resources */ = {isa = PBXBuildFile; fileRef = C62FBB202DE94D2C009AD7D3 /* tsconfig.popup.json */; };
 		C62FBB342DE94D2C009AD7D3 /* safari-extension in Resources */ = {isa = PBXBuildFile; fileRef = C62FBB212DE94D2C009AD7D3 /* safari-extension */; };
-		C62FBB352DE94D2C009AD7D3 /* convert-safari.sh in Resources */ = {isa = PBXBuildFile; fileRef = C62FBB222DE94D2C009AD7D3 /* convert-safari.sh */; };
 		C62FBB362DE94D2C009AD7D3 /* src in Resources */ = {isa = PBXBuildFile; fileRef = C62FBB232DE94D2C009AD7D3 /* src */; };
 /* End PBXBuildFile section */
 
@@ -103,14 +100,12 @@
 		C62FBB002DE94D2C009AD7D3 /* YouTube_No_Translation_Extension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = YouTube_No_Translation_Extension.entitlements; sourceTree = "<group>"; };
 		C62FBB112DE94D2C009AD7D3 /* tsconfig.content.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = tsconfig.content.json; path = ../../../tsconfig.content.json; sourceTree = "<group>"; };
 		C62FBB122DE94D2C009AD7D3 /* tailwind.config.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; name = tailwind.config.js; path = ../../../tailwind.config.js; sourceTree = "<group>"; };
-		C62FBB132DE94D2C009AD7D3 /* generate-icons.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; name = "generate-icons.sh"; path = "../../../generate-icons.sh"; sourceTree = "<group>"; };
 		C62FBB142DE94D2C009AD7D3 /* tsconfig.background.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = tsconfig.background.json; path = ../../../tsconfig.background.json; sourceTree = "<group>"; };
 		C62FBB152DE94D2C009AD7D3 /* LICENSE */ = {isa = PBXFileReference; lastKnownFileType = text; name = LICENSE; path = ../../../LICENSE; sourceTree = "<group>"; };
 		C62FBB162DE94D2C009AD7D3 /* dist */ = {isa = PBXFileReference; lastKnownFileType = folder; name = dist; path = ../../../dist; sourceTree = "<group>"; };
 		C62FBB172DE94D2C009AD7D3 /* node_modules */ = {isa = PBXFileReference; lastKnownFileType = folder; name = node_modules; path = ../../../node_modules; sourceTree = "<group>"; };
 		C62FBB182DE94D2C009AD7D3 /* manifest.firefox.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = manifest.firefox.json; path = ../../../manifest.firefox.json; sourceTree = "<group>"; };
 		C62FBB192DE94D2C009AD7D3 /* manifest.chrome.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = manifest.chrome.json; path = ../../../manifest.chrome.json; sourceTree = "<group>"; };
-		C62FBB1A2DE94D2C009AD7D3 /* AppIcon.appiconset */ = {isa = PBXFileReference; lastKnownFileType = file; name = AppIcon.appiconset; path = ../../../AppIcon.appiconset; sourceTree = "<group>"; };
 		C62FBB1B2DE94D2C009AD7D3 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; name = README.md; path = ../../../README.md; sourceTree = "<group>"; };
 		C62FBB1C2DE94D2C009AD7D3 /* package-lock.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = "package-lock.json"; path = "../../../package-lock.json"; sourceTree = "<group>"; };
 		C62FBB1D2DE94D2C009AD7D3 /* package.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = package.json; path = ../../../package.json; sourceTree = "<group>"; };
@@ -118,7 +113,6 @@
 		C62FBB1F2DE94D2C009AD7D3 /* assets */ = {isa = PBXFileReference; lastKnownFileType = folder; name = assets; path = ../../../assets; sourceTree = "<group>"; };
 		C62FBB202DE94D2C009AD7D3 /* tsconfig.popup.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = tsconfig.popup.json; path = ../../../tsconfig.popup.json; sourceTree = "<group>"; };
 		C62FBB212DE94D2C009AD7D3 /* safari-extension */ = {isa = PBXFileReference; lastKnownFileType = folder; name = "safari-extension"; path = ../..; sourceTree = "<group>"; };
-		C62FBB222DE94D2C009AD7D3 /* convert-safari.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; name = "convert-safari.sh"; path = "../../../convert-safari.sh"; sourceTree = "<group>"; };
 		C62FBB232DE94D2C009AD7D3 /* src */ = {isa = PBXFileReference; lastKnownFileType = folder; name = src; path = ../../../src; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -235,14 +229,12 @@
 			children = (
 				C62FBB112DE94D2C009AD7D3 /* tsconfig.content.json */,
 				C62FBB122DE94D2C009AD7D3 /* tailwind.config.js */,
-				C62FBB132DE94D2C009AD7D3 /* generate-icons.sh */,
 				C62FBB142DE94D2C009AD7D3 /* tsconfig.background.json */,
 				C62FBB152DE94D2C009AD7D3 /* LICENSE */,
 				C62FBB162DE94D2C009AD7D3 /* dist */,
 				C62FBB172DE94D2C009AD7D3 /* node_modules */,
 				C62FBB182DE94D2C009AD7D3 /* manifest.firefox.json */,
 				C62FBB192DE94D2C009AD7D3 /* manifest.chrome.json */,
-				C62FBB1A2DE94D2C009AD7D3 /* AppIcon.appiconset */,
 				C62FBB1B2DE94D2C009AD7D3 /* README.md */,
 				C62FBB1C2DE94D2C009AD7D3 /* package-lock.json */,
 				C62FBB1D2DE94D2C009AD7D3 /* package.json */,
@@ -250,7 +242,6 @@
 				C62FBB1F2DE94D2C009AD7D3 /* assets */,
 				C62FBB202DE94D2C009AD7D3 /* tsconfig.popup.json */,
 				C62FBB212DE94D2C009AD7D3 /* safari-extension */,
-				C62FBB222DE94D2C009AD7D3 /* convert-safari.sh */,
 				C62FBB232DE94D2C009AD7D3 /* src */,
 			);
 			name = Resources;
@@ -427,14 +418,11 @@
 				C62FBB252DE94D2C009AD7D3 /* tailwind.config.js in Resources */,
 				C62FBB2A2DE94D2C009AD7D3 /* node_modules in Resources */,
 				C62FBB362DE94D2C009AD7D3 /* src in Resources */,
-				C62FBB262DE94D2C009AD7D3 /* generate-icons.sh in Resources */,
 				C62FBB2C2DE94D2C009AD7D3 /* manifest.chrome.json in Resources */,
 				C62FBB2B2DE94D2C009AD7D3 /* manifest.firefox.json in Resources */,
 				C62FBB312DE94D2C009AD7D3 /* manifest.json in Resources */,
-				C62FBB352DE94D2C009AD7D3 /* convert-safari.sh in Resources */,
 				C62FBB332DE94D2C009AD7D3 /* tsconfig.popup.json in Resources */,
 				C62FBB272DE94D2C009AD7D3 /* tsconfig.background.json in Resources */,
-				C62FBB2D2DE94D2C009AD7D3 /* AppIcon.appiconset in Resources */,
 				C62FBB2E2DE94D2C009AD7D3 /* README.md in Resources */,
 				C62FBB282DE94D2C009AD7D3 /* LICENSE in Resources */,
 				C62FBB2F2DE94D2C009AD7D3 /* package-lock.json in Resources */,

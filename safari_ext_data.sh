@@ -2,10 +2,11 @@
 set -e
 
 # --- Base variables ---
-SRC_DIR="./"
-ICON_SRC="$SRC_DIR/assets/icons/icon.png"
-DEST_DIR="./safari-extension"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+ROOT_DIR="$SCRIPT_DIR/.."
+DEST_DIR="$SCRIPT_DIR"
 PROJECT_NAME="YouTube No Translation"
+ICON_SRC="$ROOT_DIR/assets/icons/icon.png"
 APPICONSET="$DEST_DIR/$PROJECT_NAME/$PROJECT_NAME/Assets.xcassets/AppIcon.appiconset"
 ACCENTCOLOR="$DEST_DIR/$PROJECT_NAME/$PROJECT_NAME/Assets.xcassets/AccentColor.colorset"
 LARGEICON="$DEST_DIR/$PROJECT_NAME/$PROJECT_NAME/Assets.xcassets/LargeIcon.imageset"

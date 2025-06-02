@@ -13,6 +13,7 @@ const audioLanguageSelect = document.getElementById('audioLanguage') as HTMLSele
 const descriptionToggle = document.getElementById('descriptionTranslation') as HTMLInputElement;
 const subtitlesToggle = document.getElementById('subtitlesTranslation') as HTMLInputElement;
 const subtitlesLanguageSelect = document.getElementById('subtitlesLanguage') as HTMLSelectElement;
+const tooltipGroups = document.querySelectorAll('.tooltip') as NodeListOf<HTMLDivElement>;
 
 // Initialize toggle states from storage
 document.addEventListener('DOMContentLoaded', async () => {
@@ -274,5 +275,16 @@ audioLanguageSelect.addEventListener('change', async () => {
         }
     } catch (error) {
         console.error('Failed to save audio language:', error);
+    }
+});
+
+// Adjust tooltip positions if they overflow the viewport
+tooltipGroups.forEach((group) => {
+    const bodyWidth = document.body.clientWidth;  
+    const tooltip = group.querySelector('span') as HTMLSpanElement;
+    const tooltipRect = tooltip.getBoundingClientRect();
+
+    if (tooltipRect.right > bodyWidth) {
+        tooltip.style.marginLeft = `-${tooltipRect.right - bodyWidth + 20}px`;
     }
 });

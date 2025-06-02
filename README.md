@@ -35,7 +35,7 @@
 
 
   A web browser extension that keeps your YouTube experience authentic by preventing automatic translations.
-  The extension is available on Chromium browsers, Firefox and Safari (credits goes to [Seva41](https://github.com/Seva41) for the Safari port)
+  The extension is available on Chromium browsers, Firefox and Safari.
 
 
 <div align="center">
@@ -66,7 +66,7 @@ You can get the Firefox and Chrome extensions on their official stores, but for 
 <div>
   <h1 align="center">Support This Project</h1>
   
-  <p>This extension is completely free, ad-free, and maintained in my spare time. If you find it useful, consider supporting its development!</p>
+  <p>This extension is completely free and open-source. If you find it valuable, you can support its development with a pay-what-you-want contribution!</p>
 
   <div align="center">
     <a href="https://ko-fi.com/yougo" target="_blank">
@@ -87,8 +87,8 @@ You can get the Firefox and Chrome extensions on their official stores, but for 
 ###
 
 
-<details>
-  <summary align="center"><h1 id="build-it-yourself">Build it yourself</h1></summary>
+<div>
+  <h1 align="center" id="build-it-yourself">Build it yourself</h1>
 
   <p>While the extension is available through the official stores, you can also build it from source:</p>
 
@@ -105,23 +105,38 @@ You can get the Firefox and Chrome extensions on their official stores, but for 
 
   # Install dependencies
   npm install
+  ```
 
+  ```bash
   # Build for Firefox
   npm run package:firefox
+  ```
 
+  ```bash
   # Build for Chromium
   npm run package:chrome
+  ```
 
+  ```bash
   # Build for Safari (macOS only)
   npm run prepare:safari
   open "safari-extension/YouTube No Translation/YouTube No Translation.xcodeproj"
   # Then build and run in Xcode to generate the .app
-
-  # Build for both Firefox and Chrome
-  npm run package
   ```
 
-</details>
+</div>
+
+###
+
+<div align="center">
+  <h1>Contributors</h1>
+  
+   Thanks to [Seva41](https://github.com/Seva41) for the Safari port.
+
+  <a href="https://github.com/YouG-o/YouTube_No_Translation/graphs/contributors">
+    <img src="https://contrib.rocks/image?repo=YouG-o/YouTube_No_Translation" />
+  </a>
+</div>
 
 ###
 

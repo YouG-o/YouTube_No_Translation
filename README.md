@@ -48,7 +48,7 @@
   <br>
 </div>
 
-You can get the Firefox and Chrome extensions on their official stores, but for Safari you must [build it yourself](#build-it-yourself) or get a pre-built version in the [releases section](https://github.com/YouG-o/YouTube_No_Translation/releases) because I don't have an apple developer account to publish it on their store. Also, I don't provide support for Safari.
+You can get the Firefox and Chrome extensions on their official stores, but for Safari you MUST [build it yourself](#build-it-yourself). I do not provide support for Safari.
 
 ###
 
@@ -74,7 +74,7 @@ You can get the Firefox and Chrome extensions on their official stores, but for 
     </a>
     <br>
     <a href="https://youtube-no-translation.vercel.app/?donate=crypto" target="_blank">
-      <img src="https://img.shields.io/badge/Donate-Cryptocurrency-8256D0?style=for-the-badge&logo=bitcoin&logoColor=white" alt="Donate Cryptocurrency" height="30">
+      <img src="https://img.shields.io/badge/Support-Cryptocurrency-8256D0?style=for-the-badge&logo=bitcoin&logoColor=white" alt="Support with Cryptocurrency" height="30">
     </a>
   </div>
   
@@ -113,20 +113,14 @@ You can get the Firefox and Chrome extensions on their official stores, but for 
   npm run package:chrome
 
   # Build for Safari (macOS only)
-  npm run build:safari
+  npm run prepare:safari
   open "safari-extension/YouTube No Translation/YouTube No Translation.xcodeproj"
   # Then build and run in Xcode to generate the .app
-  # Copy the generated .app to project root for Safari to find extension files
 
   # Build for both Firefox and Chrome
   npm run package
   ```
 
-  ### Safari Build Notes
-  - Safari extension requires macOS and Xcode to build
-  - The extension must be wrapped in a macOS app (.app file)
-  - After building in Xcode, the app will automatically install the extension in Safari
-  - Enable the extension in Safari > Settings > Extensions
 </details>
 
 ###

@@ -10,6 +10,9 @@
   <a href="https://github.com/YouG-o/YouTube_No_Translation/stargazers" target="_blank">
     <img src="https://img.shields.io/github/stars/YouG-o/YouTube_No_Translation?style=flat&logo=github&color=f9d71c" alt="GitHub Stars"/>
   </a>
+  <a href="https://github.com/YouG-o/YouTube_No_Translation/graphs/contributors" target="_blank">
+    <img src="https://img.shields.io/github/contributors/YouG-o/YouTube_No_Translation?style=flat&logo=github&color=blue" alt="GitHub Contributors"/>
+  </a>
   <a href="https://addons.mozilla.org/firefox/addon/youtube-no-translation/" target="_blank">
     <img src="https://img.shields.io/amo/users/youtube-no-translation?label=&style=flat&logo=firefox-browser&logoColor=white&color=ff7139" alt="Firefox Add-on Users"/>
   </a>
@@ -37,6 +40,7 @@
   A web browser extension that keeps your YouTube experience authentic by preventing automatic translations.
   The extension is available on Chromium browsers, Firefox and Safari.
 
+  <br>
 
 <div align="center">
   <a href="https://addons.mozilla.org/firefox/addon/youtube-no-translation/" target="_blank">
@@ -45,10 +49,11 @@
   <a href="https://chromewebstore.google.com/detail/youtube-no-translation/lmkeolibdeeglfglnncmfleojmakecjb" target="_blank">
     <img src="./assets/images/chrome.png" height="40" alt="Available on Chrome Web Store" title="Available on Chrome Web Store"/>
   </a>
-  <br>
 </div>
 
-You can get the Firefox and Chrome extensions on their official stores, but for Safari you MUST [build it yourself](#build-it-yourself). I do not provide support for Safari.
+<br>
+
+You can get the Firefox and Chrome extensions on their official stores, but **for Safari you must [build it yourself](#build-it-yourself)**. I do not provide support for Safari.
 
 ###
 
@@ -56,7 +61,7 @@ You can get the Firefox and Chrome extensions on their official stores, but for 
   <h1 align="center">Features :</h1>
   
   - **Video Titles**: Keep titles in their original language
-  - **Audio Tracks**: Always use the original audio track
+  - **Audio Tracks**: Always use the original audio track (or choose a specific one)
   - **Descriptions**: Prevent description translations
   - **Subtitles**: Set your preferred subtitle language, if unavailable, subtitles are disabled (auto generated ones are ignored)
 </div>
@@ -68,6 +73,8 @@ You can get the Firefox and Chrome extensions on their official stores, but for 
   
   <p>This extension is completely free and open-source. If you find it valuable, you can support its development with a pay-what-you-want contribution!</p>
 
+  <br>
+
   <div align="center">
     <a href="https://ko-fi.com/yougo" target="_blank">
       <img src="./assets/icons/ko-fi.png" alt="Support me on Ko-fi" height="40">
@@ -77,8 +84,10 @@ You can get the Firefox and Chrome extensions on their official stores, but for 
       <img src="https://img.shields.io/badge/Support-Cryptocurrency-8256D0?style=for-the-badge&logo=bitcoin&logoColor=white" alt="Support with Cryptocurrency" height="30">
     </a>
   </div>
+
+  <br>
   
-  <p>You can also support this project by:</p>
+  You can also support this project by:
  
   - Starring this repository
   - Rating the extension on [Mozilla Add-ons](https://addons.mozilla.org/firefox/addon/youtube-no-translation/) or the [Chrome Web Store](https://chromewebstore.google.com/detail/youtube-no-translation/lmkeolibdeeglfglnncmfleojmakecjb)
@@ -90,7 +99,7 @@ You can get the Firefox and Chrome extensions on their official stores, but for 
 <div>
   <h1 align="center" id="build-it-yourself">Build it yourself</h1>
 
-  <p>While the extension is available through the official stores, you can also build it from source:</p>
+  While the extension is available through the official stores, you can also build it from source:
 
   ### Prerequisites
   - Node.js
@@ -134,14 +143,14 @@ You can get the Firefox and Chrome extensions on their official stores, but for 
    Thanks to [Seva41](https://github.com/Seva41) for the Safari port.
 
   <a href="https://github.com/YouG-o/YouTube_No_Translation/graphs/contributors">
-    <img src="https://contrib.rocks/image?repo=YouG-o/YouTube_No_Translation" />
+    <img src="https://contributors-img.web.app/image?repo=YouG-o/YouTube_No_Translation" />
   </a>
 </div>
 
 ###
 
 <div align="center">
-  <h2>License</h2>
+  <h1>License</h1>
   This project is licensed under the <a href="LICENSE">GNU Affero General Public License v3.0</a>.
   <br>
   Any reuse, modification or distribution of this code must credit the original author.

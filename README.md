@@ -140,11 +140,15 @@ You can get the Firefox and Chrome extensions on their official stores, but **fo
 <div align="center">
   <h1>Contributors</h1>
   
-   Thanks to [Seva41](https://github.com/Seva41) for the Safari port.
+  Contributions are welcome! Whether you want to fix bugs, add features, or improve documentation, your help is appreciated.
+  Please read [CONTRIBUTING.md](CONTRIBUTING.md) to get started, or browse [existing issues](https://github.com/YouG-o/YouTube_No_Translation/issues) to see what needs help.
 
   <a href="https://github.com/YouG-o/YouTube_No_Translation/graphs/contributors">
     <img src="https://contributors-img.web.app/image?repo=YouG-o/YouTube_No_Translation" />
   </a>
+
+   Thanks to [Seva41](https://github.com/Seva41) for the Safari port.
+
 </div>
 
 ###

@@ -11,7 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Changelog documentation
 - Contributing guidelines for developers
 - Safari port thanks to [Seva41](https://github.com/Seva41)
+
+### Fixed
 - Pop tooltip fixes thanks to [TheRichKid](https://github.com/therichkid)
+- Subtitles not applying correctly on direct video loads (e.g. opening a URL directly)
 
 ## [2.2.30] - 2025-05-24
 

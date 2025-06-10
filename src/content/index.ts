@@ -98,7 +98,9 @@ function initializeDescriptionTranslation() {
 function initializeSubtitlesTranslation() {
     subtitlesLog('Initializing subtitles translation prevention');
     
-    handleSubtitlesTranslation();
+    setTimeout(() => {
+        handleSubtitlesTranslation();
+    }, 500);
     
     initializeLoadStartListener();
 };

@@ -23,7 +23,7 @@
  * - Manual tracks: Can be original or translated
  * - Translated tracks: Generated from manual tracks
  * 
- * Strategy:
+ * Strategy to get original subtitles track:
  * 1. Find ASR track to determine original video language
  * 2. Look for manual track in same language
  * 3. Apply original language track if found

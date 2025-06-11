@@ -12,6 +12,8 @@
 let mainTitleContentObserver: MutationObserver | null = null;
 let pageTitleObserver: MutationObserver | null = null;
 let isEmptyObserver: MutationObserver | null = null;
+let embedTitleContentObserver: MutationObserver | null = null;
+let miniplayerTitleContentObserver: MutationObserver | null = null;
 let mainTitleIsUpdating = false;
 
 // --- Utility Functions
@@ -36,6 +38,22 @@ function cleanupPageTitleObserver(): void {
         //mainTitleLog('Cleaning up page title observer');
         pageTitleObserver.disconnect();
         pageTitleObserver = null;
+    }
+}
+
+function cleanupEmbedTitleContentObserver(): void {
+    if (embedTitleContentObserver) {
+        //mainTitleLog('Cleaning up embed title content observer');
+        embedTitleContentObserver.disconnect();
+        embedTitleContentObserver = null;
+    }
+}
+
+function cleanupMiniplayerTitleContentObserver(): void {
+    if (miniplayerTitleContentObserver) {
+        //mainTitleLog('Cleaning up miniplayer title content observer');
+        miniplayerTitleContentObserver.disconnect();
+        miniplayerTitleContentObserver = null;
     }
 }
 
@@ -128,6 +146,79 @@ function updatePageTitle(mainTitle: string): void {
     }
 }
 
+function updateEmbedTitleElement(element: HTMLElement, title: string, videoId: string): void {
+    cleanupEmbedTitleContentObserver();
+    
+    mainTitleLog(
+        `Updated embed title from : %c${normalizeText(element.textContent)}%c to : %c${normalizeText(title)}%c (video id : %c${videoId}%c)`,
+        'color: grey',    
+        'color: #fcd34d',      
+        'color: white',    
+        'color: #fcd34d',      
+        'color: #4ade80',  
+        'color: #fcd34d'       
+    );
+    
+    element.innerText = title;
+    
+    // Block YouTube from changing the embed title back
+    embedTitleContentObserver = new MutationObserver((mutations) => {
+        mutations.forEach((mutation) => {
+            if (mutation.type === 'childList' || mutation.type === 'characterData') {
+                const currentText = element.textContent;
+                if (normalizeText(currentText) !== normalizeText(title)) {
+                    mainTitleLog('YouTube changed embed title, reverting');
+                    element.innerText = title;
+                }
+            }
+        });
+    });
+
+    embedTitleContentObserver.observe(element, {
+        childList: true,
+        characterData: true,
+        subtree: true
+    });
+
+    titleCache.setElement(element, title);
+}
+
+function updateMiniplayerTitleElement(element: HTMLElement, title: string, videoId: string): void {
+    cleanupMiniplayerTitleContentObserver();
+    
+    mainTitleLog(
+        `Updated miniplayer title from : %c${normalizeText(element.textContent)}%c to : %c${normalizeText(title)}%c (video id : %c${videoId}%c)`,
+        'color: grey',    
+        'color: #fcd34d',      
+        'color: white',    
+        'color: #fcd34d',      
+        'color: #4ade80',  
+        'color: #fcd34d'       
+    );
+    
+    element.innerText = title;
+    
+    // Block YouTube from changing the miniplayer title back
+    miniplayerTitleContentObserver = new MutationObserver((mutations) => {
+        mutations.forEach((mutation) => {
+            if (mutation.type === 'childList' || mutation.type === 'characterData') {
+                const currentText = element.textContent;
+                if (normalizeText(currentText) !== normalizeText(title)) {
+                    mainTitleLog('YouTube changed miniplayer title, reverting');
+                    element.innerText = title;
+                }
+            }
+        });
+    });
+
+    miniplayerTitleContentObserver.observe(element, {
+        childList: true,
+        characterData: true,
+        subtree: true
+    });
+
+    titleCache.setElement(element, title);
+}
 
 // --- Main Title Function
 async function refreshMainTitle(): Promise<void> {
@@ -201,69 +292,213 @@ async function refreshMainTitle(): Promise<void> {
 
 
 
-// --- Embed Title Function
+// --- Embed Title Function (Fullscreen and Embed Pages)
 async function refreshEmbedTitle(): Promise<void> {
-    const embedTitle = document.querySelector('.ytp-title-link') as HTMLElement;
-    if (embedTitle && !titleCache.hasElement(embedTitle)) {
-        //mainTitleLog('Processing embed title element');
+    // Clean up existing observer first
+    cleanupEmbedTitleContentObserver();
+    
+    // Wait for the embed title element to be available
+    try {
+        const embedTitle = await waitForElement('.ytp-title-link') as HTMLElement;
         
-        // Get video ID from pathname
-        const videoId = window.location.pathname.split('/embed/')[1];
-        
-        if (videoId) {
-            const currentTitle = embedTitle.textContent;
-            let originalTitle: string | null = null;
+        if (embedTitle && !titleCache.hasElement(embedTitle)) {
+            //mainTitleLog('Processing embed title element');
+            
+            // Get video ID from pathname or URL parameters
+            let videoId: string | null = null;
+            
+            if (window.location.pathname.startsWith('/embed/')) {
+                // Embed page: get ID from pathname
+                videoId = window.location.pathname.split('/embed/')[1];
+            } else if (window.location.pathname === '/watch') {
+                // Watch page (including fullscreen): get ID from URL parameters
+                videoId = new URLSearchParams(window.location.search).get('v');
+            }
+            
+            if (videoId) {
+                const currentTitle = embedTitle.textContent;
+                let originalTitle: string | null = null;
 
-            // First try: Get title from player
-            try {
-                const mainTitleScript = document.createElement('script');
-                mainTitleScript.type = 'text/javascript';
-                mainTitleScript.src = browser.runtime.getURL('dist/content/scripts/mainTitleScript.js');
+                // First try: Get title from player
+                try {
+                    const mainTitleScript = document.createElement('script');
+                    mainTitleScript.type = 'text/javascript';
+                    mainTitleScript.src = browser.runtime.getURL('dist/content/scripts/mainTitleScript.js');
 
-                // Set up event listener before injecting script
-                const playerTitle = await new Promise<string | null>((resolve) => {
-                    const titleListener = (event: TitleDataEvent) => {
-                        window.removeEventListener('ynt-title-data', titleListener as EventListener);
-                        resolve(event.detail.title);
-                    };
-                    window.addEventListener('ynt-title-data', titleListener as EventListener);
-                    
-                    // Inject script after listener is ready
-                    document.head.appendChild(mainTitleScript);
-                });
+                    // Set up event listener before injecting script
+                    const playerTitle = await new Promise<string | null>((resolve) => {
+                        const titleListener = (event: TitleDataEvent) => {
+                            window.removeEventListener('ynt-title-data', titleListener as EventListener);
+                            resolve(event.detail.title);
+                        };
+                        window.addEventListener('ynt-title-data', titleListener as EventListener);
+                        
+                        // Inject script after listener is ready
+                        document.head.appendChild(mainTitleScript);
+                    });
 
-                if (playerTitle) {
-                    originalTitle = playerTitle;
+                    if (playerTitle) {
+                        originalTitle = playerTitle;
+                    }
+                } catch (error) {
+                    mainTitleErrorLog('Failed to get title from player:', error);
                 }
-            } catch (error) {
-                mainTitleErrorLog('Failed to get title from player:', error);
-            }
 
-            // Second try: Fallback to oembed API
-            if (!originalTitle) {
-                mainTitleLog('Falling back to oembed API');
-                originalTitle = await titleCache.getOriginalTitle(
-                    `https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${videoId}`
-                );
-            }
+                // Second try: Fallback to oembed API
+                if (!originalTitle) {
+                    mainTitleLog('Falling back to oembed API');
+                    originalTitle = await titleCache.getOriginalTitle(
+                        `https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${videoId}`
+                    );
+                }
 
-            if (!originalTitle) {
-                mainTitleLog('Failed to get original title, keeping current');
-                return;
-            }
+                if (!originalTitle) {
+                    mainTitleLog('Failed to get original title, keeping current');
+                    return;
+                }
 
-            // Skip if title is already correct
-            if (normalizeText(currentTitle) === normalizeText(originalTitle)) {
-                return;
-            }
+                // Skip if title is already correct
+                if (normalizeText(currentTitle) === normalizeText(originalTitle)) {
+                    return;
+                }
 
-            // Apply the original title
-            try {
-                updateMainTitleElement(embedTitle, originalTitle, videoId);
-                updatePageTitle(originalTitle);
-            } catch (error) {
-                mainTitleErrorLog(`Failed to update embed title:`, error);
+                // Apply the original title
+                try {
+                    updateEmbedTitleElement(embedTitle, originalTitle, videoId);
+                    updatePageTitle(originalTitle);
+                } catch (error) {
+                    mainTitleErrorLog(`Failed to update embed title:`, error);
+                }
             }
         }
+    } catch (error) {
+        // Element not found or timeout, silently fail as it's expected behavior
+        //mainTitleLog('Embed title element not found or timeout');
+    }
+}
+
+// --- Miniplayer Title Function
+async function refreshMiniplayerTitle(): Promise<void> {
+    // Clean up existing observer first
+    cleanupMiniplayerTitleContentObserver();
+    
+    // Wait for the miniplayer title element to be available
+    try {
+        const miniplayerTitle = await waitForElement('.miniplayer-title.style-scope.ytd-miniplayer') as HTMLElement;
+
+        // Wait for the element to have content (YouTube might load the element before filling it)
+        let attempts = 0;
+        const maxAttempts = 10; // 5 seconds total (10 * 500ms)
+
+        while ((!miniplayerTitle.textContent || miniplayerTitle.textContent.trim() === '') && attempts < maxAttempts) {
+            await new Promise(resolve => setTimeout(resolve, 500));
+            attempts++;
+        }
+        
+        // If still no content after waiting, skip
+        if (!miniplayerTitle.textContent || miniplayerTitle.textContent.trim() === '') {
+            return;
+        }
+
+        if (miniplayerTitle && !titleCache.hasElement(miniplayerTitle)) {
+            // Get video ID from miniplayer - try multiple methods
+            let videoId: string | null = null;
+            
+            // Method 1: Try to find video link in miniplayer
+            const miniplayerContainer = document.querySelector('ytd-miniplayer');
+            if (miniplayerContainer) {
+                const videoLink = miniplayerContainer.querySelector('a[href*="/watch?v="]') as HTMLAnchorElement;
+                if (videoLink) {
+                    const urlParams = new URL(videoLink.href).searchParams;
+                    videoId = urlParams.get('v');
+                }
+            }
+            
+            // Method 2: Fallback to current URL if still on /watch page
+            if (!videoId && window.location.pathname === '/watch') {
+                videoId = new URLSearchParams(window.location.search).get('v');
+            }
+
+            // Method 3: Try to extract from player if available
+            if (!videoId) {
+                try {
+                    // Look for video ID in any ytd-miniplayer attributes or data
+                    const miniplayerElement = miniplayerTitle.closest('ytd-miniplayer');
+                    if (miniplayerElement) {
+                        // Check if there's any data attribute with video ID
+                        const allAttributes = Array.from(miniplayerElement.attributes);
+                        for (const attr of allAttributes) {
+                            if (attr.value && attr.value.match(/^[a-zA-Z0-9_-]{11}$/)) {
+                                videoId = attr.value;
+                                break;
+                            }
+                        }
+                    }
+                } catch (error) {
+                    // Silent fail for attribute extraction
+                }
+            }
+
+            if (videoId) {
+                let originalTitle: string | null = null;
+
+                // First try: Get title from player
+                try {
+                    const mainTitleScript = document.createElement('script');
+                    mainTitleScript.type = 'text/javascript';
+                    mainTitleScript.src = browser.runtime.getURL('dist/content/scripts/mainTitleScript.js');
+
+                    // Set up event listener before injecting script
+                    const playerTitle = await new Promise<string | null>((resolve) => {
+                        const titleListener = (event: TitleDataEvent) => {
+                            window.removeEventListener('ynt-title-data', titleListener as EventListener);
+                            resolve(event.detail.title);
+                        };
+                        window.addEventListener('ynt-title-data', titleListener as EventListener);
+                        
+                        // Inject script after listener is ready
+                        document.head.appendChild(mainTitleScript);
+                    });
+
+                    if (playerTitle) {
+                        originalTitle = playerTitle;
+                        //mainTitleLog(`Got title from player: ${originalTitle}`);
+                    }
+                } catch (error) {
+                    mainTitleErrorLog('Failed to get title from player:', error);
+                }
+
+                // Second try: Fallback to oembed API
+                if (!originalTitle) {
+                    mainTitleLog('Falling back to oembed API');
+                    originalTitle = await titleCache.getOriginalTitle(
+                        `https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${videoId}`
+                    );
+                }
+
+                if (!originalTitle) {
+                    mainTitleLog('Failed to get original title, keeping current');
+                    return;
+                }
+
+                // Get current title just before comparison to avoid race conditions
+                const currentTitle = miniplayerTitle.textContent;
+                
+                // Skip if title is already correct
+                if (normalizeText(currentTitle) === normalizeText(originalTitle)) {
+                    return;
+                }
+
+                // Apply the original title
+                try {
+                    updateMiniplayerTitleElement(miniplayerTitle, originalTitle, videoId);
+                    updatePageTitle(originalTitle);
+                } catch (error) {
+                    mainTitleErrorLog(`Failed to update miniplayer title:`, error);
+                }
+            }
+        }
+    } catch (error) {
+        // Element not found or timeout, silently fail as it's expected behavior
     }
 }

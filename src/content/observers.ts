@@ -28,7 +28,7 @@ function setupLoadStartListener() {
         
         currentSettings?.subtitlesTranslation && handleSubtitlesTranslation();
         
-        if (currentSettings?.titleTranslation && isEmbedVideo()) {
+        if (currentSettings?.titleTranslation) {
             setTimeout(() => {
                 refreshEmbedTitle();                       
             }, 1000);
@@ -578,6 +578,8 @@ function handleUrlChange() {
     cleanupMainTitleContentObserver();
     cleanupIsEmptyObserver();
     cleanupPageTitleObserver();
+    cleanupEmbedTitleContentObserver();
+    cleanupMiniplayerTitleContentObserver();
 
     cleanupChannelNameContentObserver();
     
@@ -609,6 +611,11 @@ function handleUrlChange() {
             refreshBrowsingTitles();
             refreshShortsAlternativeFormat();
         }, 60000);
+        
+        // Handle miniplayer titles on all pages (since miniplayer can appear from any page)
+        refreshMiniplayerTitle();
+        setTimeout(() => refreshMiniplayerTitle(), 1000);
+        setTimeout(() => refreshMiniplayerTitle(), 3000);
     }
     
     // --- Check if URL contains patterns
@@ -633,19 +640,19 @@ function handleUrlChange() {
             coreLog(`[URL] Detected search page`);
             currentSettings?.titleTranslation && searchResultsObserver();
             break;
-            case '/': // --- Home page
+        case '/': // --- Home page
             coreLog(`[URL] Detected home page`);
             currentSettings?.titleTranslation && pageVideosObserver();
             break;        
-            case '/feed/subscriptions': // --- Subscriptions page
+        case '/feed/subscriptions': // --- Subscriptions page
             coreLog(`[URL] Detected subscriptions page`);
             currentSettings?.titleTranslation && pageVideosObserver();
             break;
-            case '/feed/trending':  // --- Trending page
+        case '/feed/trending':  // --- Trending page
             coreLog(`[URL] Detected trending page`);
             currentSettings?.titleTranslation && pageVideosObserver();
             break;
-            case '/feed/history':  // --- History page
+        case '/feed/history':  // --- History page
             coreLog(`[URL] Detected history page`);
             currentSettings?.titleTranslation && searchResultsObserver();
             break;
@@ -664,6 +671,14 @@ function handleUrlChange() {
             };
             currentSettings?.titleTranslation && recommandedVideosObserver();
             currentSettings?.descriptionTranslation && setupTimestampClickObserver();
+            
+            // Handle fullscreen titles (embed titles are specific to /watch pages)
+            if (currentSettings?.titleTranslation) {
+                refreshEmbedTitle();
+                //Delayed call as backup (immediat call doesn't always work)
+                setTimeout(() => refreshEmbedTitle(), 1000);
+                setTimeout(() => refreshEmbedTitle(), 3000);
+            }
             break;
         case '/embed': // --- Embed video page
             coreLog(`[URL] Detected embed video page`);

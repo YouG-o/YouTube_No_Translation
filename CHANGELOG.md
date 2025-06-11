@@ -11,6 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Changelog documentation
 - Contributing guidelines for developers
 - Safari port thanks to [Seva41](https://github.com/Seva41)
+- Fullscreen video title translation prevention
+- Miniplayer video title translation prevention
 
 ### Fixed
 - Pop tooltip fixes thanks to [TheRichKid](https://github.com/therichkid)

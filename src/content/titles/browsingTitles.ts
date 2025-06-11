@@ -139,6 +139,21 @@ async function refreshBrowsingTitles(): Promise<void> {
         //browsingTitlesLog('Processing video title:', titleElement.textContent);
         const videoUrl = titleElement.closest('a')?.href;
         if (videoUrl) {
+            // If the video URL contains a 'list' parameter, it's likely an album or playlist item.
+            // We skip it because it would apply wrong title (video title instead of album/playlist title).
+            if (videoUrl.includes('&list=') || videoUrl.includes('/playlist?list=')) {
+                //browsingTitlesLog(`Skipping playlist/album item: ${titleElement.textContent} (URL: ${videoUrl})`);
+                // Clean up any attributes the extension might have previously set incorrectly on this element
+                titleElement.removeAttribute('ynt-fail');
+                titleElement.removeAttribute('ynt-original');
+                titleElement.removeAttribute('ynt');
+                // Ensure the browser tooltip (title attribute) matches the visible text if it was changed
+                if (titleElement.textContent && titleElement.getAttribute('title') !== titleElement.textContent) {
+                    titleElement.setAttribute('title', titleElement.textContent);
+                }
+                continue; // Move to the next titleElement
+            }
+
             let videoId: string | null = null;
             try {
                 const url = new URL(videoUrl);

@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Pop tooltip fixes thanks to [TheRichKid](https://github.com/therichkid)
 - Subtitles not applying correctly on direct video loads (e.g. opening a URL directly)
+- Prevented album/playlist titles from being incorrectly overwritten by their first video's title in browsing views.
 
 ## [2.2.30] - 2025-05-24
 

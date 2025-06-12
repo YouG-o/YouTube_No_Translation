@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "YouTube No Translation",
-  "version": "2.3.0",
+  "version": "2.3.1",
   "description": "Stop YouTube's automatic translations! This extension keeps titles, descriptions and video audio in their original language.",
   "icons": {
     "48": "dist/assets/icons/icon.png",

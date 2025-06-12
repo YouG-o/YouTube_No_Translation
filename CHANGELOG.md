@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.3.1] - 2025-06-12
+
 ### Changed
 - Improved audio & subtitles languages preferences storage by using a consistent, prefixed keys (`ynt-audioLanguage` & `ynt-subtitlesLanguage`) in localStorage to prevent conflicts and ensure reliability.
 
@@ -49,7 +51,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 *Note: This changelog was introduced in version 2.2.30. For earlier version history, please refer to the [GitHub releases](https://github.com/YouG-o/YouTube_No_Translation/releases).*
 
-[Unreleased]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.3.0...HEAD
+[Unreleased]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.3.1...HEAD
+[2.3.1]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.3.0...v2.3.1
 [2.3.0]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.2.30...v2.3.0
 [2.2.30]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.2.20...v2.2.30
 [2.2.20]: https://github.com/YouG-o/YouTube_No_Translation/compare/v1.4.0...v2.2.20

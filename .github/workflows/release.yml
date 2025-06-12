@@ -45,6 +45,7 @@ jobs:
         mkdir cleaned
         cp -r dist cleaned/
         cp LICENSE cleaned/
+        cp CHANGELOG.md cleaned/
         cp manifest.json cleaned/
         cd cleaned
         zip -r ../../firefox-ynt-${{ steps.package_version.outputs.PACKAGE_VERSION }}.zip .
@@ -61,6 +62,7 @@ jobs:
         mkdir cleaned
         cp -r dist cleaned/
         cp LICENSE cleaned/
+        cp CHANGELOG.md cleaned/
         cp manifest.json cleaned/
         cd cleaned
         zip -r ../../chrome-ynt-${{ steps.package_version.outputs.PACKAGE_VERSION }}.zip .

@@ -14,7 +14,7 @@ async function syncAudioLanguagePreference() {
         const settings = result.settings as ExtensionSettings;
         
         if (settings?.audioLanguage) {
-            localStorage.setItem('audioLanguage', settings.audioLanguage);
+            localStorage.setItem('ynt-audioLanguage', settings.audioLanguage);
         }
     } catch (error) {
         audioErrorLog('Error syncing audio language preference:', error);
@@ -35,7 +35,7 @@ browser.runtime.onMessage.addListener((message: unknown) => {
         'language' in message && typeof message.language === 'string') {
         
         audioLog(`Setting audio language preference to: ${message.language}`);
-        localStorage.setItem('audioLanguage', message.language);
+        localStorage.setItem('ynt-audioLanguage', message.language);
         
         // Reapply audio if a video is currently playing
         handleAudioTranslation();

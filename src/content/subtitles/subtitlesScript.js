@@ -92,7 +92,7 @@
         
         playerPollRetryCount = 0; // Reset poll counter for any future distinct script executions
 
-        // const subtitlesLanguage = localStorage.getItem('subtitlesLanguage') || 'original'; // This line is not needed here anymore
+        // const subtitlesLanguage = localStorage.getItem('ynt-subtitlesLanguage') || 'original'; // This line is not needed here anymore
 
         // If this specific script instance has already started the API/state waiting process, don't restart it.
         if (settingsAttemptOrchestrationInitiated) {
@@ -204,7 +204,7 @@
         }
 
         // Get language preference from localStorage
-        const subtitlesLanguage = localStorage.getItem('subtitlesLanguage') || 'original';
+        const subtitlesLanguage = localStorage.getItem('ynt-subtitlesLanguage') || 'original';
         //log(`Using preferred language: ${subtitlesLanguage}`);
 
         // Check if subtitles are disabled
@@ -279,7 +279,7 @@
                     setPreferredSubtitles(); // Retry this function.
                 }, delay);
             } else {
-                errorLog(`Failed setPreferredSubtitles after ${SET_PREFERRED_SUBTITLES_MAX_RETRIES} retries for language "${localStorage.getItem('subtitlesLanguage') || 'original'}".`);
+                errorLog(`Failed setPreferredSubtitles after ${SET_PREFERRED_SUBTITLES_MAX_RETRIES} retries for language "${localStorage.getItem('ynt-subtitlesLanguage') || 'original'}".`);
                 // setPreferredSubtitlesRetryCount is reset by orchestrateSubtitleConfiguration before a new sequence.
             }
             

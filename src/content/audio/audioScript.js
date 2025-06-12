@@ -71,7 +71,7 @@
         if (!player) return false;
 
         try {
-            const audioLanguage = localStorage.getItem('audioLanguage') || 'original';
+            const audioLanguage = localStorage.getItem('ynt-audioLanguage') || 'original';
             //log(`Using preferred language: ${audioLanguage}`);
 
             const tracks = player.getAvailableAudioTracks();

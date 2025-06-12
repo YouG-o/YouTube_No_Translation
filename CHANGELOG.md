@@ -10,6 +10,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Improved audio & subtitles languages preferences storage by using a consistent, prefixed keys (`ynt-audioLanguage` & `ynt-subtitlesLanguage`) in localStorage to prevent conflicts and ensure reliability.
 
+### Fixed
+- Resolved an issue where selected subtitle/audio language in the popup would not persist correctly due to legacy code reading a deprecated storage key.
+
 ## [2.3.0] - 2025-06-11
 
 ### Added

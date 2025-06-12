@@ -23,20 +23,25 @@ document.addEventListener('DOMContentLoaded', async () => {
         
         // If settings don't exist, initialize them
         if (!data.settings) {
+            // Define default settings, ensuring all properties are present
+            const defaultSettings: ExtensionSettings = {
+                titleTranslation: true,
+                audioTranslation: true,
+                audioLanguage: 'original', // Ensure audioLanguage is part of default settings
+                descriptionTranslation: true,
+                subtitlesTranslation: false,
+                subtitlesLanguage: 'original'
+            };
             await browser.storage.local.set({
-                settings: {
-                    titleTranslation: true,
-                    audioTranslation: true,
-                    descriptionTranslation: true,
-                    subtitlesTranslation: false,
-                    subtitlesLanguage: 'original'
-                }
+                settings: defaultSettings
             });
-            titleToggle.checked = true;
-            audioToggle.checked = true;
-            descriptionToggle.checked = true;
-            subtitlesToggle.checked = false;
-            subtitlesLanguageSelect.value = 'original';
+            titleToggle.checked = defaultSettings.titleTranslation;
+            audioToggle.checked = defaultSettings.audioTranslation;
+            audioLanguageSelect.value = defaultSettings.audioLanguage; // Initialize audioLanguageSelect
+            descriptionToggle.checked = defaultSettings.descriptionTranslation;
+            subtitlesToggle.checked = defaultSettings.subtitlesTranslation;
+            subtitlesLanguageSelect.value = defaultSettings.subtitlesLanguage;
+            // console.log('[YNT-Debug] Settings initialized with defaults'); // User's existing comment
             return;
         }
         
@@ -57,6 +62,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         // Set audio language
         if (settings.audioLanguage) {
             audioLanguageSelect.value = settings.audioLanguage;
+        } else {
+            // Fallback if audioLanguage is somehow missing in existing settings
+            audioLanguageSelect.value = 'original';
         }
         
         console.log(
@@ -83,12 +91,13 @@ document.addEventListener('DOMContentLoaded', async () => {
         console.error('Load error:', error);
     }
 
-    // Load subtitles language
-    browser.storage.local.get('subtitlesLanguage').then((result) => {
-        if (result.subtitlesLanguage && typeof result.subtitlesLanguage === 'string') {
-            subtitlesLanguageSelect.value = result.subtitlesLanguage;
-        }
-    });
+    // Load subtitles language // User's existing comment
+    // The following block is removed as settings.subtitlesLanguage is now reliably loaded from the 'settings' object.
+    // browser.storage.local.get('subtitlesLanguage').then((result) => {
+    //     if (result.subtitlesLanguage && typeof result.subtitlesLanguage === 'string') {
+    //         subtitlesLanguageSelect.value = result.subtitlesLanguage;
+    //     }
+    // });
 });
 
 // Handle title toggle changes

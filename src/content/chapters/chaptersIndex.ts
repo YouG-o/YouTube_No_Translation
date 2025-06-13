@@ -51,15 +51,26 @@ function parseChaptersFromDescription(description: string): Chapter[] {
     const chapters: Chapter[] = [];
     
     description.split('\n').forEach(line => {
-        const match = line.trim().match(/^(\d{1,2}):(\d{2})(?::(\d{2}))?\s+(.+)$/);
+        // More flexible regex to handle emojis, bullets, and various separators
+        const match = line.trim().match(/^.*?(\d{1,2}):(\d{2})(?::(\d{2}))?.*?\s*(.+)$/);
         if (match) {
             const [, minutes, seconds, hours, title] = match;
+            
+            // Extract clean title by removing everything before the timestamp and separators after
+            let cleanTitle = title.trim();
+            
+            // Remove common separators at the beginning of title
+            cleanTitle = cleanTitle.replace(/^[\s\-–—•·▪▫‣⁃:→>]*\s*/, '');
+            
+            // Skip if title is too short (likely not a real chapter)
+            if (cleanTitle.length < 2) return;
+            
             const totalSeconds = (hours ? parseInt(hours) * 3600 : 0) + 
                                parseInt(minutes) * 60 + 
                                parseInt(seconds);
             chapters.push({
                 startTime: totalSeconds,
-                title: title.trim()
+                title: cleanTitle.trim()
             });
         }
     });

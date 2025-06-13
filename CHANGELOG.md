@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- Improved chapter detection to handle emojis, bullet points, and various separators in video descriptions.
+
 ## [2.3.1] - 2025-06-12
 
 ### Changed

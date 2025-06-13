@@ -16,13 +16,19 @@ assignees: 'YouG-o'
 3. Scroll down to '....'
 4. See error
 
-## Screenshots (Optionnal)
-<!-- If applicable, add screenshots to help explain your problem -->
-
 ## Environment
 - Browser: [e.g. Firefox 124, Chrome 123]
 - Extension Version: [e.g. 2.2.25]
 - OS: [e.g. Windows 11, macOS Ventura]
+- YouTube Language: [e.g. French, German, Spanish - check in YouTube settings]
 
-## Additional Context (Optionnal)
+## Example Video (Required)
+<!-- Please provide a link to a YouTube video where you can reproduce the issue -->
+<!-- This helps us test the fix quickly without having to search for translated content in a specific language -->
+**Video URL:** 
+
+## Screenshots (Optional)
+<!-- If applicable, add screenshots to help explain your problem -->
+
+## Additional Context (Optional)
 <!-- Add any other context about the problem here -->

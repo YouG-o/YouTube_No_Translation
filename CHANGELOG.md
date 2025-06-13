@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.3.11] - 2025-06-14
+
 ### Fixed
 - Improved chapter detection to handle emojis, bullet points, and various separators in video descriptions.
 - Improved subtitle and audio language detection on direct video loads (refresh, new tab, direct links).
@@ -55,7 +57,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 *Note: This changelog was introduced in version 2.2.30. For earlier version history, please refer to the [GitHub releases](https://github.com/YouG-o/YouTube_No_Translation/releases).*
 
-[Unreleased]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.3.1...HEAD
+[Unreleased]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.3.11...HEAD
+[2.3.11]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.3.1...v2.3.11
 [2.3.1]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.3.0...v2.3.1
 [2.3.0]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.2.30...v2.3.0
 [2.2.30]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.2.20...v2.2.30

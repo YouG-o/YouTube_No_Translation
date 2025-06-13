@@ -46,6 +46,42 @@ function cleanUpLoadStartListener() {
     }
 }
 
+let loadedMetadataListener: ((e: Event) => void) | null = null;
+
+function setupLoadedMetadataListener() {
+    cleanUpLoadedMetadataListener();
+
+    coreLog('Setting up loadedmetadata listener for direct video loads');
+
+    loadedMetadataListener = function(e: Event) {
+        if (!(e.target instanceof HTMLVideoElement)) return;
+        
+        // Only handle direct loads, NOT SPA navigation
+        if ((e.target as any).srcValue && (e.target as any).srcValue !== e.target.src) return;
+        
+        coreLog('Video metadata loaded - direct load detected');
+
+        currentSettings?.audioTranslation && handleAudioTranslation();
+        currentSettings?.subtitlesTranslation && handleSubtitlesTranslation();
+        
+        if (currentSettings?.titleTranslation) {
+            setTimeout(() => {
+                refreshEmbedTitle();                       
+            }, 1000);
+        }
+    };
+
+    document.addEventListener('loadedmetadata', loadedMetadataListener, true);
+}
+
+function cleanUpLoadedMetadataListener() {
+    if (loadedMetadataListener) {
+        document.removeEventListener('loadedmetadata', loadedMetadataListener, true);
+        loadedMetadataListener = null;
+    }
+}
+
+
 //let mainVideoObserver: MutationObserver | null = null;
 
 

@@ -52,7 +52,8 @@ let loadStartListenerInitialized = false;
 
 function initializeLoadStartListener() {
     if (!loadStartListenerInitialized && (currentSettings?.audioTranslation || currentSettings?.subtitlesTranslation)) {
-            setupLoadStartListener();
+        setupLoadStartListener();
+        setupLoadedMetadataListener();
         loadStartListenerInitialized = true;
     }
 }
@@ -80,8 +81,6 @@ function initializeTitleTranslation() {
 function initializeAudioTranslation() {
     audioLog('Initializing audio translation prevention');
     
-    handleAudioTranslation();
-
     initializeLoadStartListener();
 };
 
@@ -97,9 +96,7 @@ function initializeDescriptionTranslation() {
 
 function initializeSubtitlesTranslation() {
     subtitlesLog('Initializing subtitles translation prevention');
-    
-        handleSubtitlesTranslation();
-    
+
     initializeLoadStartListener();
 };
 

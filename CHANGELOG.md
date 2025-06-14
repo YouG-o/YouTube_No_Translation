@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- Enhanced subtitle and audio language detection on direct video loads with fallback system for better reliability.
+
 ## [2.3.11] - 2025-06-14
 
 ### Fixed

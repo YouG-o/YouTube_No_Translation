@@ -114,3 +114,19 @@ function calculateSimilarity(str1: string, str2: string): number {
     // Return similarity as ratio
     return commonCount / totalCount;
 }
+
+
+/**
+ * Apply configured translation settings for video loads
+ * Handles audio, subtitles, and embed title translations
+ */
+function applyVideoPlayerSettings(): void {
+    currentSettings?.audioTranslation && handleAudioTranslation();
+    currentSettings?.subtitlesTranslation && handleSubtitlesTranslation();
+    
+    if (currentSettings?.titleTranslation) {
+        setTimeout(() => {
+            refreshEmbedTitle();                       
+        }, 1000);
+    }
+}

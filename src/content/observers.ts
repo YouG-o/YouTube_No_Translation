@@ -11,6 +11,79 @@
 // Keeping current structure for stability, needs architectural review in future updates
 
 // MAIN OBSERVERS -----------------------------------------------------------
+
+// Listener for direct video loads (initial page loads)
+let directLoadListener: ((e: Event) => void) | null = null;
+let hasDirectLoadTriggered = false;
+let directLoadTimeout: number | null = null;
+let directLoadAnimationFrame: number | null = null;
+
+function setupDirectLoadListener() {
+    cleanUpDirectLoadListener();
+    hasDirectLoadTriggered = false;
+
+    coreLog('Setting up direct load listener for initial page loads');
+
+    // Unified handler for all direct load events
+    directLoadListener = function(e: Event) {
+        if (!(e.target instanceof HTMLVideoElement)) return;
+        if (hasDirectLoadTriggered) return;
+        
+        // Only handle direct loads, NOT SPA navigation
+        if ((e.target as any).srcValue && (e.target as any).srcValue !== e.target.src) return;
+        
+        coreLog('Direct video load detected via', e.type);
+        hasDirectLoadTriggered = true;
+
+        applyVideoPlayerSettings();
+
+        cleanUpDirectLoadListener();
+    };
+
+    // Attach to multiple events as fallbacks
+    document.addEventListener('loadedmetadata', directLoadListener, true);
+    document.addEventListener('playing', directLoadListener, true);
+
+    // requestAnimationFrame fallback for cases where video events don't trigger
+    if (window.location.pathname === '/watch') {
+        directLoadAnimationFrame = requestAnimationFrame(() => {
+            if (!hasDirectLoadTriggered && (currentSettings?.audioTranslation || currentSettings?.subtitlesTranslation)) {
+                coreLog('Direct video load detected via requestAnimationFrame fallback');
+                hasDirectLoadTriggered = true;
+                
+                applyVideoPlayerSettings();
+            }
+        });
+    }
+
+    // Auto cleanup after 30 seconds
+    directLoadTimeout = setTimeout(() => {
+        coreLog('Auto-cleaning direct load listener after timeout');
+        cleanUpDirectLoadListener();
+    }, 30000);
+}
+
+function cleanUpDirectLoadListener() {
+    if (directLoadListener) {
+        document.removeEventListener('loadedmetadata', directLoadListener, true);
+        document.removeEventListener('playing', directLoadListener, true);
+        directLoadListener = null;
+    }
+    
+    if (directLoadTimeout) {
+        clearTimeout(directLoadTimeout);
+        directLoadTimeout = null;
+    }
+    
+    if (directLoadAnimationFrame) {
+        cancelAnimationFrame(directLoadAnimationFrame);
+        directLoadAnimationFrame = null;
+    }
+    
+    hasDirectLoadTriggered = false;
+}
+
+// Video playing listener (for SPA navigation)
 let loadStartListener: ((e: Event) => void) | null = null;
 
 function setupLoadStartListener() {
@@ -24,15 +97,7 @@ function setupLoadStartListener() {
         
         coreLog('Video source changed.');
 
-        currentSettings?.audioTranslation && handleAudioTranslation();
-        
-        currentSettings?.subtitlesTranslation && handleSubtitlesTranslation();
-        
-        if (currentSettings?.titleTranslation) {
-            setTimeout(() => {
-                refreshEmbedTitle();                       
-            }, 1000);
-        }
+        applyVideoPlayerSettings();
     };
 
     document.addEventListener('loadstart', loadStartListener, true);
@@ -46,44 +111,8 @@ function cleanUpLoadStartListener() {
     }
 }
 
-let loadedMetadataListener: ((e: Event) => void) | null = null;
-
-function setupLoadedMetadataListener() {
-    cleanUpLoadedMetadataListener();
-
-    coreLog('Setting up loadedmetadata listener for direct video loads');
-
-    loadedMetadataListener = function(e: Event) {
-        if (!(e.target instanceof HTMLVideoElement)) return;
-        
-        // Only handle direct loads, NOT SPA navigation
-        if ((e.target as any).srcValue && (e.target as any).srcValue !== e.target.src) return;
-        
-        coreLog('Video metadata loaded - direct load detected');
-
-        currentSettings?.audioTranslation && handleAudioTranslation();
-        currentSettings?.subtitlesTranslation && handleSubtitlesTranslation();
-        
-        if (currentSettings?.titleTranslation) {
-            setTimeout(() => {
-                refreshEmbedTitle();                       
-            }, 1000);
-        }
-    };
-
-    document.addEventListener('loadedmetadata', loadedMetadataListener, true);
-}
-
-function cleanUpLoadedMetadataListener() {
-    if (loadedMetadataListener) {
-        document.removeEventListener('loadedmetadata', loadedMetadataListener, true);
-        loadedMetadataListener = null;
-    }
-}
-
 
 //let mainVideoObserver: MutationObserver | null = null;
-
 
 function setupMainVideoObserver() {
     //cleanupMainVideoObserver();
@@ -602,7 +631,6 @@ function setupUrlObserver() {
        window.addEventListener('yt-navigate-finish', () => {
         coreLog('YouTube SPA navigation completed');
         handleUrlChange();
-        });
     */
 }
 

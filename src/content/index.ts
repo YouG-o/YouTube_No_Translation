@@ -52,8 +52,8 @@ let loadStartListenerInitialized = false;
 
 function initializeLoadStartListener() {
     if (!loadStartListenerInitialized && (currentSettings?.audioTranslation || currentSettings?.subtitlesTranslation)) {
+        setupDirectLoadListener();
         setupLoadStartListener();
-        setupLoadedMetadataListener();
         loadStartListenerInitialized = true;
     }
 }

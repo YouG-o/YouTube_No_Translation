@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- Unified video player event listeners into a single robust system for better reliability and performance
+- Enhanced video detection with comprehensive fallback events (timeupdate, seeked) to handle edge cases where videos load faster than listeners
+- Implemented adaptive event optimization that reduces from 7 to 2 events after initial trigger
+
+### Technical Improvements
+- Refactored separate directLoadListener and loadStartListener into unified videoPlayerListener
+- Added proper cleanup mechanism for all possible event types to prevent orphaned listeners
+- Improved timing race condition handling for videos that start playing before listeners are attached
+
 ## [2.3.13] - 2025-01-16
 
 ### Added

@@ -48,13 +48,12 @@ async function initializeFeatures() {
 }
 
 // Initialize functions
-let loadStartListenerInitialized = false;
+let videoPlayerListenerInitialized = false;
 
-function initializeLoadStartListener() {
-    if (!loadStartListenerInitialized && (currentSettings?.audioTranslation || currentSettings?.subtitlesTranslation)) {
-        setupDirectLoadListener();
-        setupLoadStartListener();
-        loadStartListenerInitialized = true;
+function initializeVideoPlayerListener() {
+    if (!videoPlayerListenerInitialized && (currentSettings?.audioTranslation || currentSettings?.subtitlesTranslation)) {
+        setupVideoPlayerListener();
+        videoPlayerListenerInitialized = true;
     }
 }
 
@@ -71,7 +70,7 @@ function initializeTitleTranslation() {
     titlesLog('Initializing title translation prevention');
     
     if (isEmbedVideo()) {
-        initializeLoadStartListener();
+        initializeVideoPlayerListener();
         return;
     }
     
@@ -81,7 +80,7 @@ function initializeTitleTranslation() {
 function initializeAudioTranslation() {
     audioLog('Initializing audio translation prevention');
     
-    initializeLoadStartListener();
+    initializeVideoPlayerListener();
 };
 
 function initializeDescriptionTranslation() {
@@ -97,7 +96,7 @@ function initializeDescriptionTranslation() {
 function initializeSubtitlesTranslation() {
     subtitlesLog('Initializing subtitles translation prevention');
 
-    initializeLoadStartListener();
+    initializeVideoPlayerListener();
 };
 
 browser.runtime.onMessage.addListener((message: unknown) => {
@@ -107,7 +106,7 @@ browser.runtime.onMessage.addListener((message: unknown) => {
                 if (message.isEnabled) {
                     handleAudioTranslation();
 
-                    initializeLoadStartListener();                    
+                    initializeVideoPlayerListener();                    
                 }
                 break;
             case 'titles':
@@ -130,7 +129,7 @@ browser.runtime.onMessage.addListener((message: unknown) => {
                 if (message.isEnabled) {
                     handleSubtitlesTranslation();
 
-                    initializeLoadStartListener();
+                    initializeVideoPlayerListener();
                 }
                 break;
         }

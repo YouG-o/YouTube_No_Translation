@@ -11,103 +11,66 @@
 // Keeping current structure for stability, needs architectural review in future updates
 
 // MAIN OBSERVERS -----------------------------------------------------------
-
-// Listener for direct video loads (initial page loads)
-let directLoadListener: ((e: Event) => void) | null = null;
-let hasDirectLoadTriggered = false;
-let directLoadTimeout: number | null = null;
-let directLoadAnimationFrame: number | null = null;
-
-function setupDirectLoadListener() {
-    cleanUpDirectLoadListener();
-    hasDirectLoadTriggered = false;
-
-    coreLog('Setting up direct load listener for initial page loads');
-
-    // Unified handler for all direct load events
-    directLoadListener = function(e: Event) {
-        if (!(e.target instanceof HTMLVideoElement)) return;
-        if (hasDirectLoadTriggered) return;
-        
-        // Only handle direct loads, NOT SPA navigation
-        if ((e.target as any).srcValue && (e.target as any).srcValue !== e.target.src) return;
-        
-        coreLog('Direct video load detected via', e.type);
-        hasDirectLoadTriggered = true;
-
-        applyVideoPlayerSettings();
-
-        cleanUpDirectLoadListener();
-    };
-
-    // Attach to multiple events as fallbacks
-    document.addEventListener('loadedmetadata', directLoadListener, true);
-    document.addEventListener('playing', directLoadListener, true);
-
-    // requestAnimationFrame fallback for cases where video events don't trigger
-    if (window.location.pathname === '/watch') {
-        directLoadAnimationFrame = requestAnimationFrame(() => {
-            if (!hasDirectLoadTriggered && (currentSettings?.audioTranslation || currentSettings?.subtitlesTranslation)) {
-                coreLog('Direct video load detected via requestAnimationFrame fallback');
-                hasDirectLoadTriggered = true;
-                
-                applyVideoPlayerSettings();
-            }
-        });
-    }
-
-    // Auto cleanup after 30 seconds
-    directLoadTimeout = setTimeout(() => {
-        coreLog('Auto-cleaning direct load listener after timeout');
-        cleanUpDirectLoadListener();
-    }, 30000);
-}
-
-function cleanUpDirectLoadListener() {
-    if (directLoadListener) {
-        document.removeEventListener('loadedmetadata', directLoadListener, true);
-        document.removeEventListener('playing', directLoadListener, true);
-        directLoadListener = null;
-    }
-    
-    if (directLoadTimeout) {
-        clearTimeout(directLoadTimeout);
-        directLoadTimeout = null;
-    }
-    
-    if (directLoadAnimationFrame) {
-        cancelAnimationFrame(directLoadAnimationFrame);
-        directLoadAnimationFrame = null;
-    }
-    
-    hasDirectLoadTriggered = false;
-}
-
 // Video playing listener (for SPA navigation)
-let loadStartListener: ((e: Event) => void) | null = null;
+let videoPlayerListener: ((e: Event) => void) | null = null;
+let hasInitialPlayerLoadTriggered = false;
 
-function setupLoadStartListener() {
-    cleanUpLoadStartListener();
+// Many events, needed to apply settings as soon as possible on initial load
+const allVideoEvents = [
+    'loadstart',
+    'loadedmetadata', 
+    'canplay',
+    'playing',
+    'play',
+    'timeupdate',
+    'seeked'
+];
+let videoEvents = allVideoEvents;
 
-    coreLog('Setting up loadstart listener');
+function setupVideoPlayerListener() {
+    cleanUpVideoPlayerListener();
 
-    loadStartListener = function(e: Event) {
+    coreLog('Setting up video player listener');
+
+    videoPlayerListener = function(e: Event) {
         if (!(e.target instanceof HTMLVideoElement)) return;
         if ((e.target as any).srcValue === e.target.src) return;
         
         coreLog('Video source changed.');
+        coreLog('🎥 Event:', e.type);
 
+        // Optimize event list after first successful trigger
+        if (!hasInitialPlayerLoadTriggered) {
+            hasInitialPlayerLoadTriggered = true;
+            
+            // Clean up current listeners
+            cleanUpVideoPlayerListener();
+            
+            // Keeps only the essential events for SPA navigation
+            videoEvents = ['loadstart', 'loadedmetadata'];
+            coreLog('Optimized video events for SPA navigation');
+            
+            // Re-setup with optimized events for next navigation
+            setupVideoPlayerListener();
+        }
+        
         applyVideoPlayerSettings();
     };
-
-    document.addEventListener('loadstart', loadStartListener, true);
+    
+    videoEvents.forEach(eventType => {
+        if (videoPlayerListener) {
+            document.addEventListener(eventType, videoPlayerListener, true);
+        }
+    });
 
 }
 
-function cleanUpLoadStartListener() {
-    if (loadStartListener) {
-        document.removeEventListener('loadstart', loadStartListener, true);
-        loadStartListener = null;
+function cleanUpVideoPlayerListener() {
+    if (videoPlayerListener) {
+        allVideoEvents.forEach(eventType => {
+            document.removeEventListener(eventType, videoPlayerListener!, true);
+        });
+        videoPlayerListener = null;
     }
 }
 

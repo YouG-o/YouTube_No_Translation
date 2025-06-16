@@ -14,9 +14,19 @@ const descriptionToggle = document.getElementById('descriptionTranslation') as H
 const subtitlesToggle = document.getElementById('subtitlesTranslation') as HTMLInputElement;
 const subtitlesLanguageSelect = document.getElementById('subtitlesLanguage') as HTMLSelectElement;
 const tooltipGroups = document.querySelectorAll('.tooltip') as NodeListOf<HTMLDivElement>;
+const extensionVersionElement = document.getElementById('extensionVersion') as HTMLSpanElement; // Add this line
+
+// Function to display the extension version
+function displayExtensionVersion() {
+    if (extensionVersionElement) {
+        const manifest = browser.runtime.getManifest();
+        extensionVersionElement.textContent = manifest.version;
+    }
+}
 
 // Initialize toggle states from storage
 document.addEventListener('DOMContentLoaded', async () => {
+    displayExtensionVersion();
     try {
         // Get settings
         const data = await browser.storage.local.get('settings');

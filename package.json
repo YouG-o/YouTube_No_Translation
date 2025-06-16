@@ -14,7 +14,7 @@
     "build:popup": "tsc -p tsconfig.popup.json",
     "build:background": "tsc -p tsconfig.background.json",
     "build:css": "tailwindcss -i ./src/styles/main.css -o ./dist/styles/main.css",
-    "build:html": "cp src/popup/popup.html dist/popup/",
+    "build:html": "cp src/popup/popup.html dist/popup/ && cp src/popup/welcome.html dist/popup/",
     "build:polyfill": "cp node_modules/webextension-polyfill/dist/browser-polyfill.js dist/",
     "watch": "concurrently \"npm run watch:ts\" \"npm run watch:css\"",
     "watch:ts": "tsc --watch",

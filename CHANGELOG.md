@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- Display a welcome page on first extension installation.
+
+### Changed
+- Automatically refresh YouTube and YouTube No-Cookie tabs upon first extension installation.
+
 ## [2.3.12] - 2025-06-14
 
 ### Fixed

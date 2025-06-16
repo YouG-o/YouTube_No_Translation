@@ -18,3 +18,11 @@ const DEFAULT_SETTINGS: ExtensionSettings = {
     subtitlesTranslation: false,
     subtitlesLanguage: 'original'
 };
+
+
+// Define the type for installation details
+interface InstalledDetails {
+    reason: 'install' | 'update' | 'browser_update' | 'chrome_update';
+    previousVersion?: string;
+    id?: string;
+}

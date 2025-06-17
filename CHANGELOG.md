@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **BETA Search Results Description Replacement**: New experimental feature to replace translated descriptions in search results with original versions (may impact performance as it requires video player interactions)
   - Smart filtering: only processes videos already identified as translated by title system
   - Dedicated popup setting (disabled by default) with clear BETA labeling
+- **Current Chapter Button Replacement**: Replace translated chapter text in the current chapter button displayed in video player
 
 ## [2.3.20] - 2025-06-17
 

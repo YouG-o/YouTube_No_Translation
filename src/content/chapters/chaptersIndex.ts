@@ -9,6 +9,7 @@
 
 // Global variables for cleanup
 let chaptersObserver: MutationObserver | null = null;
+let chapterButtonObserver: MutationObserver | null = null;
 let chaptersUpdateInterval: number | null = null;
 
 // Cleanup function for chapters observer
@@ -16,6 +17,11 @@ function cleanupChaptersObserver(): void {
     if (chaptersObserver) {
         chaptersObserver.disconnect();
         chaptersObserver = null;
+    }
+    
+    if (chapterButtonObserver) {
+        chapterButtonObserver.disconnect();
+        chapterButtonObserver = null;
     }
     
     if (chaptersUpdateInterval) {
@@ -32,6 +38,11 @@ function cleanupChaptersObserver(): void {
     // Remove all chapter attributes
     document.querySelectorAll('[data-original-chapter]').forEach(el => {
         el.removeAttribute('data-original-chapter');
+    });
+    
+    // Remove chapter button attributes
+    document.querySelectorAll('[data-original-chapter-button]').forEach(el => {
+        el.removeAttribute('data-original-chapter-button');
     });
 }
 
@@ -134,6 +145,96 @@ function hashString(str: string): string {
     return hash.toString();
 }
 
+// Get current video time from player
+function getCurrentVideoTime(): number {
+    const video = document.querySelector('#movie_player video') || document.querySelector('video');
+    if (video && 'currentTime' in video) {
+        const time = Math.floor((video as HTMLVideoElement).currentTime);
+        return time;
+    }
+    
+    chaptersLog('Video element not found or no currentTime property');
+    return 0;
+}
+
+// Update chapter button with original title
+function updateChapterButton(): void {
+    const chapterButton = document.querySelector('.ytp-chapter-title .ytp-chapter-title-content') as HTMLElement;
+    if (!chapterButton) return;
+    
+    const currentTime = getCurrentVideoTime();
+    const targetChapter = findChapterByTime(currentTime, cachedChapters);
+    
+    
+    if (targetChapter) {
+        // Always update or create the span with current YouTube content
+        let span = chapterButton.querySelector(`span[ynt-chapter-span]`);
+        if (!span) {
+            span = document.createElement('span');
+            span.setAttribute('ynt-chapter-span', 'current');
+            span.textContent = chapterButton.textContent;
+            chapterButton.textContent = '';
+            chapterButton.appendChild(span);
+        } else {
+            // Update existing span with current YouTube content
+            const currentYouTubeText = Array.from(chapterButton.childNodes)
+                .filter(node => node.nodeType === Node.TEXT_NODE)
+                .map(node => node.textContent)
+                .join('');
+            
+            if (currentYouTubeText && currentYouTubeText.trim()) {
+                span.textContent = currentYouTubeText;
+                chapterButton.childNodes.forEach(node => {
+                    if (node.nodeType === Node.TEXT_NODE) {
+                        node.textContent = '';
+                    }
+                });
+            }
+        }
+
+        chaptersLog(`Chapter button updated: Time ${currentTime}s -> from "${span.textContent}" to "${targetChapter.title}"`);
+        chapterButton.setAttribute('title', targetChapter.title);
+        chapterButton.setAttribute('data-original-chapter-button', targetChapter.title);
+    }
+}
+
+// Setup chapter button observer
+function setupChapterButtonObserver(): void {
+    const chapterButton = document.querySelector('.ytp-chapter-title');
+    if (!chapterButton) {
+        return;
+    }
+    
+    
+    chapterButtonObserver = new MutationObserver(mutations => {
+        //chaptersLog('[DEBUG] Chapter button mutation detected');
+        let shouldUpdate = false;
+        
+        mutations.forEach(mutation => {
+            if (mutation.type === 'childList' || mutation.type === 'characterData') {
+                const target = mutation.target as Element;
+                if (target.classList?.contains('ytp-chapter-title-content') || 
+                    target.closest('.ytp-chapter-title-content')) {
+                    shouldUpdate = true;
+                }
+            }
+        });
+        
+        if (shouldUpdate) {
+            setTimeout(updateChapterButton, 50);
+        }
+    });
+    
+    chapterButtonObserver.observe(chapterButton, {
+        childList: true,
+        subtree: true,
+        characterData: true
+    });
+    
+    // Initial update
+    updateChapterButton();
+}
+
 // Initialize chapters replacement system
 function initializeChaptersReplacement(originalDescription: string): void {
     // Clean up any existing observer first
@@ -170,6 +271,20 @@ function initializeChaptersReplacement(originalDescription: string): void {
             font-family: inherit;
             display: inline !important;
         }
+        
+            /* Hide all direct children of chapter button with data-original-chapter-button attribute */
+            .ytp-chapter-title-content[data-original-chapter-button] > * {
+                display: none !important;
+            }
+
+            /* Show the original chapter title using the title attribute */
+            .ytp-chapter-title-content[data-original-chapter-button]::after {
+                content: attr(title);
+                font-size: var(--ytd-tab-system-font-size-body);
+                line-height: var(--ytd-tab-system-line-height-body);
+                font-family: var(--ytd-tab-system-font-family);
+                color: inherit;
+            }
     `;
     document.head.appendChild(style);
     
@@ -215,8 +330,11 @@ function initializeChaptersReplacement(originalDescription: string): void {
         });
     }
     
+    // Setup chapter button observer
+    setupChapterButtonObserver();
+    
     // Reduced interval frequency - 200ms instead of 100ms
     chaptersUpdateInterval = setInterval(updateTooltipChapter, 200);
     
-    chaptersLog('Optimized chapters replacement initialized');
+    chaptersLog('Optimized chapters replacement initialized with chapter button support');
 }

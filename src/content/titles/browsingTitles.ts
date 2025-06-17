@@ -40,8 +40,18 @@ function cleanupAllBrowsingTitlesElementsObservers(): void {
 }
 
 function updateBrowsingTitleElement(element: HTMLElement, title: string, videoId: string): void {
-// --- Clean previous observer
+    // Clean previous observer
     cleanupBrowsingTitleElement(element);
+    
+    // Clean ALL previous attributes and spans before applying new ones
+    element.removeAttribute('ynt');
+    element.removeAttribute('ynt-fail');
+    element.removeAttribute('ynt-original');
+    element.removeAttribute('title');
+    
+    // Remove ALL existing span elements
+    const existingSpans = element.querySelectorAll('span[ynt-span]');
+    existingSpans.forEach(span => span.remove());
     
     browsingTitlesLog(
         `Updated title from : %c${normalizeText(element.textContent)}%c to : %c${normalizeText(title)}%c (video id : %c${videoId}%c)`,
@@ -207,7 +217,13 @@ async function refreshBrowsingTitles(): Promise<void> {
                         titleElement.hasAttribute('ynt')) {
                         let span = titleElement.querySelector(`span[ynt-span="${videoId}"]`);
                         if (span) {
-                            continue;
+                            // Check if there are direct text nodes that shouldn't be there (causing concatenated titles)
+                            const directTextNodes = Array.from(titleElement.childNodes)
+                                .filter(node => node.nodeType === Node.TEXT_NODE && node.textContent?.trim());
+                            
+                            if (directTextNodes.length === 0) {
+                                continue; // Only skip if span exists and no stale text nodes
+                            }
                         }
                     }
                     //browsingTitlesLog('Title is translated: ', videoId);

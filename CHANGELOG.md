@@ -13,6 +13,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Dedicated popup setting (disabled by default) with clear BETA labeling
 - **Current Chapter Button Replacement**: Replace translated chapter text in the current chapter button displayed in video player
 
+### Fixed
+- **Concatenated Titles Display**: Fixed issue where original and translated titles would appear concatenated due to DOM element reuse
+  - Enhanced cleanup logic to remove all previous attributes and spans before applying new ones
+  - Improved detection of stale direct text nodes in browsing title elements
+  - Better handling of YouTube's DOM recycling during navigation
+
+### Technical Improvements
+- Enhanced chapter replacement system with video player time detection
+- Added mutation observer for current chapter button changes
+- Improved video time retrieval using direct video element access
+- Strengthened title element cleanup process to prevent content accumulation
+
 ## [2.3.20] - 2025-06-17
 
 ### Added

@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.3.20] - 2025-06-17
+
 ### Added
 - User interaction detection to prevent overriding manual settings changes when user modifies YouTube player settings
 
@@ -21,7 +23,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Improved timing race condition handling for videos that start playing before listeners are attached
 - Added click detection on YouTube settings menu with 2-second timeout to allow user to manually change audio track, or other settings without the add-on trying to reapply its own settings.
 
-## [2.3.13] - 2025-01-16
+## [2.3.13] - 2025-06-16
 
 ### Added
 - Display a welcome page on first extension installation.
@@ -85,7 +87,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 *Note: This changelog was introduced in version 2.2.30. For earlier version history, please refer to the [GitHub releases](https://github.com/YouG-o/YouTube_No_Translation/releases).*
 
-[Unreleased]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.3.13...HEAD
+[Unreleased]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.3.20...HEAD
+[2.3.20]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.3.13...v2.3.20
 [2.3.13]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.3.12...v2.3.13
 [2.3.12]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.3.11...v2.3.12
 [2.3.11]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.3.1...v2.3.11

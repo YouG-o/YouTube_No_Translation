@@ -1,6 +1,6 @@
 {
   "name": "ynt",
-  "version": "2.3.13",
+  "version": "2.3.20",
   "description": "Stop YouTube's automatic translations! This extension keeps titles, descriptions and video audio in their original language.",
   "scripts": {
     "clean": "rimraf dist/*",
@@ -54,14 +54,14 @@
   },
   "homepage": "https://youtube-no-translation.vercel.app/",
   "devDependencies": {
-    "@types/chrome": "^0.0.299",
-    "@types/webextension-polyfill": "^0.12.1",
-    "autoprefixer": "^10.4.20",
+    "@types/chrome": "^0.0.326",
+    "@types/webextension-polyfill": "^0.12.3",
+    "autoprefixer": "^10.4.21",
     "concurrently": "^9.1.2",
-    "postcss": "^8.4.49",
+    "postcss": "^8.5.6",
     "rimraf": "^6.0.1",
     "tailwindcss": "^3.4.17",
-    "typescript": "^5.7.2",
+    "typescript": "^5.8.3",
     "web-ext": "^8.7.1"
   },
   "dependencies": {

@@ -11,7 +11,7 @@
 
 interface Message {
     action: 'toggleTranslation';
-    feature: 'titles' | 'audio' | 'description' | 'subtitles';
+    feature: 'titles' | 'audio' | 'description' | 'descriptionSearchResults' |'subtitles';
     isEnabled: boolean;
 }
 
@@ -39,6 +39,7 @@ interface ExtensionSettings {
     audioTranslation: boolean;
     audioLanguage: string;
     descriptionTranslation: boolean;
+    descriptionSearchResults: boolean;
     subtitlesTranslation: boolean;
     subtitlesLanguage: string;
 }

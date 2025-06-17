@@ -7,18 +7,16 @@
  * This program is distributed without any warranty; see the license for details.
  */
 
-
-
 // Default settings as a constant
 const DEFAULT_SETTINGS: ExtensionSettings = {
     titleTranslation: true,
     audioTranslation: true,
     audioLanguage: 'original',
     descriptionTranslation: true,
+    descriptionSearchResults: false,
     subtitlesTranslation: false,
     subtitlesLanguage: 'original'
 };
-
 
 // Define the type for installation details
 interface InstalledDetails {

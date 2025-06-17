@@ -17,8 +17,12 @@ let hasInitialPlayerLoadTriggered = false;
 
 // Flag to track if a change was initiated by the user
 let userInitiatedChange = false;
+// Flag to track if a change was initiated by search description fetching
+let searchDescriptionInitiatedChange = false;
 // Timeout ID for resetting the user initiated flag
 let userChangeTimeout: number | null = null;
+// Timeout ID for resetting the search description flag
+let searchDescriptionChangeTimeout: number | null = null;
 
 // Many events, needed to apply settings as soon as possible on initial load
 const allVideoEvents = [
@@ -64,6 +68,12 @@ function setupVideoPlayerListener() {
             return;
         }
         
+        // Skip if search description initiated change
+        if (searchDescriptionInitiatedChange) {
+            //coreLog('Search description initiated change detected - skipping default settings');
+            return;
+        }
+        
         coreLog('Video source changed.');
         coreLog('🎥 Event:', e.type);
 
@@ -106,8 +116,28 @@ function cleanUpVideoPlayerListener() {
         userChangeTimeout = null;
     }
     userInitiatedChange = false;
+    
+    // Clean up search description change tracking
+    if (searchDescriptionChangeTimeout) {
+        window.clearTimeout(searchDescriptionChangeTimeout);
+        searchDescriptionChangeTimeout = null;
+    }
+    searchDescriptionInitiatedChange = false;
 }
 
+// Function to mark search description initiated changes
+function markSearchDescriptionChange(): void {
+    searchDescriptionInitiatedChange = true;
+    
+    if (searchDescriptionChangeTimeout) {
+        window.clearTimeout(searchDescriptionChangeTimeout);
+    }
+    
+    searchDescriptionChangeTimeout = window.setTimeout(() => {
+        searchDescriptionInitiatedChange = false;
+        searchDescriptionChangeTimeout = null;
+    }, 5000); // Longer timeout since loading video might take more time
+}
 
 //let mainVideoObserver: MutationObserver | null = null;
 
@@ -498,8 +528,14 @@ function searchResultsObserver() {
             pageName = 'History';
         }
         browsingTitlesLog(`Setting up ${pageName} results videos observer`);
-        refreshBrowsingTitles();
+        
+        refreshBrowsingTitles().then(() => {
+            if (currentSettings?.descriptionSearchResults && window.location.pathname === '/results') {
+                refreshSearchDescriptions();
+            }
+        });
         refreshShortsAlternativeFormat();
+        
         searchObserver = new MutationObserver((mutations) => {
             for (const mutation of mutations) {
                 if (mutation.type === 'childList' && 
@@ -510,8 +546,14 @@ function searchResultsObserver() {
                         const now = Date.now();
                         if (now - lastSearchRefresh >= THROTTLE_DELAY) {
                             browsingTitlesLog(`${pageName} results mutation detected`);
-                            refreshBrowsingTitles();
+                            
+                            refreshBrowsingTitles().then(() => {
+                                if (currentSettings?.descriptionSearchResults && window.location.pathname === '/results') {
+                                    refreshSearchDescriptions();
+                                }
+                            });
                             refreshShortsAlternativeFormat();
+                            
                             lastSearchRefresh = now;
                         }
                         break;
@@ -651,6 +693,8 @@ function handleUrlChange() {
     cleanupTimestampClickObserver();
     
     cleanupChaptersObserver();
+
+    cleanupAllSearchDescriptionsObservers();
     
     //coreLog('Observers cleaned up');
 

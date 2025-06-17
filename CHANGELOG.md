@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- **BETA Search Results Description Replacement**: New experimental feature to replace translated descriptions in search results with original versions (may impact performance as it requires video player interactions)
+  - Smart filtering: only processes videos already identified as translated by title system
+  - Dedicated popup setting (disabled by default) with clear BETA labeling
+
 ## [2.3.20] - 2025-06-17
 
 ### Added

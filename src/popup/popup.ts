@@ -11,10 +11,11 @@ const titleToggle = document.getElementById('titleTranslation') as HTMLInputElem
 const audioToggle = document.getElementById('audioTranslation') as HTMLInputElement;
 const audioLanguageSelect = document.getElementById('audioLanguage') as HTMLSelectElement;
 const descriptionToggle = document.getElementById('descriptionTranslation') as HTMLInputElement;
+const descriptionSearchToggle = document.getElementById('descriptionSearchResults') as HTMLInputElement;
 const subtitlesToggle = document.getElementById('subtitlesTranslation') as HTMLInputElement;
 const subtitlesLanguageSelect = document.getElementById('subtitlesLanguage') as HTMLSelectElement;
 const tooltipGroups = document.querySelectorAll('.tooltip') as NodeListOf<HTMLDivElement>;
-const extensionVersionElement = document.getElementById('extensionVersion') as HTMLSpanElement; // Add this line
+const extensionVersionElement = document.getElementById('extensionVersion') as HTMLSpanElement;
 
 // Function to display the extension version
 function displayExtensionVersion() {
@@ -24,21 +25,27 @@ function displayExtensionVersion() {
     }
 }
 
+// Function to toggle description search container visibility
+function toggleDescriptionSearchContainer() {
+    const container = document.getElementById('descriptionSearchContainer');
+    if (container) {
+        container.style.display = descriptionToggle.checked ? 'block' : 'none';
+    }
+}
+
 // Initialize toggle states from storage
 document.addEventListener('DOMContentLoaded', async () => {
     displayExtensionVersion();
     try {
-        // Get settings
         const data = await browser.storage.local.get('settings');
         
-        // If settings don't exist, initialize them
         if (!data.settings) {
-            // Define default settings, ensuring all properties are present
             const defaultSettings: ExtensionSettings = {
                 titleTranslation: true,
                 audioTranslation: true,
-                audioLanguage: 'original', // Ensure audioLanguage is part of default settings
+                audioLanguage: 'original',
                 descriptionTranslation: true,
+                descriptionSearchResults: false,
                 subtitlesTranslation: false,
                 subtitlesLanguage: 'original'
             };
@@ -47,37 +54,35 @@ document.addEventListener('DOMContentLoaded', async () => {
             });
             titleToggle.checked = defaultSettings.titleTranslation;
             audioToggle.checked = defaultSettings.audioTranslation;
-            audioLanguageSelect.value = defaultSettings.audioLanguage; // Initialize audioLanguageSelect
+            audioLanguageSelect.value = defaultSettings.audioLanguage;
             descriptionToggle.checked = defaultSettings.descriptionTranslation;
+            descriptionSearchToggle.checked = defaultSettings.descriptionSearchResults;
             subtitlesToggle.checked = defaultSettings.subtitlesTranslation;
             subtitlesLanguageSelect.value = defaultSettings.subtitlesLanguage;
-            // console.log('[YNT-Debug] Settings initialized with defaults'); // User's existing comment
+            toggleDescriptionSearchContainer();
             return;
         }
         
-        // Settings exist, use them
         const settings = data.settings as ExtensionSettings;
         
-        // Set toggle states
         titleToggle.checked = settings.titleTranslation;
         audioToggle.checked = settings.audioTranslation;
         descriptionToggle.checked = settings.descriptionTranslation;
+        descriptionSearchToggle.checked = settings.descriptionSearchResults || false;
         subtitlesToggle.checked = settings.subtitlesTranslation;
         
-        // Set subtitle language
         if (settings.subtitlesLanguage) {
             subtitlesLanguageSelect.value = settings.subtitlesLanguage;
         }
 
-        // Set audio language
         if (settings.audioLanguage) {
             audioLanguageSelect.value = settings.audioLanguage;
         } else {
-            // Fallback if audioLanguage is somehow missing in existing settings
             audioLanguageSelect.value = 'original';
         }
         
-        // Replace the old [NTM-Debug] logs with proper [YNT] prefix
+        toggleDescriptionSearchContainer();
+        
         console.log(
             '[YNT] Settings loaded - Title translation prevention is: %c%s',
             settings.titleTranslation ? 'color: green; font-weight: bold' : 'color: red; font-weight: bold',
@@ -101,14 +106,33 @@ document.addEventListener('DOMContentLoaded', async () => {
     } catch (error) {
         console.error('Load error:', error);
     }
+});
 
-    // Load subtitles language // User's existing comment
-    // The following block is removed as settings.subtitlesLanguage is now reliably loaded from the 'settings' object.
-    // browser.storage.local.get('subtitlesLanguage').then((result) => {
-    //     if (result.subtitlesLanguage && typeof result.subtitlesLanguage === 'string') {
-    //         subtitlesLanguageSelect.value = result.subtitlesLanguage;
-    //     }
-    // });
+// Handle description search results toggle changes
+descriptionSearchToggle.addEventListener('change', async () => {
+    const isEnabled = descriptionSearchToggle.checked;
+    
+    try {
+        const data = await browser.storage.local.get('settings');
+        const settings = data.settings as ExtensionSettings;
+        
+        await browser.storage.local.set({
+            settings: {
+                ...settings,
+                descriptionSearchResults: isEnabled
+            }
+        });
+
+        await browser.tabs.query({ active: true, currentWindow: true }).then((tabs) => {
+            browser.tabs.sendMessage(tabs[0].id!, {
+                action: 'toggleTranslation',
+                feature: 'descriptionSearchResults',
+                isEnabled
+            } as Message);
+        });
+    } catch (error) {
+        console.error('Save error:', error);
+    }
 });
 
 // Handle title toggle changes
@@ -198,7 +222,6 @@ descriptionToggle.addEventListener('change', async () => {
             }
         });
 
-        // Send message to content script
         await browser.tabs.query({ active: true, currentWindow: true }).then((tabs) => {
             browser.tabs.sendMessage(tabs[0].id!, {
                 feature: 'description',
@@ -208,6 +231,8 @@ descriptionToggle.addEventListener('change', async () => {
     } catch (error) {
         console.error('Save error:', error);
     }
+    
+    toggleDescriptionSearchContainer();
 });
 
 // Handle subtitles toggle changes

@@ -11,9 +11,14 @@
 // Keeping current structure for stability, needs architectural review in future updates
 
 // MAIN OBSERVERS -----------------------------------------------------------
-// Video playing listener (for SPA navigation)
+
 let videoPlayerListener: ((e: Event) => void) | null = null;
 let hasInitialPlayerLoadTriggered = false;
+
+// Flag to track if a change was initiated by the user
+let userInitiatedChange = false;
+// Timeout ID for resetting the user initiated flag
+let userChangeTimeout: number | null = null;
 
 // Many events, needed to apply settings as soon as possible on initial load
 const allVideoEvents = [
@@ -32,9 +37,32 @@ function setupVideoPlayerListener() {
 
     coreLog('Setting up video player listener');
 
+    // Listen for user interactions with settings menu
+    document.addEventListener('click', (e) => {
+        const target = e.target as HTMLElement;
+        if (target.closest('.ytp-settings-menu')) {
+            userInitiatedChange = true;
+            
+            if (userChangeTimeout) {
+                window.clearTimeout(userChangeTimeout);
+            }
+            
+            userChangeTimeout = window.setTimeout(() => {
+                userInitiatedChange = false;
+                userChangeTimeout = null;
+            }, 2000);
+        }
+    }, true);
+
     videoPlayerListener = function(e: Event) {
         if (!(e.target instanceof HTMLVideoElement)) return;
         if ((e.target as any).srcValue === e.target.src) return;
+        
+        // Skip if user initiated change
+        if (userInitiatedChange) {
+            coreLog('User initiated change detected - skipping default settings');
+            return;
+        }
         
         coreLog('Video source changed.');
         coreLog('🎥 Event:', e.type);
@@ -62,7 +90,6 @@ function setupVideoPlayerListener() {
             document.addEventListener(eventType, videoPlayerListener, true);
         }
     });
-
 }
 
 function cleanUpVideoPlayerListener() {
@@ -72,6 +99,13 @@ function cleanUpVideoPlayerListener() {
         });
         videoPlayerListener = null;
     }
+    
+    // Clean up user change tracking
+    if (userChangeTimeout) {
+        window.clearTimeout(userChangeTimeout);
+        userChangeTimeout = null;
+    }
+    userInitiatedChange = false;
 }
 
 

@@ -77,23 +77,24 @@ document.addEventListener('DOMContentLoaded', async () => {
             audioLanguageSelect.value = 'original';
         }
         
+        // Replace the old [NTM-Debug] logs with proper [YNT] prefix
         console.log(
-            '[NTM-Debug] Settings loaded - Title translation prevention is: %c%s',
+            '[YNT] Settings loaded - Title translation prevention is: %c%s',
             settings.titleTranslation ? 'color: green; font-weight: bold' : 'color: red; font-weight: bold',
             settings.titleTranslation ? 'ON' : 'OFF'
         );
         console.log(
-            '[NTM-Debug] Settings loaded - Audio translation prevention is: %c%s',
+            '[YNT] Settings loaded - Audio translation prevention is: %c%s',
             settings.audioTranslation ? 'color: green; font-weight: bold' : 'color: red; font-weight: bold',
             settings.audioTranslation ? 'ON' : 'OFF'
         );
         console.log(
-            '[NTM-Debug] Settings loaded - Description translation prevention is: %c%s',
+            '[YNT] Settings loaded - Description translation prevention is: %c%s',
             settings.descriptionTranslation ? 'color: green; font-weight: bold' : 'color: red; font-weight: bold',
             settings.descriptionTranslation ? 'ON' : 'OFF'
         );
         console.log(
-            '[NTM-Debug] Settings loaded - Subtitles translation prevention is: %c%s',
+            '[YNT] Settings loaded - Subtitles translation prevention is: %c%s',
             settings.subtitlesTranslation ? 'color: green; font-weight: bold' : 'color: red; font-weight: bold',
             settings.subtitlesTranslation ? 'ON' : 'OFF'
         );

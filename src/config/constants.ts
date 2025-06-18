@@ -10,6 +10,7 @@
 // Default settings as a constant
 const DEFAULT_SETTINGS: ExtensionSettings = {
     titleTranslation: true,
+    titlesFallbackApi: false,
     audioTranslation: true,
     audioLanguage: 'original',
     descriptionTranslation: true,

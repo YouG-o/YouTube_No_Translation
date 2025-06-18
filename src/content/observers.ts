@@ -19,10 +19,14 @@ let hasInitialPlayerLoadTriggered = false;
 let userInitiatedChange = false;
 // Flag to track if a change was initiated by search description fetching
 let searchDescriptionInitiatedChange = false;
+// Flag to track if a change was initiated by browsing titles fetching
+let browsingTitlesInitiatedChange = false;
 // Timeout ID for resetting the user initiated flag
 let userChangeTimeout: number | null = null;
 // Timeout ID for resetting the search description flag
 let searchDescriptionChangeTimeout: number | null = null;
+// Timeout ID for resetting the browsing titles flag
+let browsingTitlesChangeTimeout: number | null = null;
 
 // Many events, needed to apply settings as soon as possible on initial load
 const allVideoEvents = [
@@ -123,6 +127,13 @@ function cleanUpVideoPlayerListener() {
         searchDescriptionChangeTimeout = null;
     }
     searchDescriptionInitiatedChange = false;
+    
+    // Clean up browsing titles change tracking
+    if (browsingTitlesChangeTimeout) {
+        window.clearTimeout(browsingTitlesChangeTimeout);
+        browsingTitlesChangeTimeout = null;
+    }
+    browsingTitlesInitiatedChange = false;
 }
 
 // Function to mark search description initiated changes
@@ -137,6 +148,20 @@ function markSearchDescriptionChange(): void {
         searchDescriptionInitiatedChange = false;
         searchDescriptionChangeTimeout = null;
     }, 5000); // Longer timeout since loading video might take more time
+}
+
+// Function to mark browsing titles initiated changes
+function markBrowsingTitlesChange(): void {
+    browsingTitlesInitiatedChange = true;
+    
+    if (browsingTitlesChangeTimeout) {
+        window.clearTimeout(browsingTitlesChangeTimeout);
+    }
+    
+    browsingTitlesChangeTimeout = window.setTimeout(() => {
+        browsingTitlesInitiatedChange = false;
+        browsingTitlesChangeTimeout = null;
+    }, 5000); // Same timeout as search description since loading video might take time
 }
 
 //let mainVideoObserver: MutationObserver | null = null;

@@ -11,7 +11,7 @@
 
 interface Message {
     action: 'toggleTranslation';
-    feature: 'titles' | 'audio' | 'description' | 'descriptionSearchResults' |'subtitles';
+    feature: 'titles' | 'titlesFallbackApi' | 'audio' | 'description' | 'descriptionSearchResults' | 'subtitles';
     isEnabled: boolean;
 }
 
@@ -36,6 +36,7 @@ interface YouTubePlayer extends HTMLElement {
 
 interface ExtensionSettings {
     titleTranslation: boolean;
+    titlesFallbackApi: boolean;
     audioTranslation: boolean;
     audioLanguage: string;
     descriptionTranslation: boolean;

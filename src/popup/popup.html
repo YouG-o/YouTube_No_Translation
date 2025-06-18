@@ -46,6 +46,28 @@
                             <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
                         </label>
                     </div>
+                    <!-- Fallback API Sub-option -->
+                    <div class="mt-2 titles-fallback-container" id="titlesFallbackContainer">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-2">
+                                <h3 class="text-xs font-medium text-gray-300">
+                                    <span class="text-red-400">BETA</span> Player API Fallback
+                                </h3>
+                                <div class="relative group tooltip">
+                                    <svg class="w-3 h-3 text-gray-400 cursor-help group hover:text-gray-300" viewBox="0 0 24 24" fill="currentColor">
+                                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
+                                    </svg>
+                                    <span class="absolute z-20 bottom-full left-0 ml-[-20px] mb-2 w-[220px] px-3 py-2 text-xs text-white bg-gray-900/95 rounded-md shadow-lg whitespace-normal opacity-0 pointer-events-none invisible group-hover:opacity-100 group-hover:visible transition-opacity">
+                                        BETA: Use YouTube player API as fallback when oEmbed fails. May be slower but can retrieve more titles.
+                                    </span>
+                                </div>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" class="sr-only peer" id="titlesFallbackApi">
+                                <div class="w-9 h-5 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-blue-600"></div>
+                            </label>
+                        </div>
+                    </div>
                 </div>
                 <!-- Original Audio Feature -->
                 <div class="p-3 rounded-lg border border-gray-600 hover:bg-gray-600 transition-colors">

@@ -7,15 +7,13 @@
  * This program is distributed without any warranty; see the license for details.
  */
 
-
-
 // --- Global variables
 let browsingTitlesObserver = new Map<HTMLElement, MutationObserver>();
 let lastBrowsingTitlesRefresh = 0;
 let lastBrowsingShortsRefresh = 0;
-const TITLES_THROTTLE = 1000; // minimum of 1 second between refreshes
-
-
+const TITLES_THROTTLE = 2000;
+const browsingTitlesFallbackQueue = new Set<string>();
+const processingVideos = new Set<string>(); // Track individual videos being processed
 
 // --- Utility Functions
 function cleanupBrowsingTitleElement(element: HTMLElement): void {
@@ -34,9 +32,10 @@ function cleanupAllBrowsingTitlesElementsObservers(): void {
     });
     browsingTitlesObserver.clear();
     
-    // Reset refresh timestamps
+    // Reset refresh timestamps and clear processing videos
     lastBrowsingTitlesRefresh = 0;
     lastBrowsingShortsRefresh = 0;
+    processingVideos.clear();
 }
 
 function updateBrowsingTitleElement(element: HTMLElement, title: string, videoId: string): void {
@@ -46,6 +45,7 @@ function updateBrowsingTitleElement(element: HTMLElement, title: string, videoId
     // Clean ALL previous attributes and spans before applying new ones
     element.removeAttribute('ynt');
     element.removeAttribute('ynt-fail');
+    element.removeAttribute('ynt-fail-retry');
     element.removeAttribute('ynt-original');
     element.removeAttribute('title');
     
@@ -132,6 +132,59 @@ function updateBrowsingTitleElement(element: HTMLElement, title: string, videoId
     titleCache.setElement(element, title);
 }
 
+// Add function to handle fallback title retrieval
+async function getBrowsingTitleFallback(videoId: string): Promise<string | null> {
+    return new Promise((resolve) => {
+        // Prevent duplicate requests
+        if (browsingTitlesFallbackQueue.has(videoId)) {
+            resolve(null);
+            return;
+        }
+        
+        browsingTitlesFallbackQueue.add(videoId);
+        
+        const cleanup = () => {
+            browsingTitlesFallbackQueue.delete(videoId);
+            window.removeEventListener('ynt-browsing-title-fallback-data', onTitleReceived as EventListener);
+        };
+
+        const onTitleReceived = (event: Event) => {
+            const customEvent = event as CustomEvent;
+            const { videoId: receivedVideoId, title, error } = customEvent.detail;
+            
+            if (receivedVideoId === videoId) {
+                cleanup();
+                if (error) {
+                    //browsingTitlesErrorLog(`Fallback failed for ${videoId}: ${error}`);
+                    resolve(null);
+                } else {
+                    //browsingTitlesLog(`Fallback title retrieved for ${videoId}: ${title}`);
+                    resolve(title);
+                }
+            }
+        };
+
+        window.addEventListener('ynt-browsing-title-fallback-data', onTitleReceived as EventListener);
+
+        // Mark that we're about to initiate a browsing titles change
+        markBrowsingTitlesChange();
+        
+        const script = document.createElement('script');
+        script.src = browser.runtime.getURL('dist/content/scripts/browsingTitlesFallbackScript.js');
+        script.setAttribute('data-video-id', videoId);
+        document.documentElement.appendChild(script);
+        
+        setTimeout(() => {
+            script.remove();
+        }, 100);
+
+        // Timeout cleanup
+        setTimeout(() => {
+            cleanup();
+            resolve(null);
+        }, 3000);
+    });
+}
 
 // --- Other Titles Function
 async function refreshBrowsingTitles(): Promise<void> {
@@ -161,7 +214,7 @@ async function refreshBrowsingTitles(): Promise<void> {
                 if (titleElement.textContent && titleElement.getAttribute('title') !== titleElement.textContent) {
                     titleElement.setAttribute('title', titleElement.textContent);
                 }
-                continue; // Move to the next titleElement
+                continue;
             }
 
             let videoId: string | null = null;
@@ -180,60 +233,115 @@ async function refreshBrowsingTitles(): Promise<void> {
                 browsingTitlesErrorLog('Failed to parse video URL:', urlError);
                 continue;
             }
+            
             if (videoId) {
-                const currentTitle = titleElement.textContent;
+                // Skip if this video is currently being processed
+                if (processingVideos.has(videoId)) {
+                    continue;
+                }
 
-                if (titleElement.hasAttribute('ynt-fail')) {
-                    if (titleElement.getAttribute('ynt-fail') === videoId) {
-                        continue;
-                    }
-                    titleElement.removeAttribute('ynt-fail');
-                };
-                if (titleElement.hasAttribute('ynt-original')) {
-                    if (titleElement.getAttribute('ynt-original') === videoId) {
-                        continue;
-                    }
-                    titleElement.removeAttribute('ynt-original');
-                };
-                
-                const apiUrl = `https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${videoId}`;
-                const originalTitle = await titleCache.getOriginalTitle(apiUrl);
+                // Mark this video as being processed
+                processingVideos.add(videoId);
+
                 try {
-                    if (!originalTitle) {
-                        browsingTitlesErrorLog(`Failed to get original title from API: ${videoId}, keeping current title : ${normalizeText(currentTitle)}`);
-                        titleElement.removeAttribute('ynt');
-                        titleElement.setAttribute('ynt-fail', videoId);
-                        currentTitle && titleElement.setAttribute('title', currentTitle);
-                        continue;
-                    }
-                    if (normalizeText(currentTitle) === normalizeText(originalTitle)) {
-                        //browsingTitlesLog('Title is not translated: ', videoId);
-                        titleElement.removeAttribute('ynt');
-                        titleElement.setAttribute('ynt-original', videoId);
-                        currentTitle && titleElement.setAttribute('title', currentTitle);
-                        continue;
-                    }
-                    if (normalizeText(titleElement.getAttribute('title')) === normalizeText(originalTitle) && 
-                        titleElement.hasAttribute('ynt')) {
-                        let span = titleElement.querySelector(`span[ynt-span="${videoId}"]`);
-                        if (span) {
-                            // Check if there are direct text nodes that shouldn't be there (causing concatenated titles)
-                            const directTextNodes = Array.from(titleElement.childNodes)
-                                .filter(node => node.nodeType === Node.TEXT_NODE && node.textContent?.trim());
-                            
-                            if (directTextNodes.length === 0) {
-                                continue; // Only skip if span exists and no stale text nodes
+                    const currentTitle = titleElement.textContent;
+
+                    // Check if already processed successfully - BEFORE making API calls
+                    if (titleElement.hasAttribute('ynt')) {
+                        if (titleElement.getAttribute('ynt') === videoId) {
+                            let span = titleElement.querySelector(`span[ynt-span="${videoId}"]`);
+                            if (span) {
+                                // Check if there are direct text nodes that shouldn't be there
+                                const directTextNodes = Array.from(titleElement.childNodes)
+                                    .filter(node => node.nodeType === Node.TEXT_NODE && node.textContent?.trim());
+                                
+                                if (directTextNodes.length === 0) {
+                                    continue;
+                                }
                             }
+                        } else {
+                            titleElement.removeAttribute('ynt');
                         }
                     }
-                    //browsingTitlesLog('Title is translated: ', videoId);
-                } catch (error) {
-                    //browsingTitlesErrorLog('Failed to get original title for comparison:', error);
-                }                 
-                try {
-                    updateBrowsingTitleElement(titleElement, originalTitle, videoId);
-                } catch (error) {
-                    browsingTitlesErrorLog(`Failed to update recommended title:`, error);
+
+                    if (titleElement.hasAttribute('ynt-fail')) {
+                        if (titleElement.getAttribute('ynt-fail') === videoId) {
+                            continue;
+                        }
+                        titleElement.removeAttribute('ynt-fail');
+                    }
+                    if (titleElement.hasAttribute('ynt-original')) {
+                        if (titleElement.getAttribute('ynt-original') === videoId) {
+                            continue;
+                        }
+                        titleElement.removeAttribute('ynt-original');
+                    }
+                    
+                    // Try oEmbed API first
+                    const apiUrl = `https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${videoId}`;
+                    let originalTitle = await titleCache.getOriginalTitle(apiUrl);
+                    
+                    // If oEmbed fails, try fallback ONLY if BETA option is enabled
+                    if (!originalTitle && currentSettings?.titlesFallbackApi) {
+                        browsingTitlesLog(`oEmbed failed for ${videoId}, trying player API fallback...`);
+                        const fallbackTitle = await getBrowsingTitleFallback(videoId);
+                        if (fallbackTitle) {
+                            originalTitle = fallbackTitle;
+                        }
+                        
+                        // Add sequential delay only when using player API fallback
+                        await new Promise(resolve => setTimeout(resolve, 600));
+                    }
+                    
+                    try {
+                        if (!originalTitle && currentSettings?.titlesFallbackApi) {
+                            // Check if this was already a retry attempt
+                            if (titleElement.hasAttribute('ynt-fail-retry')) {
+                                // Second failure - mark as permanent fail
+                                browsingTitlesErrorLog(`Both oEmbed and fallback failed for ${videoId} after retry, keeping current title: ${normalizeText(currentTitle)}`);
+                                titleElement.removeAttribute('ynt-fail-retry');
+                                titleElement.setAttribute('ynt-fail', videoId);
+                                currentTitle && titleElement.setAttribute('title', currentTitle);
+                                continue;
+                            } else {
+                                // First failure - allow retry
+                                titleElement.setAttribute('ynt-fail-retry', videoId);
+                                //browsingTitlesErrorLog(`oEmbed and fallback failed for ${videoId}, marking it for retry.`);
+                                continue;
+                            }
+                        } else if (!originalTitle) {
+                            // If we still don't have a title, mark as failed
+                            browsingTitlesErrorLog(`No title found for ${videoId}, keeping current title: ${normalizeText(currentTitle)}`);
+                            titleElement.setAttribute('ynt-fail', videoId);
+                            currentTitle && titleElement.setAttribute('title', currentTitle);
+                            continue;
+                        }
+
+                        if (normalizeText(currentTitle) === normalizeText(originalTitle)) {
+                            //browsingTitlesLog('Title is not translated: ', videoId);
+                            titleElement.removeAttribute('ynt');
+                            titleElement.setAttribute('ynt-original', videoId);
+                            currentTitle && titleElement.setAttribute('title', currentTitle);
+                            continue;
+                        }
+                        
+                        if (normalizeText(titleElement.getAttribute('title')) === normalizeText(originalTitle)) {
+                            titleElement.setAttribute('ynt', videoId);
+                            continue;
+                        }
+                        //browsingTitlesLog('Title is translated: ', videoId);
+                    } catch (error) {
+                        //browsingTitlesErrorLog('Failed to get original title for comparison:', error);
+                    }                 
+                    
+                    try {
+                        updateBrowsingTitleElement(titleElement, originalTitle, videoId);
+                    } catch (error) {
+                        browsingTitlesErrorLog(`Failed to update recommended title:`, error);
+                    }
+                } finally {
+                    // Always remove the video from processing set when done
+                    processingVideos.delete(videoId);
                 }
             }
         }

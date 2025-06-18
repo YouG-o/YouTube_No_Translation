@@ -8,6 +8,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- **BETA Player API Fallback for Browsing Titles**: New experimental fallback system using YouTube Player API when oEmbed fails to retrieve original titles
+  - Smart retry mechanism with ynt-fail-retry attribute for videos that initially fail
+  - Dedicated popup setting (disabled by default) with clear BETA labeling
+  - Player readiness detection to handle cases where player loads after initial page load
+  - Sequential delay system to prevent API rate limiting
 - **BETA Search Results Description Replacement**: New experimental feature to replace translated descriptions in search results with original versions (may impact performance as it requires video player interactions)
   - Smart filtering: only processes videos already identified as translated by title system
   - Dedicated popup setting (disabled by default) with clear BETA labeling
@@ -18,12 +23,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Enhanced cleanup logic to remove all previous attributes and spans before applying new ones
   - Improved detection of stale direct text nodes in browsing title elements
   - Better handling of YouTube's DOM recycling during navigation
+- **Optimized Title Processing**: Prevent unnecessary API calls by checking ynt attributes before making requests
+  - Individual video processing tracking to prevent duplicate processing
 
 ### Technical Improvements
 - Enhanced chapter replacement system with video player time detection
 - Added mutation observer for current chapter button changes
 - Improved video time retrieval using direct video element access
 - Strengthened title element cleanup process to prevent content accumulation
+- Implemented retry system for failed title requests with proper cleanup
 
 ## [2.3.20] - 2025-06-17
 

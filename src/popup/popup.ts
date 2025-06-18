@@ -8,6 +8,7 @@
  */
 
 const titleToggle = document.getElementById('titleTranslation') as HTMLInputElement;
+const titlesFallbackApiToggle = document.getElementById('titlesFallbackApi') as HTMLInputElement; // Add this line
 const audioToggle = document.getElementById('audioTranslation') as HTMLInputElement;
 const audioLanguageSelect = document.getElementById('audioLanguage') as HTMLSelectElement;
 const descriptionToggle = document.getElementById('descriptionTranslation') as HTMLInputElement;
@@ -42,6 +43,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (!data.settings) {
             const defaultSettings: ExtensionSettings = {
                 titleTranslation: true,
+                titlesFallbackApi: false,
                 audioTranslation: true,
                 audioLanguage: 'original',
                 descriptionTranslation: true,
@@ -53,6 +55,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                 settings: defaultSettings
             });
             titleToggle.checked = defaultSettings.titleTranslation;
+            titlesFallbackApiToggle.checked = defaultSettings.titlesFallbackApi; // Add this line
             audioToggle.checked = defaultSettings.audioTranslation;
             audioLanguageSelect.value = defaultSettings.audioLanguage;
             descriptionToggle.checked = defaultSettings.descriptionTranslation;
@@ -66,6 +69,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const settings = data.settings as ExtensionSettings;
         
         titleToggle.checked = settings.titleTranslation;
+        titlesFallbackApiToggle.checked = settings.titlesFallbackApi || false; // Add this line
         audioToggle.checked = settings.audioTranslation;
         descriptionToggle.checked = settings.descriptionTranslation;
         descriptionSearchToggle.checked = settings.descriptionSearchResults || false;
@@ -331,5 +335,41 @@ tooltipGroups.forEach((group) => {
 
     if (tooltipRect.right > bodyWidth) {
         tooltip.style.marginLeft = `-${tooltipRect.right - bodyWidth + 20}px`;
+    }
+});
+
+// Handle titles fallback API toggle changes
+titlesFallbackApiToggle.addEventListener('change', async () => {
+    const isEnabled = titlesFallbackApiToggle.checked;
+    
+    // Save state
+    try {
+        const data = await browser.storage.local.get('settings');
+        const settings = data.settings as ExtensionSettings;
+        
+        await browser.storage.local.set({
+            settings: {
+                ...settings,
+                titlesFallbackApi: isEnabled
+            }
+        });
+        console.log('Titles fallback API state saved:', isEnabled);
+    } catch (error) {
+        console.error('Titles fallback API save error:', error);
+    }
+
+    // Update state
+    try {
+        const tabs = await browser.tabs.query({ active: true, currentWindow: true });
+        if (tabs[0]?.id) {
+            await browser.tabs.sendMessage(tabs[0].id, {
+                action: 'toggleTranslation',
+                feature: 'titlesFallbackApi',
+                isEnabled
+            } as Message);
+            console.log('Titles fallback API state updated');
+        }
+    } catch (error) {
+        console.error('Titles fallback API update error:', error);
     }
 });

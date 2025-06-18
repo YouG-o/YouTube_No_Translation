@@ -554,12 +554,12 @@ function searchResultsObserver() {
         }
         browsingTitlesLog(`Setting up ${pageName} results videos observer`);
         
-        refreshBrowsingTitles().then(() => {
-            if (currentSettings?.descriptionSearchResults && window.location.pathname === '/results') {
+        /*refreshBrowsingTitles().then(() => {
+            if (currentSettings?.descriptionSearchResults) {
                 refreshSearchDescriptions();
             }
         });
-        refreshShortsAlternativeFormat();
+        refreshShortsAlternativeFormat();*/
         
         searchObserver = new MutationObserver((mutations) => {
             for (const mutation of mutations) {
@@ -573,7 +573,7 @@ function searchResultsObserver() {
                             browsingTitlesLog(`${pageName} results mutation detected`);
                             
                             refreshBrowsingTitles().then(() => {
-                                if (currentSettings?.descriptionSearchResults && window.location.pathname === '/results') {
+                                if (currentSettings?.descriptionSearchResults) {
                                     refreshSearchDescriptions();
                                 }
                             });
@@ -768,7 +768,16 @@ function handleUrlChange() {
     switch(window.location.pathname) {
         case '/results': // --- Search page
             coreLog(`[URL] Detected search page`);
-            currentSettings?.titleTranslation && searchResultsObserver();
+            if (currentSettings?.titleTranslation) {
+                searchResultsObserver();
+                refreshBrowsingTitles().then(() => {
+                    if (currentSettings?.descriptionSearchResults) {
+                        refreshSearchDescriptions();
+                    }
+                });
+                refreshShortsAlternativeFormat();
+            } 
+
             break;
         case '/': // --- Home page
             coreLog(`[URL] Detected home page`);
@@ -832,7 +841,11 @@ function setupVisibilityChangeListener(): void {
             
             // Refresh titles to fix any potentially duplicated titles
             if (currentSettings?.titleTranslation) {
-                refreshBrowsingTitles();
+                refreshBrowsingTitles().then(() => {
+                    if (currentSettings?.descriptionSearchResults) {
+                        refreshSearchDescriptions();
+                    }
+                });
                 refreshShortsAlternativeFormat();
             }
         }

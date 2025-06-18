@@ -9,6 +9,8 @@
 
 (() => {
     const videoId = document.currentScript?.getAttribute('data-video-id');
+    const playerId = document.currentScript?.getAttribute('data-player-id') || 'ynt-player-descriptions';
+    
     if (!videoId) {
         window.dispatchEvent(new CustomEvent('ynt-search-description-data', {
             detail: { videoId: null, description: null, error: 'No video ID provided' }
@@ -16,10 +18,33 @@
         return;
     }
 
-    const player = document.getElementById('movie_player');
-    if (!player) {
+    // Get the isolated player iframe with specific ID
+    const playerIframe = document.getElementById(playerId);
+    
+    if (!playerIframe) {
         window.dispatchEvent(new CustomEvent('ynt-search-description-data', {
-            detail: { videoId, description: null, error: 'No player found' }
+            detail: { videoId, description: null, error: `No isolated player iframe found: ${playerId}` }
+        }));
+        return;
+    }
+
+    // Access the actual YouTube player inside the iframe
+    let player = null;
+    try {
+        const iframeWindow = playerIframe.contentWindow;
+        if (iframeWindow && iframeWindow.document) {
+            player = iframeWindow.document.getElementById('movie_player');
+        }
+    } catch (error) {
+        window.dispatchEvent(new CustomEvent('ynt-search-description-data', {
+            detail: { videoId, description: null, error: 'Cannot access player inside iframe: ' + error.message }
+        }));
+        return;
+    }
+
+    if (!player || typeof player.loadVideoById !== 'function') {
+        window.dispatchEvent(new CustomEvent('ynt-search-description-data', {
+            detail: { videoId, description: null, error: 'YouTube player not ready in iframe' }
         }));
         return;
     }

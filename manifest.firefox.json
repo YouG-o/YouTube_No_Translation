@@ -57,7 +57,8 @@
         "dist/content/scripts/channelNameScript.js",
         "dist/content/scripts/timestampScript.js",
         "dist/content/scripts/searchDescriptionScript.js",
-        "dist/content/scripts/browsingTitlesFallbackScript.js"
+        "dist/content/scripts/browsingTitlesFallbackScript.js",
+        "dist/content/scripts/createIsolatedPlayerScript.js"
       ],
       "matches": [
         "*://*.youtube.com/*",

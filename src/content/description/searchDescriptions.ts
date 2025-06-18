@@ -37,7 +37,15 @@ function extractVideoId(url: string): string | null {
 }
 
 async function fetchSearchDescription(videoId: string): Promise<string | null> {
-    return new Promise<string | null>((resolve) => {
+    return new Promise<string | null>(async (resolve) => {
+        // Ensure isolated player exists before proceeding with specific ID for descriptions
+        const playerReady = await ensureIsolatedPlayer('ynt-player-descriptions');
+        if (!playerReady) {
+            descriptionErrorLog(`Failed to create isolated player for video: ${videoId}`);
+            resolve(null);
+            return;
+        }
+
         const timeoutId = setTimeout(() => {
             window.removeEventListener('ynt-search-description-data', handleDescription as EventListener);
             resolve(null);
@@ -59,6 +67,7 @@ async function fetchSearchDescription(videoId: string): Promise<string | null> {
         const script = document.createElement('script');
         script.src = browser.runtime.getURL('dist/content/scripts/searchDescriptionScript.js');
         script.setAttribute('data-video-id', videoId);
+        script.setAttribute('data-player-id', 'ynt-player-descriptions');
         document.documentElement.appendChild(script);
         
         setTimeout(() => {

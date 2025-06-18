@@ -69,3 +69,35 @@ interface Chapter {
     startTime: number;
     title: string;
 }
+
+// YouTube Player API types
+interface Window {
+    YT: {
+        Player: new (elementId: string, config: {
+            height?: string;
+            width?: string;
+            videoId?: string;
+            playerVars?: {
+                controls?: number;
+                disablekb?: number;
+                fs?: number;
+                modestbranding?: number;
+                rel?: number;
+                autoplay?: number;
+                mute?: number;
+            };
+            events?: {
+                onReady?: (event: any) => void;
+                onStateChange?: (event: any) => void;
+            };
+        }) => {
+            loadVideoById: (videoId: string, startSeconds?: number, suggestedQuality?: string) => void;
+            getPlayerResponse: () => any;
+            destroy: () => void;
+            mute: () => void;
+            addEventListener: (event: string, listener: () => void) => void;
+            removeEventListener: (event: string, listener: () => void) => void;
+        };
+        ready: (callback: () => void) => void;
+    };
+}

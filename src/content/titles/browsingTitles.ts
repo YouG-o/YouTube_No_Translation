@@ -140,6 +140,12 @@ async function getBrowsingTitleFallback(videoId: string): Promise<string | null>
             resolve(null);
             return;
         }
+
+        // Ensure isolated player exists before proceeding with specific ID for titles
+        if (!ensureIsolatedPlayer('ynt-player-titles')) {
+            resolve(null);
+            return;
+        }
         
         browsingTitlesFallbackQueue.add(videoId);
         
@@ -155,10 +161,8 @@ async function getBrowsingTitleFallback(videoId: string): Promise<string | null>
             if (receivedVideoId === videoId) {
                 cleanup();
                 if (error) {
-                    //browsingTitlesErrorLog(`Fallback failed for ${videoId}: ${error}`);
                     resolve(null);
                 } else {
-                    //browsingTitlesLog(`Fallback title retrieved for ${videoId}: ${title}`);
                     resolve(title);
                 }
             }
@@ -172,6 +176,7 @@ async function getBrowsingTitleFallback(videoId: string): Promise<string | null>
         const script = document.createElement('script');
         script.src = browser.runtime.getURL('dist/content/scripts/browsingTitlesFallbackScript.js');
         script.setAttribute('data-video-id', videoId);
+        script.setAttribute('data-player-id', 'ynt-player-titles');
         document.documentElement.appendChild(script);
         
         setTimeout(() => {
@@ -283,7 +288,7 @@ async function refreshBrowsingTitles(): Promise<void> {
                     
                     // If oEmbed fails, try fallback ONLY if BETA option is enabled
                     if (!originalTitle && currentSettings?.titlesFallbackApi) {
-                        browsingTitlesLog(`oEmbed failed for ${videoId}, trying player API fallback...`);
+                        //browsingTitlesLog(`oEmbed failed for ${videoId}, trying player API fallback...`);
                         const fallbackTitle = await getBrowsingTitleFallback(videoId);
                         if (fallbackTitle) {
                             originalTitle = fallbackTitle;

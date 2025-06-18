@@ -17,6 +17,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Smart filtering: only processes videos already identified as translated by title system
   - Dedicated popup setting (disabled by default) with clear BETA labeling
 - **Current Chapter Button Replacement**: Replace translated chapter text in the current chapter button displayed in video player
+- **Isolated YouTube Player System**: New architecture using separate iframe-based YouTube players for metadata retrieval
+  - Prevents video playback interruption when retrieving metadata on video watch pages
+  - Parameterizable player ID system supporting multiple isolated players simultaneously
+  - Dedicated players for different features (ynt-player-titles, ynt-player-descriptions)
+  - Eliminates concurrency issues between browsing titles and search descriptions features
 
 ### Fixed
 - **Concatenated Titles Display**: Fixed issue where original and translated titles would appear concatenated due to DOM element reuse
@@ -25,13 +30,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Better handling of YouTube's DOM recycling during navigation
 - **Optimized Title Processing**: Prevent unnecessary API calls by checking ynt attributes before making requests
   - Individual video processing tracking to prevent duplicate processing
+  - Improved throttling system to prevent concurrent executions
 
 ### Technical Improvements
 - Enhanced chapter replacement system with video player time detection
 - Added mutation observer for current chapter button changes
 - Improved video time retrieval using direct video element access
 - Strengthened title element cleanup process to prevent content accumulation
+- Added browsing titles fallback script with player API integration
 - Implemented retry system for failed title requests with proper cleanup
+- Created isolated player creation system with page context injection
+- Added utility functions for isolated player management (create, ensure, cleanup)
+- Updated fallback scripts to use isolated players instead of main player
 
 ## [2.3.20] - 2025-06-17
 

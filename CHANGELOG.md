@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.4.1] - 2025-06-18
+
+### Fixed
+- Prevented main video settings from being skipped when a description or title fallback is triggered: video events from isolated players are now ignored, eliminating the need for global timeouts or flags and ensuring correct behavior when switching videos rapidly.
+
 ## [2.4.0] - 2025-06-18
 
 ### Added
@@ -125,7 +130,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 *Note: This changelog was introduced in version 2.2.30. For earlier version history, please refer to the [GitHub releases](https://github.com/YouG-o/YouTube_No_Translation/releases).*
 
-[Unreleased]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.4.0...HEAD
+[Unreleased]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.4.1...HEAD
+[2.4.1]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.4.0...v2.4.1
 [2.4.0]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.3.20...v2.4.0
 [2.3.20]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.3.13...v2.3.20
 [2.3.13]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.3.12...v2.3.13

@@ -61,9 +61,6 @@ async function fetchSearchDescription(videoId: string): Promise<string | null> {
 
         window.addEventListener('ynt-search-description-data', handleDescription as EventListener);
         
-        // Mark that we're about to initiate a search description change
-        markSearchDescriptionChange();
-        
         const script = document.createElement('script');
         script.src = browser.runtime.getURL('dist/content/scripts/searchDescriptionScript.js');
         script.setAttribute('data-video-id', videoId);

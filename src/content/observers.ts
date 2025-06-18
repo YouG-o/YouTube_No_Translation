@@ -17,16 +17,9 @@ let hasInitialPlayerLoadTriggered = false;
 
 // Flag to track if a change was initiated by the user
 let userInitiatedChange = false;
-// Flag to track if a change was initiated by search description fetching
-let searchDescriptionInitiatedChange = false;
-// Flag to track if a change was initiated by browsing titles fetching
-let browsingTitlesInitiatedChange = false;
 // Timeout ID for resetting the user initiated flag
 let userChangeTimeout: number | null = null;
-// Timeout ID for resetting the search description flag
-let searchDescriptionChangeTimeout: number | null = null;
-// Timeout ID for resetting the browsing titles flag
-let browsingTitlesChangeTimeout: number | null = null;
+
 
 // Many events, needed to apply settings as soon as possible on initial load
 const allVideoEvents = [
@@ -65,37 +58,31 @@ function setupVideoPlayerListener() {
     videoPlayerListener = function(e: Event) {
         if (!(e.target instanceof HTMLVideoElement)) return;
         if ((e.target as any).srcValue === e.target.src) return;
-        
+
+        /*// Ignore events from our isolated players
+        const parentIframe = e.target.closest('iframe');
+        if (parentIframe && parentIframe.id.startsWith('ynt-player')) {
+            // Technical: Ignore events from isolated players used for metadata retrieval
+            return;
+        }*/
+
         // Skip if user initiated change
         if (userInitiatedChange) {
             coreLog('User initiated change detected - skipping default settings');
             return;
         }
-        
-        // Skip if search description initiated change
-        if (searchDescriptionInitiatedChange) {
-            //coreLog('Search description initiated change detected - skipping default settings');
-            return;
-        }
-        
+
         coreLog('Video source changed.');
         coreLog('🎥 Event:', e.type);
 
-        // Optimize event list after first successful trigger
         if (!hasInitialPlayerLoadTriggered) {
             hasInitialPlayerLoadTriggered = true;
-            
-            // Clean up current listeners
             cleanUpVideoPlayerListener();
-            
-            // Keeps only the essential events for SPA navigation
             videoEvents = ['loadstart', 'loadedmetadata'];
             coreLog('Optimized video events for SPA navigation');
-            
-            // Re-setup with optimized events for next navigation
             setupVideoPlayerListener();
         }
-        
+
         applyVideoPlayerSettings();
     };
     
@@ -120,48 +107,6 @@ function cleanUpVideoPlayerListener() {
         userChangeTimeout = null;
     }
     userInitiatedChange = false;
-    
-    // Clean up search description change tracking
-    if (searchDescriptionChangeTimeout) {
-        window.clearTimeout(searchDescriptionChangeTimeout);
-        searchDescriptionChangeTimeout = null;
-    }
-    searchDescriptionInitiatedChange = false;
-    
-    // Clean up browsing titles change tracking
-    if (browsingTitlesChangeTimeout) {
-        window.clearTimeout(browsingTitlesChangeTimeout);
-        browsingTitlesChangeTimeout = null;
-    }
-    browsingTitlesInitiatedChange = false;
-}
-
-// Function to mark search description initiated changes
-function markSearchDescriptionChange(): void {
-    searchDescriptionInitiatedChange = true;
-    
-    if (searchDescriptionChangeTimeout) {
-        window.clearTimeout(searchDescriptionChangeTimeout);
-    }
-    
-    searchDescriptionChangeTimeout = window.setTimeout(() => {
-        searchDescriptionInitiatedChange = false;
-        searchDescriptionChangeTimeout = null;
-    }, 5000); // Longer timeout since loading video might take more time
-}
-
-// Function to mark browsing titles initiated changes
-function markBrowsingTitlesChange(): void {
-    browsingTitlesInitiatedChange = true;
-    
-    if (browsingTitlesChangeTimeout) {
-        window.clearTimeout(browsingTitlesChangeTimeout);
-    }
-    
-    browsingTitlesChangeTimeout = window.setTimeout(() => {
-        browsingTitlesInitiatedChange = false;
-        browsingTitlesChangeTimeout = null;
-    }, 5000); // Same timeout as search description since loading video might take time
 }
 
 //let mainVideoObserver: MutationObserver | null = null;

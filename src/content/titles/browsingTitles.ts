@@ -169,9 +169,6 @@ async function getBrowsingTitleFallback(videoId: string): Promise<string | null>
         };
 
         window.addEventListener('ynt-browsing-title-fallback-data', onTitleReceived as EventListener);
-
-        // Mark that we're about to initiate a browsing titles change
-        markBrowsingTitlesChange();
         
         const script = document.createElement('script');
         script.src = browser.runtime.getURL('dist/content/scripts/browsingTitlesFallbackScript.js');

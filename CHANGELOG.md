@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- Prevented main video settings from being skipped when a description or title fallback is triggered: video events from isolated players are now ignored, eliminating the need for global timeouts or flags and ensuring correct behavior when switching videos rapidly.
+
 ## [2.4.0] - 2025-06-18
 
 ### Added

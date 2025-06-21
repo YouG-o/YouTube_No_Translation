@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.4.2] - 2025-06-21
+
 ### Technical Improvements
 - Merged description and title processing into unified video processing function for improved performance and reduced complexity
 
@@ -133,7 +135,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 *Note: This changelog was introduced in version 2.2.30. For earlier version history, please refer to the [GitHub releases](https://github.com/YouG-o/YouTube_No_Translation/releases).*
 
-[Unreleased]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.4.1...HEAD
+[Unreleased]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.4.2...HEAD
+[2.4.2]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.4.1...v2.4.2
 [2.4.1]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.4.0...v2.4.1
 [2.4.0]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.3.20...v2.4.0
 [2.3.20]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.3.13...v2.3.20

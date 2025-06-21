@@ -112,7 +112,7 @@ browser.runtime.onMessage.addListener((message: unknown) => {
             case 'titles':
                 if (message.isEnabled) {
                     refreshMainTitle();
-                    refreshBrowsingTitles();
+                    refreshBrowsingVideos();
                     refreshShortsAlternativeFormat();
                     
                     initializeMainVideoObserver();

@@ -188,8 +188,7 @@ async function getBrowsingTitleFallback(videoId: string): Promise<string | null>
     });
 }
 
-// --- Other Titles Function
-async function refreshBrowsingTitles(): Promise<void> {
+async function refreshBrowsingVideos(): Promise<void> {
     const now = Date.now();
     if (now - lastBrowsingTitlesRefresh < TITLES_THROTTLE) {
         return;
@@ -203,6 +202,7 @@ async function refreshBrowsingTitles(): Promise<void> {
     for (const titleElement of browsingTitles) {
         //browsingTitlesLog('Processing video title:', titleElement.textContent);
         const videoUrl = titleElement.closest('a')?.href;
+        let isTranslated = false;
         if (videoUrl) {
             // If the video URL contains a 'list' parameter, it's likely an album or playlist item.
             // We skip it because it would apply wrong title (video title instead of album/playlist title).
@@ -338,9 +338,53 @@ async function refreshBrowsingTitles(): Promise<void> {
                     
                     try {
                         updateBrowsingTitleElement(titleElement, originalTitle, videoId);
+                        isTranslated = true;
                     } catch (error) {
                         browsingTitlesErrorLog(`Failed to update recommended title:`, error);
                     }
+
+                    // Process search descriptions if on search page and feature enabled
+                    if (isSearchResultsPage && 
+                        currentSettings?.descriptionSearchResults && 
+                        isTranslated) {
+                        
+                        try {
+                            // Find the video element container to get description
+                            const videoElement = titleElement.closest('ytd-video-renderer') as HTMLElement;
+                            if (videoElement) {
+                                const descriptionElement = videoElement.querySelector('.metadata-snippet-text') as HTMLElement;
+                                if (descriptionElement) {
+                                    // Check if description already processed
+                                    const isAlreadyProcessed = descriptionElement.hasAttribute('ynt-search') && 
+                                                               descriptionElement.getAttribute('ynt-search') === videoId;
+                                    const hasFailed = descriptionElement.hasAttribute('ynt-search-fail') && 
+                                                      descriptionElement.getAttribute('ynt-search-fail') === videoId;
+                                    
+                                    if (!isAlreadyProcessed && !hasFailed) {
+                                        try {
+                                            // Ensure isolated player exists for descriptions
+                                            const playerReady = await ensureIsolatedPlayer('ynt-player-descriptions');
+                                            if (playerReady) {
+                                                const originalDescription = await fetchSearchDescription(videoId);
+                                                if (originalDescription) {
+                                                    updateSearchDescriptionElement(descriptionElement, originalDescription, videoId);
+                                                } else {
+                                                    descriptionElement.setAttribute('ynt-search-fail', videoId);
+                                                }
+                                            }
+                                        } catch (descError) {
+                                            descriptionErrorLog(`Failed to update search description for ${videoId}:`, descError);
+                                            descriptionElement.setAttribute('ynt-search-fail', videoId);
+                                        }
+                                    }
+                                }
+                            }
+                        } catch (error) {
+                            // Handle any errors in description processing
+                            descriptionErrorLog(`Failed to process description for ${videoId}:`, error);
+                        }
+                    }
+
                 } finally {
                     // Always remove the video from processing set when done
                     processingVideos.delete(videoId);
@@ -348,4 +392,10 @@ async function refreshBrowsingTitles(): Promise<void> {
             }
         }
     }
+
+    // Clean up isolated players after processing all videos
+    setTimeout(() => {
+        cleanupIsolatedPlayer('ynt-player-titles');
+        cleanupIsolatedPlayer('ynt-player-descriptions');
+    }, 1000);
 }

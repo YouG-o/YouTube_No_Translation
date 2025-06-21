@@ -8,6 +8,4 @@
  */
 
 
-function isSearchResultsPage(): boolean {
-    return window.location.pathname === '/results' || window.location.pathname === '/feed/history';
-};
+const isSearchResultsPage = window.location.pathname === '/results' || window.location.pathname === '/feed/history';

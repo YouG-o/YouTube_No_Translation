@@ -443,13 +443,13 @@ function pageVideosObserver() {
             pageName = 'Trending';
         }
         browsingTitlesLog(`Setting up ${pageName} page videos observer`);
-        refreshBrowsingTitles();
+        refreshBrowsingVideos();
         refreshShortsAlternativeFormat();
         homeObserver = new MutationObserver(() => {
             const now = Date.now();
             if (now - lastHomeRefresh >= THROTTLE_DELAY) {
                 browsingTitlesLog(`${pageName} page mutation detected`);
-                refreshBrowsingTitles();
+                refreshBrowsingVideos();
                 refreshShortsAlternativeFormat();
                 lastHomeRefresh = now;
             }
@@ -468,12 +468,12 @@ function recommandedVideosObserver() {
     // --- Observer for recommended videos
     waitForElement('#secondary-inner ytd-watch-next-secondary-results-renderer #items').then((contents) => {
         browsingTitlesLog('Setting up recommended videos observer');
-        refreshBrowsingTitles();
+        refreshBrowsingVideos();
         recommendedObserver = new MutationObserver(() => {
             const now = Date.now();
             if (now - lastRecommendedRefresh >= THROTTLE_DELAY) {
                 browsingTitlesLog('Recommended videos mutation detected');
-                refreshBrowsingTitles();
+                refreshBrowsingVideos();
                 lastRecommendedRefresh = now;
             }
         });
@@ -499,11 +499,7 @@ function searchResultsObserver() {
         }
         browsingTitlesLog(`Setting up ${pageName} results videos observer`);
         
-        /*refreshBrowsingTitles().then(() => {
-            if (currentSettings?.descriptionSearchResults) {
-                refreshSearchDescriptions();
-            }
-        });
+        /*refreshBrowsingVideos();
         refreshShortsAlternativeFormat();*/
         
         searchObserver = new MutationObserver((mutations) => {
@@ -517,11 +513,7 @@ function searchResultsObserver() {
                         if (now - lastSearchRefresh >= THROTTLE_DELAY) {
                             browsingTitlesLog(`${pageName} results mutation detected`);
                             
-                            refreshBrowsingTitles().then(() => {
-                                if (currentSettings?.descriptionSearchResults) {
-                                    refreshSearchDescriptions();
-                                }
-                            });
+                            refreshBrowsingVideos();
                             refreshShortsAlternativeFormat();
                             
                             lastSearchRefresh = now;
@@ -545,12 +537,12 @@ function playlistVideosObserver() {
     // --- Observer for playlist/queue videos
     waitForElement('#playlist ytd-playlist-panel-renderer #items').then((contents) => {
         browsingTitlesLog('Setting up playlist/queue videos observer');
-        refreshBrowsingTitles();
+        refreshBrowsingVideos();
         playlistObserver = new MutationObserver(() => {
             const now = Date.now();
             if (now - lastPlaylistRefresh >= THROTTLE_DELAY) {
                 browsingTitlesLog('Playlist/Queue mutation detected');
-                refreshBrowsingTitles();
+                refreshBrowsingVideos();
                 lastPlaylistRefresh = now;
             }
         });
@@ -671,19 +663,19 @@ function handleUrlChange() {
     
     if (currentSettings?.titleTranslation) {
         setTimeout(() => {
-            refreshBrowsingTitles();
+            refreshBrowsingVideos();
             refreshShortsAlternativeFormat();
         }, 2000);
         setTimeout(() => {
-            refreshBrowsingTitles();
+            refreshBrowsingVideos();
             refreshShortsAlternativeFormat();
         }, 5000);
         setTimeout(() => {
-            refreshBrowsingTitles();
+            refreshBrowsingVideos();
             refreshShortsAlternativeFormat();
         }, 10000);
         setTimeout(() => {
-            refreshBrowsingTitles();
+            refreshBrowsingVideos();
             refreshShortsAlternativeFormat();
         }, 60000);
         
@@ -715,11 +707,7 @@ function handleUrlChange() {
             coreLog(`[URL] Detected search page`);
             if (currentSettings?.titleTranslation) {
                 searchResultsObserver();
-                refreshBrowsingTitles().then(() => {
-                    if (currentSettings?.descriptionSearchResults) {
-                        refreshSearchDescriptions();
-                    }
-                });
+                refreshBrowsingVideos();
                 refreshShortsAlternativeFormat();
             } 
 
@@ -786,11 +774,7 @@ function setupVisibilityChangeListener(): void {
             
             // Refresh titles to fix any potentially duplicated titles
             if (currentSettings?.titleTranslation) {
-                refreshBrowsingTitles().then(() => {
-                    if (currentSettings?.descriptionSearchResults) {
-                        refreshSearchDescriptions();
-                    }
-                });
+                refreshBrowsingVideos();
                 refreshShortsAlternativeFormat();
             }
         }

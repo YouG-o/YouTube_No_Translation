@@ -7,8 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.4.21] - 2025-06-21
+
 ### Added
-- Added error logging for search descriptions: now logs any error returned by the injected script for better debuging
+- Added error logging for search descriptions: now logs any error returned by the injected script for better debugging
 
 ### Fixed
 - Dynamic detection of search results page for SPA navigation, ensuring description replacement works after navigation without reload
@@ -142,7 +144,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 *Note: This changelog was introduced in version 2.2.30. For earlier version history, please refer to the [GitHub releases](https://github.com/YouG-o/YouTube_No_Translation/releases).*
 
-[Unreleased]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.4.2...HEAD
+[Unreleased]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.4.21...HEAD
+[2.4.21]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.4.2...v2.4.21
 [2.4.2]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.4.1...v2.4.2
 [2.4.1]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.4.0...v2.4.1
 [2.4.0]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.3.20...v2.4.0

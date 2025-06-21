@@ -65,6 +65,10 @@
                         success: true
                     }
                 }));
+                player.stopVideo();
+                setTimeout(() => {
+                    player.loadVideoById('', 0, 'default');
+                }, 100);
                 return true;
             }
         } catch (e) {

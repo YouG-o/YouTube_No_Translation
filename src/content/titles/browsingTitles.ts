@@ -344,7 +344,7 @@ async function refreshBrowsingVideos(): Promise<void> {
                     }
 
                     // Process search descriptions if on search page and feature enabled
-                    if (isSearchResultsPage && 
+                    if (isSearchResultsPage() && 
                         currentSettings?.descriptionSearchResults && 
                         isTranslated) {
                         

@@ -7,5 +7,7 @@
  * This program is distributed without any warranty; see the license for details.
  */
 
-
-const isSearchResultsPage = window.location.pathname === '/results' || window.location.pathname === '/feed/history';
+// Function to dynamically check if current page is search results
+function isSearchResultsPage(): boolean {
+    return window.location.pathname === '/results' || window.location.pathname === '/feed/history';
+}

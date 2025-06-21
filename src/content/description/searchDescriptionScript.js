@@ -108,11 +108,11 @@
                 detail: { 
                     videoId,
                     description: null,
-                    error: 'Timeout after 2s'
+                    error: 'Timeout after 3s'
                 }
             }));
         }
-    }, 2000);
+    }, 3000);
 
     try {
         player.mute();

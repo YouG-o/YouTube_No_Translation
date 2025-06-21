@@ -55,6 +55,12 @@ async function fetchSearchDescription(videoId: string): Promise<string | null> {
             if (event.detail?.videoId === videoId) {
                 clearTimeout(timeoutId);
                 window.removeEventListener('ynt-search-description-data', handleDescription as EventListener);
+                
+                // Log any error from the script
+                if (event.detail?.error) {
+                    descriptionErrorLog(`Search description script error for ${videoId}: ${event.detail.error}`);
+                }
+                
                 resolve(event.detail?.description || null);
             }
         };

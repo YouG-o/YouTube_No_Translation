@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- Added error logging for search descriptions: now logs any error returned by the injected script for better debuging
+
+### Fixed
+- Dynamic detection of search results page for SPA navigation, ensuring description replacement works after navigation without reload
+- Stop and reset player after processing a video, avoiding video being counted as watched in YouTube history.
+
 ## [2.4.2] - 2025-06-21
 
 ### Technical Improvements

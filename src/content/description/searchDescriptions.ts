@@ -49,7 +49,7 @@ async function fetchSearchDescription(videoId: string): Promise<string | null> {
         const timeoutId = setTimeout(() => {
             window.removeEventListener('ynt-search-description-data', handleDescription as EventListener);
             resolve(null);
-        }, 5000);
+        }, 3000);
 
         const handleDescription = (event: CustomEvent) => {
             if (event.detail?.videoId === videoId) {

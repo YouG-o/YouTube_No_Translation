@@ -8,7 +8,7 @@
  */
 
 const titleToggle = document.getElementById('titleTranslation') as HTMLInputElement;
-const titlesFallbackApiToggle = document.getElementById('titlesFallbackApi') as HTMLInputElement; // Add this line
+const titlesFallbackApiToggle = document.getElementById('titlesFallbackApi') as HTMLInputElement;
 const audioToggle = document.getElementById('audioTranslation') as HTMLInputElement;
 const audioLanguageSelect = document.getElementById('audioLanguage') as HTMLSelectElement;
 const descriptionToggle = document.getElementById('descriptionTranslation') as HTMLInputElement;
@@ -18,6 +18,11 @@ const subtitlesLanguageSelect = document.getElementById('subtitlesLanguage') as 
 const tooltipGroups = document.querySelectorAll('.tooltip') as NodeListOf<HTMLDivElement>;
 const extensionVersionElement = document.getElementById('extensionVersion') as HTMLSpanElement;
 
+// Advanced features collapsible section
+const advancedFeaturesToggle = document.getElementById('advancedFeaturesToggle') as HTMLDivElement;
+const advancedFeaturesContent = document.getElementById('advancedFeaturesContent') as HTMLDivElement;
+const advancedFeaturesArrow = document.getElementById('advancedFeaturesArrow');
+
 // Function to display the extension version
 function displayExtensionVersion() {
     if (extensionVersionElement) {
@@ -26,11 +31,20 @@ function displayExtensionVersion() {
     }
 }
 
-// Function to toggle description search container visibility
-function toggleDescriptionSearchContainer() {
-    const container = document.getElementById('descriptionSearchContainer');
-    if (container) {
-        container.style.display = descriptionToggle.checked ? 'block' : 'none';
+// Function to toggle advanced features section
+function toggleAdvancedFeatures() {
+    const isHidden = advancedFeaturesContent.classList.contains('hidden');
+    
+    if (isHidden) {
+        advancedFeaturesContent.classList.remove('hidden');
+        if (advancedFeaturesArrow) {
+            advancedFeaturesArrow.style.transform = 'rotate(180deg)';
+        }
+    } else {
+        advancedFeaturesContent.classList.add('hidden');
+        if (advancedFeaturesArrow) {
+            advancedFeaturesArrow.style.transform = 'rotate(0deg)';
+        }
     }
 }
 
@@ -55,21 +69,20 @@ document.addEventListener('DOMContentLoaded', async () => {
                 settings: defaultSettings
             });
             titleToggle.checked = defaultSettings.titleTranslation;
-            titlesFallbackApiToggle.checked = defaultSettings.titlesFallbackApi; // Add this line
+            titlesFallbackApiToggle.checked = defaultSettings.titlesFallbackApi;
             audioToggle.checked = defaultSettings.audioTranslation;
             audioLanguageSelect.value = defaultSettings.audioLanguage;
             descriptionToggle.checked = defaultSettings.descriptionTranslation;
             descriptionSearchToggle.checked = defaultSettings.descriptionSearchResults;
             subtitlesToggle.checked = defaultSettings.subtitlesTranslation;
             subtitlesLanguageSelect.value = defaultSettings.subtitlesLanguage;
-            toggleDescriptionSearchContainer();
             return;
         }
         
         const settings = data.settings as ExtensionSettings;
         
         titleToggle.checked = settings.titleTranslation;
-        titlesFallbackApiToggle.checked = settings.titlesFallbackApi || false; // Add this line
+        titlesFallbackApiToggle.checked = settings.titlesFallbackApi || false;
         audioToggle.checked = settings.audioTranslation;
         descriptionToggle.checked = settings.descriptionTranslation;
         descriptionSearchToggle.checked = settings.descriptionSearchResults || false;
@@ -84,8 +97,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         } else {
             audioLanguageSelect.value = 'original';
         }
-        
-        toggleDescriptionSearchContainer();
         
         console.log(
             '[YNT] Settings loaded - Title translation prevention is: %c%s',
@@ -111,6 +122,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         console.error('Load error:', error);
     }
 });
+
+// Handle advanced features toggle click
+advancedFeaturesToggle.addEventListener('click', toggleAdvancedFeatures);
 
 // Handle description search results toggle changes
 descriptionSearchToggle.addEventListener('change', async () => {
@@ -235,8 +249,6 @@ descriptionToggle.addEventListener('change', async () => {
     } catch (error) {
         console.error('Save error:', error);
     }
-    
-    toggleDescriptionSearchContainer();
 });
 
 // Handle subtitles toggle changes

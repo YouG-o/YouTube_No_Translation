@@ -462,26 +462,39 @@ function pageVideosObserver() {
     });
 };
 
-function recommandedVideosObserver() {
-    cleanupRecommandedVideosObserver();
+function recommendedVideosObserver() {
+    cleanupRecommendedVideosObserver();
 
-    // --- Observer for recommended videos
+    // Observer for recommended videos (side bar)
     waitForElement('#secondary-inner ytd-watch-next-secondary-results-renderer #items').then((contents) => {
         browsingTitlesLog('Setting up recommended videos observer');
         refreshBrowsingVideos();
+        
+        // Check if we need to observe deeper (when logged in)
+        const itemSection = contents.querySelector('ytd-item-section-renderer');
+        const targetElement = itemSection ? itemSection : contents;
+        
+        browsingTitlesLog(`Observing: ${targetElement === contents ? '#items directly' : 'ytd-item-section-renderer inside #items'}`);
+        
         recommendedObserver = new MutationObserver(() => {
             const now = Date.now();
             if (now - lastRecommendedRefresh >= THROTTLE_DELAY) {
-                browsingTitlesLog('Recommended videos mutation detected');
+                browsingTitlesLog('Recommended videos mutation detected (side bar)');
                 refreshBrowsingVideos();
+                setTimeout(() => {
+                    refreshBrowsingVideos();
+                }, 1000);
+                setTimeout(() => {
+                    refreshBrowsingVideos();
+                }, 2000);
                 lastRecommendedRefresh = now;
             }
         });
         
-        recommendedObserver.observe(contents, {
-            childList: true
+        recommendedObserver.observe(targetElement, {
+            childList: true,
+            subtree: true
         });
-        //browsingTitlesLog('Recommended videos observer setup completed');
     });
 };
 
@@ -499,9 +512,6 @@ function searchResultsObserver() {
         }
         browsingTitlesLog(`Setting up ${pageName} results videos observer`);
         
-        /*refreshBrowsingVideos();
-        refreshShortsAlternativeFormat();*/
-        
         searchObserver = new MutationObserver((mutations) => {
             for (const mutation of mutations) {
                 if (mutation.type === 'childList' && 
@@ -516,6 +526,15 @@ function searchResultsObserver() {
                             refreshBrowsingVideos();
                             refreshShortsAlternativeFormat();
                             
+                            setTimeout(() => {
+                                refreshBrowsingVideos();
+                                refreshShortsAlternativeFormat();
+                            }, 1000);
+                            setTimeout(() => {
+                                refreshBrowsingVideos();
+                                refreshShortsAlternativeFormat();
+                            }, 2000);
+
                             lastSearchRefresh = now;
                         }
                         break;
@@ -557,7 +576,7 @@ function playlistVideosObserver() {
 
 function cleanupAllBrowsingTitlesObservers() {
     cleanupPageVideosObserver();
-    cleanupRecommandedVideosObserver();
+    cleanupRecommendedVideosObserver();
     cleanupSearchResultsVideosObserver();
     cleanupPlaylistVideosObserver();
 };
@@ -568,7 +587,7 @@ function cleanupPageVideosObserver() {
     lastHomeRefresh = 0;
 }
 
-function cleanupRecommandedVideosObserver() {
+function cleanupRecommendedVideosObserver() {
     recommendedObserver?.disconnect();
     recommendedObserver = null;
     lastRecommendedRefresh = 0;
@@ -741,7 +760,7 @@ function handleUrlChange() {
             if (currentSettings?.titleTranslation || currentSettings?.descriptionTranslation) {
                 setupMainVideoObserver();
             };
-            currentSettings?.titleTranslation && recommandedVideosObserver();
+            currentSettings?.titleTranslation && recommendedVideosObserver();
             currentSettings?.descriptionTranslation && setupTimestampClickObserver();
             
             // Handle fullscreen titles (embed titles are specific to /watch pages)

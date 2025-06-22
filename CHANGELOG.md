@@ -5,7 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [2.4.24] - 2025-06-22
+
+### Fixed
+- Added delayed refreshes (setTimeout) after sidebar and search results mutations to improve reliability of original title replacement when YouTube updates DOM asynchronously (temporary workaround until a cleaner solution is implemented)
+- Improved recommended videos observer to handle different DOM structures when user is logged in vs logged out (observes ytd-item-section-renderer for logged-in users, #items directly for logged-out users)
+
+### Refactored
+- Added "Advanced Settings" section in popup and moved BETA features inside
 
 ## [2.4.21] - 2025-06-21
 
@@ -144,7 +151,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 *Note: This changelog was introduced in version 2.2.30. For earlier version history, please refer to the [GitHub releases](https://github.com/YouG-o/YouTube_No_Translation/releases).*
 
-[Unreleased]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.4.21...HEAD
+[Unreleased]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.4.24...HEAD
+[2.4.24]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.4.21...v2.4.24
 [2.4.21]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.4.2...v2.4.21
 [2.4.2]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.4.1...v2.4.2
 [2.4.1]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.4.0...v2.4.1

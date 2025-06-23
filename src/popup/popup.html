@@ -24,7 +24,7 @@
                         <img src="../assets/icons/Github-Dark.svg" alt="GitHub" title="GitHub" class="w-4 h-4 hover:opacity-80 transition-opacity">
                     </a>
                 </div>
-        </header>
+            </header>
         <main class="py-4">
             <div class="space-y-4">
                 <!-- Original Titles Feature -->
@@ -37,7 +37,7 @@
                                     <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
                                 </svg>
                                 <span class="absolute z-20 bottom-full left-0 ml-[-20px] mb-2 w-[220px] px-3 py-2 text-xs text-white bg-gray-900/95 rounded-md shadow-lg whitespace-normal opacity-0 pointer-events-none invisible group-hover:opacity-100 group-hover:visible transition-opacity">
-                                    Display original titles: Main video title, channel title, recommended videos, search results, etc...
+                                    Display original titles: main video title, channel title, recommended videos, search results, etc...
                                 </span>
                             </div>
                         </div>
@@ -51,13 +51,13 @@
                 <div class="p-3 rounded-lg border border-gray-600 hover:bg-gray-600 transition-colors">
                     <div class="flex items-center justify-between">
                         <div class="flex items-center gap-2">
-                            <h2 class="text-sm font-medium text-white">Audio Tracks</h2>
+                            <h2 class="text-sm font-medium text-white">Audio tracks</h2>
                             <div class="relative group tooltip">
                                 <svg class="w-4 h-4 text-gray-400 cursor-help group hover:text-gray-300" viewBox="0 0 24 24" fill="currentColor">
                                     <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
                                 </svg>
                                 <span class="absolute z-20 bottom-full left-0 ml-[-20px] mb-2 w-[220px] px-3 py-2 text-xs text-white bg-gray-900/95 rounded-md shadow-lg whitespace-normal opacity-0 pointer-events-none invisible group-hover:opacity-100 group-hover:visible transition-opacity">
-                                    Always switch to preferred audio track.
+                                    Switch to preferred audio track.
                                 </span>
                             </div>
                         </div>
@@ -100,7 +100,7 @@
                                     <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
                                 </svg>
                                 <span class="absolute z-20 bottom-full left-0 ml-[-20px] mb-2 w-[220px] px-3 py-2 text-xs text-white bg-gray-900/95 rounded-md shadow-lg whitespace-normal opacity-0 pointer-events-none invisible group-hover:opacity-100 group-hover:visible transition-opacity">
-                                    If description is translated, it will be replaced with the original description.
+                                    Replace the translated description with the original one.
                                 </span>
                             </div>
                         </div>
@@ -120,7 +120,7 @@
                                     <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
                                 </svg>
                                 <span class="absolute z-20 bottom-full left-0 ml-[-20px] mb-2 w-[220px] px-3 py-2 text-xs text-white bg-gray-900/95 rounded-md shadow-lg whitespace-normal opacity-0 pointer-events-none invisible group-hover:opacity-100 group-hover:visible transition-opacity">
-                                    Display subtitles in your preferred language if available. If not, subtitles will be disabled. Auto generated subtitles are ignored.
+                                    Display subtitles in your preferred language (if available). If not, subtitles will be disabled. Auto generated subtitles are ignored.
                                 </span>
                             </div>
                         </div>
@@ -155,7 +155,6 @@
                         </select>
                     </div>
                 </div>
-                
                 <!-- Advanced Features Section -->
                 <div class="p-3 rounded-lg border border-orange-500 bg-gray-800/50">
                     <div class="flex items-center justify-between cursor-pointer" id="advancedFeaturesToggle">
@@ -172,14 +171,14 @@
                         <div class="p-2 rounded border border-gray-600 bg-gray-800/50">
                             <div class="flex items-center justify-between">
                                 <div class="flex items-center gap-2">
-                                    <h3 class="text-xs font-medium text-gray-300">Titles : Player API Fallback</h3>
+                                    <h3 class="text-xs font-medium text-gray-300">Fallback when titles are not replaced</h3>
                                     <span class="text-xs text-orange-300 bg-orange-900/30 px-2 py-1 rounded">BETA</span>
                                     <div class="relative group tooltip">
                                         <svg class="w-3 h-3 text-gray-400 cursor-help group hover:text-gray-300" viewBox="0 0 24 24" fill="currentColor">
                                             <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
                                         </svg>
                                         <span class="absolute z-20 bottom-full left-0 ml-[-20px] mb-2 w-[220px] px-3 py-2 text-xs text-white bg-gray-900/95 rounded-md shadow-lg whitespace-normal opacity-0 pointer-events-none invisible group-hover:opacity-100 group-hover:visible transition-opacity">
-                                            Use YouTube player API as fallback when oEmbed fails. May be slower but can retrieve more (all) titles. This is a BETA feature and may not work as expected.
+                                            Use YouTube Player API as fallback when oEmbed fails to replace titles. May be slower but can retrieve more (all) titles. This is a BETA feature and may not work as expected.
                                         </span>
                                     </div>
                                 </div>
@@ -194,7 +193,7 @@
                         <div class="p-2 rounded border border-gray-600 bg-gray-800/50">
                             <div class="flex items-center justify-between">
                                 <div class="flex items-center gap-2">
-                                    <h3 class="text-xs font-medium text-gray-300">Descriptions : Search Results</h3>
+                                    <h3 class="text-xs font-medium text-gray-300">Original descriptions in search results</h3>
                                     <span class="text-xs text-orange-300 bg-orange-900/30 px-2 py-1 rounded">BETA</span>
                                     <div class="relative group tooltip">
                                         <svg class="w-3 h-3 text-gray-400 cursor-help group hover:text-gray-300" viewBox="0 0 24 24" fill="currentColor">

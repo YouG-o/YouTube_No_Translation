@@ -15,7 +15,6 @@ const descriptionToggle = document.getElementById('descriptionTranslation') as H
 const descriptionSearchToggle = document.getElementById('descriptionSearchResults') as HTMLInputElement;
 const subtitlesToggle = document.getElementById('subtitlesTranslation') as HTMLInputElement;
 const subtitlesLanguageSelect = document.getElementById('subtitlesLanguage') as HTMLSelectElement;
-const tooltipGroups = document.querySelectorAll('.tooltip') as NodeListOf<HTMLDivElement>;
 const extensionVersionElement = document.getElementById('extensionVersion') as HTMLSpanElement;
 
 // Advanced features collapsible section
@@ -34,12 +33,12 @@ function displayExtensionVersion() {
 // Function to toggle advanced features section
 function toggleAdvancedFeatures() {
     const isHidden = advancedFeaturesContent.classList.contains('hidden');
-    
     if (isHidden) {
         advancedFeaturesContent.classList.remove('hidden');
         if (advancedFeaturesArrow) {
             advancedFeaturesArrow.style.transform = 'rotate(180deg)';
         }
+        adjustTooltipPositions(); // Recalculate tooltip positions when section is shown
     } else {
         advancedFeaturesContent.classList.add('hidden');
         if (advancedFeaturesArrow) {
@@ -340,15 +339,22 @@ audioLanguageSelect.addEventListener('change', async () => {
 });
 
 // Adjust tooltip positions if they overflow the viewport
-tooltipGroups.forEach((group) => {
-    const bodyWidth = document.body.clientWidth;  
-    const tooltip = group.querySelector('span') as HTMLSpanElement;
-    const tooltipRect = tooltip.getBoundingClientRect();
+function adjustTooltipPositions() {
+    const tooltipGroups = document.querySelectorAll('.tooltip') as NodeListOf<HTMLDivElement>;
+    const bodyWidth = document.body.clientWidth;
+    tooltipGroups.forEach((group) => {
+        const tooltip = group.querySelector('span') as HTMLSpanElement;
+        if (!tooltip) return;
+        tooltip.style.marginLeft = ''; // Reset previous adjustment
+        const tooltipRect = tooltip.getBoundingClientRect();
+        if (tooltipRect.right > bodyWidth) {
+            tooltip.style.marginLeft = `-${tooltipRect.right - bodyWidth + 20}px`;
+        }
+    });
+}
 
-    if (tooltipRect.right > bodyWidth) {
-        tooltip.style.marginLeft = `-${tooltipRect.right - bodyWidth + 20}px`;
-    }
-});
+// Initial adjustment
+adjustTooltipPositions();
 
 // Handle titles fallback API toggle changes
 titlesFallbackApiToggle.addEventListener('change', async () => {

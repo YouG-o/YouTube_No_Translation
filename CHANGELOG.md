@@ -8,7 +8,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Fixed
-- Fully clean extension attributes, spans, and direct text nodes in video title elements when the videoId changes to prevent concatenated titles caused by
+- Fully clean extension attributes, spans, and direct text nodes in video title elements when the videoId changes to prevent concatenated titles caused by DOM recycling
+- Recalculate tooltip position for BETA options when advanced settings section is shown to prevent tooltip overflow in the
 
 ## [2.4.24] - 2025-06-22
 

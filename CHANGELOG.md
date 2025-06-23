@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Fully clean extension attributes, spans, and direct text nodes in video title elements when the videoId changes to prevent concatenated titles caused by DOM recycling
 - Recalculate tooltip position for BETA options when advanced settings section is shown to prevent tooltip overflow in the
+- Applyed changes from [Tommodev](https://github.com/tommodev-ctrl)'s PR: Made popup more understandable (Features titles, tooltips..) 
 
 ## [2.4.24] - 2025-06-22
 

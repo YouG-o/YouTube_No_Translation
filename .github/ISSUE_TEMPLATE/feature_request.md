@@ -1,7 +1,7 @@
 ---
 name: Feature request
-about: Suggest an idea for this extension
-title: "Feature Request: "
+about: Suggest an idea for this Add-On
+title: "FEATURE REQUEST: "
 labels: enhancement
 assignees: 'YouG-o'
 ---

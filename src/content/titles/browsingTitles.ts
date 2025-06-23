@@ -262,7 +262,14 @@ async function refreshBrowsingVideos(): Promise<void> {
                                 }
                             }
                         } else {
+                            // Clean all extension-related attributes and spans if videoId does not match
                             titleElement.removeAttribute('ynt');
+                            titleElement.removeAttribute('ynt-fail');
+                            titleElement.removeAttribute('ynt-fail-retry');
+                            titleElement.removeAttribute('ynt-original');
+                            titleElement.removeAttribute('title');
+                            const existingSpans = titleElement.querySelectorAll('span[ynt-span]');
+                            existingSpans.forEach(span => span.remove());
                         }
                     }
 

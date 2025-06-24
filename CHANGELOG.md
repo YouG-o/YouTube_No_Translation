@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.4.27] - 2025-06-24
+
+### Fixed
+- Improved title cleanup logic for recycled or out-of-sync video title elements: now fully removes all extension attributes, spans, and direct text nodes when needed.
+- The title attribute is now always reset to the current text instead of being removed, preventing empty titles and ensuring proper detection and replacement of concatenated
+
 ## [2.4.25] - 2025-06-23
 
 ### Fixed
@@ -160,7 +166,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 *Note: This changelog was introduced in version 2.2.30. For earlier version history, please refer to the [GitHub releases](https://github.com/YouG-o/YouTube_No_Translation/releases).*
 
-[Unreleased]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.4.24...HEAD
+[Unreleased]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.4.27...HEAD
+[2.4.27]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.4.25...v2.4.27
+[2.4.25]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.4.24...v2.4.25
 [2.4.24]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.4.21...v2.4.24
 [2.4.21]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.4.2...v2.4.21
 [2.4.2]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.4.1...v2.4.2

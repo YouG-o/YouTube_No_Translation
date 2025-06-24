@@ -47,7 +47,6 @@ function updateBrowsingTitleElement(element: HTMLElement, title: string, videoId
     element.removeAttribute('ynt-fail');
     element.removeAttribute('ynt-fail-retry');
     element.removeAttribute('ynt-original');
-    element.removeAttribute('title');
     
     // Remove ALL existing span elements
     const existingSpans = element.querySelectorAll('span[ynt-span]');
@@ -241,33 +240,48 @@ async function refreshBrowsingVideos(): Promise<void> {
                 if (processingVideos.has(videoId)) {
                     continue;
                 }
-
                 // Mark this video as being processed
                 processingVideos.add(videoId);
-
                 try {
-                    const currentTitle = titleElement.textContent;
+                    const currentTitle = titleElement.textContent || '';
 
                     // Check if already processed successfully - BEFORE making API calls
                     if (titleElement.hasAttribute('ynt')) {
                         if (titleElement.getAttribute('ynt') === videoId) {
                             let span = titleElement.querySelector(`span[ynt-span="${videoId}"]`);
                             if (span) {
-                                // Check if there are direct text nodes that shouldn't be there
                                 const directTextNodes = Array.from(titleElement.childNodes)
                                     .filter(node => node.nodeType === Node.TEXT_NODE && node.textContent?.trim());
-                                
-                                if (directTextNodes.length === 0) {
+                                    if (directTextNodes.length === 0) {
                                     continue;
+                                } else {
+                                    // Clean all extension-related attributes and spans if direct text nodes exist
+                                    //browsingTitlesLog(`Cleaning up title element for video ${videoId} as it has direct text nodes.`);
+                                    titleElement.removeAttribute('ynt');
+                                    titleElement.removeAttribute('ynt-fail');
+                                    titleElement.removeAttribute('ynt-fail-retry');
+                                    titleElement.removeAttribute('ynt-original');
+                                    titleElement.setAttribute('title', currentTitle);
+                                    const existingSpans = titleElement.querySelectorAll('span[ynt-span]');
+                                    existingSpans.forEach(span => span.remove());
                                 }
+                            } else {
+                                //If no span exists but ynt matches, force update (possible concatenation in textContent)
+                                //browsingTitlesLog(`No span found for video ${videoId}, forcing update of title element.`);
+                                titleElement.removeAttribute('ynt');
+                                titleElement.removeAttribute('ynt-fail');
+                                titleElement.removeAttribute('ynt-fail-retry');
+                                titleElement.removeAttribute('ynt-original');
+                                titleElement.setAttribute('title', currentTitle);
                             }
                         } else {
                             // Clean all extension-related attributes and spans if videoId does not match
+                            //browsingTitlesLog(`Cleaning up title element for video ${videoId} as it does not match current ynt attribute.`);
                             titleElement.removeAttribute('ynt');
                             titleElement.removeAttribute('ynt-fail');
                             titleElement.removeAttribute('ynt-fail-retry');
                             titleElement.removeAttribute('ynt-original');
-                            titleElement.removeAttribute('title');
+                            titleElement.setAttribute('title', currentTitle);
                             const existingSpans = titleElement.querySelectorAll('span[ynt-span]');
                             existingSpans.forEach(span => span.remove());
                         }

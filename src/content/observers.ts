@@ -443,8 +443,10 @@ function pageVideosObserver() {
             pageName = 'Trending';
         }
         browsingTitlesLog(`Setting up ${pageName} page videos observer`);
-        refreshBrowsingVideos();
-        refreshShortsAlternativeFormat();
+        waitForFilledVideoTitles().then(() => {
+            refreshBrowsingVideos();
+            refreshShortsAlternativeFormat();
+        });
         homeObserver = new MutationObserver(() => {
             const now = Date.now();
             if (now - lastHomeRefresh >= THROTTLE_DELAY) {
@@ -468,7 +470,10 @@ function recommendedVideosObserver() {
     // Observer for recommended videos (side bar)
     waitForElement('#secondary-inner ytd-watch-next-secondary-results-renderer #items').then((contents) => {
         browsingTitlesLog('Setting up recommended videos observer');
-        refreshBrowsingVideos();
+        
+        waitForFilledVideoTitles().then(() => {
+            refreshBrowsingVideos();
+        });
         
         // Check if we need to observe deeper (when logged in)
         const itemSection = contents.querySelector('ytd-item-section-renderer');
@@ -480,13 +485,14 @@ function recommendedVideosObserver() {
             const now = Date.now();
             if (now - lastRecommendedRefresh >= THROTTLE_DELAY) {
                 browsingTitlesLog('Recommended videos mutation detected (side bar)');
-                refreshBrowsingVideos();
-                setTimeout(() => {
-                    refreshBrowsingVideos();
-                }, 1000);
-                setTimeout(() => {
-                    refreshBrowsingVideos();
-                }, 2000);
+                refreshBrowsingVideos().then(() => {
+                    setTimeout(() => {
+                        refreshBrowsingVideos();
+                    }, 1000);
+                    setTimeout(() => {
+                        refreshBrowsingVideos();
+                    }, 2000);
+            });
                 lastRecommendedRefresh = now;
             }
         });
@@ -511,6 +517,11 @@ function searchResultsObserver() {
             pageName = 'History';
         }
         browsingTitlesLog(`Setting up ${pageName} results videos observer`);
+
+        waitForFilledVideoTitles().then(() => {
+            refreshBrowsingVideos();
+            refreshShortsAlternativeFormat();
+        });
         
         searchObserver = new MutationObserver((mutations) => {
             for (const mutation of mutations) {
@@ -523,17 +534,17 @@ function searchResultsObserver() {
                         if (now - lastSearchRefresh >= THROTTLE_DELAY) {
                             browsingTitlesLog(`${pageName} results mutation detected`);
                             
-                            refreshBrowsingVideos();
                             refreshShortsAlternativeFormat();
-                            
-                            setTimeout(() => {
-                                refreshBrowsingVideos();
-                                refreshShortsAlternativeFormat();
-                            }, 1000);
-                            setTimeout(() => {
-                                refreshBrowsingVideos();
-                                refreshShortsAlternativeFormat();
-                            }, 2000);
+                            refreshBrowsingVideos().then(() => {
+                                setTimeout(() => {
+                                    refreshBrowsingVideos();
+                                    refreshShortsAlternativeFormat();
+                                }, 1000);
+                                setTimeout(() => {
+                                    refreshBrowsingVideos();
+                                    refreshShortsAlternativeFormat();
+                                }, 2000);
+                            });
 
                             lastSearchRefresh = now;
                         }
@@ -556,7 +567,9 @@ function playlistVideosObserver() {
     // --- Observer for playlist/queue videos
     waitForElement('#playlist ytd-playlist-panel-renderer #items').then((contents) => {
         browsingTitlesLog('Setting up playlist/queue videos observer');
-        refreshBrowsingVideos();
+        waitForFilledVideoTitles().then(() => {
+            refreshBrowsingVideos();
+        });
         playlistObserver = new MutationObserver(() => {
             const now = Date.now();
             if (now - lastPlaylistRefresh >= THROTTLE_DELAY) {
@@ -693,10 +706,6 @@ function handleUrlChange() {
             refreshBrowsingVideos();
             refreshShortsAlternativeFormat();
         }, 10000);
-        setTimeout(() => {
-            refreshBrowsingVideos();
-            refreshShortsAlternativeFormat();
-        }, 60000);
         
         // Handle miniplayer titles on all pages (since miniplayer can appear from any page)
         refreshMiniplayerTitle();

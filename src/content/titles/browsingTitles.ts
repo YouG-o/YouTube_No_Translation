@@ -11,7 +11,7 @@
 let browsingTitlesObserver = new Map<HTMLElement, MutationObserver>();
 let lastBrowsingTitlesRefresh = 0;
 let lastBrowsingShortsRefresh = 0;
-const TITLES_THROTTLE = 2000;
+const TITLES_THROTTLE = 1000;
 const browsingTitlesFallbackQueue = new Set<string>();
 const processingVideos = new Set<string>(); // Track individual videos being processed
 
@@ -41,83 +41,39 @@ function cleanupAllBrowsingTitlesElementsObservers(): void {
 function updateBrowsingTitleElement(element: HTMLElement, title: string, videoId: string): void {
     // Clean previous observer
     cleanupBrowsingTitleElement(element);
-    
-    // Clean ALL previous attributes and spans before applying new ones
+
+    // Clean ALL previous attributes before applying new ones
     element.removeAttribute('ynt');
     element.removeAttribute('ynt-fail');
     element.removeAttribute('ynt-fail-retry');
     element.removeAttribute('ynt-original');
     
-    // Remove ALL existing span elements
-    const existingSpans = element.querySelectorAll('span[ynt-span]');
-    existingSpans.forEach(span => span.remove());
+    const previousTitle = element.textContent;
+
+    // Directly update the textContent with the original title
+    element.textContent = title;
     
-    browsingTitlesLog(
-        `Updated title from : %c${normalizeText(element.textContent)}%c to : %c${normalizeText(title)}%c (video id : %c${videoId}%c)`,
-        'color: grey',    // --- currentTitle style
-        'color: #fca5a5',      // --- reset color
-        'color: white',    // --- originalTitle style
-        'color: #fca5a5',      // --- reset color
-        'color: #4ade80',  // --- videoId style (light green)
-        'color: #fca5a5'       // --- reset color
-    );
-    
-    // --- Inject CSS if not already done
-    if (!document.querySelector('#ynt-style')) {
-        const style = document.createElement('style');
-        style.id = 'ynt-style';
-        style.textContent = `
-            /* Hide all direct children of video titles with ynt attribute (basically hide the translated title) */
-            #video-title[ynt] > * {
-                display: none !important;
-            }
-
-            /* Show the untranslated title using the title attribute */
-            #video-title[ynt]::after {
-                content: attr(title);
-                font-size: var(--ytd-tab-system-font-size-body);
-                line-height: var(--ytd-tab-system-line-height-body);
-                font-family: var(--ytd-tab-system-font-family);
-            }
-        `;
-        document.head.appendChild(style);
-    }
-
-    const createSpan = (element: HTMLElement, videoId: string): void => {
-        const span = document.createElement('span');
-        span.setAttribute('ynt-span', videoId);
-        span.textContent = element.textContent;
-        element.textContent = '';
-        element.appendChild(span);
-    }
-
-    let span = element.querySelector(`span[ynt-span="${videoId}"]`);
-    if (!span) {
-        createSpan(element, videoId);
-    }
-
+    // Update the title attribute and ynt attribute
     element.setAttribute('title', title);
     element.setAttribute('ynt', videoId);
-
-    // --- Add observer to update span with latest text
+    
+    browsingTitlesLog(
+        `Updated title from : %c${previousTitle}%c to : %c${title}%c (video id : %c${videoId}%c)`,
+        'color: grey',
+        'color: #fca5a5',
+        'color: white',
+        'color: #fca5a5',
+        'color: #4ade80',
+        'color: #fca5a5'
+    );
+    
+    // Add observer to keep textContent in sync if YouTube changes it
     const observer = new MutationObserver((mutations) => {
         mutations.forEach((mutation) => {
             if (mutation.type === 'childList') {
-                const directTextNodes = Array.from(element.childNodes)
-                    .filter(node => node.nodeType === Node.TEXT_NODE);
-                
-                if (directTextNodes.length > 0) {
-                    browsingTitlesLog('Mutiple title detected, updating hidden span');
-                    let span = element.querySelector(`span[ynt-span="${videoId}"]`);
-                    if (span) {
-                        // --- Get last added text node
-                        const lastTextNode = directTextNodes[directTextNodes.length - 1];
-                        span.textContent = lastTextNode.textContent;
-                        // --- Remove all direct text nodes
-                        directTextNodes.forEach(node => node.remove());
-                    } else if (!span) {
-                        createSpan(element, videoId);
-                    }
+                // If YouTube injects a new text node, replace it with the original title
+                if (element.textContent !== title) {
+                    element.textContent = title;
                 }
             }
         });
@@ -248,26 +204,17 @@ async function refreshBrowsingVideos(): Promise<void> {
                     // Check if already processed successfully - BEFORE making API calls
                     if (titleElement.hasAttribute('ynt')) {
                         if (titleElement.getAttribute('ynt') === videoId) {
-                            let span = titleElement.querySelector(`span[ynt-span="${videoId}"]`);
-                            if (span) {
-                                const directTextNodes = Array.from(titleElement.childNodes)
-                                    .filter(node => node.nodeType === Node.TEXT_NODE && node.textContent?.trim());
-                                    if (directTextNodes.length === 0) {
-                                    continue;
-                                } else {
-                                    // Clean all extension-related attributes and spans if direct text nodes exist
-                                    //browsingTitlesLog(`Cleaning up title element for video ${videoId} as it has direct text nodes.`);
-                                    titleElement.removeAttribute('ynt');
-                                    titleElement.removeAttribute('ynt-fail');
-                                    titleElement.removeAttribute('ynt-fail-retry');
-                                    titleElement.removeAttribute('ynt-original');
-                                    titleElement.setAttribute('title', currentTitle);
-                                    const existingSpans = titleElement.querySelectorAll('span[ynt-span]');
-                                    existingSpans.forEach(span => span.remove());
-                                }
+                            // Check for duplicate or unexpected text nodes (e.g. YouTube injected a new node)
+                            const directTextNodes = Array.from(titleElement.childNodes)
+                                .filter(node => node.nodeType === Node.TEXT_NODE && node.textContent?.trim());
+                            // If there is exactly one text node and it matches the current title, skip processing
+                            if (
+                                directTextNodes.length === 1 &&
+                                normalizeText(directTextNodes[0].textContent || '') === normalizeText(titleElement.getAttribute('title') || '')
+                            ) {
+                                continue;
                             } else {
-                                //If no span exists but ynt matches, force update (possible concatenation in textContent)
-                                //browsingTitlesLog(`No span found for video ${videoId}, forcing update of title element.`);
+                                // Clean all extension-related attributes if text nodes are out of sync or duplicated
                                 titleElement.removeAttribute('ynt');
                                 titleElement.removeAttribute('ynt-fail');
                                 titleElement.removeAttribute('ynt-fail-retry');
@@ -275,15 +222,12 @@ async function refreshBrowsingVideos(): Promise<void> {
                                 titleElement.setAttribute('title', currentTitle);
                             }
                         } else {
-                            // Clean all extension-related attributes and spans if videoId does not match
-                            //browsingTitlesLog(`Cleaning up title element for video ${videoId} as it does not match current ynt attribute.`);
+                            // Clean all extension-related attributes if videoId does not match current ynt attribute
                             titleElement.removeAttribute('ynt');
                             titleElement.removeAttribute('ynt-fail');
                             titleElement.removeAttribute('ynt-fail-retry');
                             titleElement.removeAttribute('ynt-original');
                             titleElement.setAttribute('title', currentTitle);
-                            const existingSpans = titleElement.querySelectorAll('span[ynt-span]');
-                            existingSpans.forEach(span => span.remove());
                         }
                     }
 
@@ -324,7 +268,25 @@ async function refreshBrowsingVideos(): Promise<void> {
                                 browsingTitlesErrorLog(`Both oEmbed and fallback failed for ${videoId} after retry, keeping current title: ${normalizeText(currentTitle)}`);
                                 titleElement.removeAttribute('ynt-fail-retry');
                                 titleElement.setAttribute('ynt-fail', videoId);
-                                currentTitle && titleElement.setAttribute('title', currentTitle);
+
+                                if (!currentTitle) {
+                                    const parentTitle = titleElement.parentElement?.getAttribute('title');
+                                    if (parentTitle) {
+                                        titleElement.textContent = parentTitle;
+                                        if (titleElement.getAttribute('title') !== parentTitle) {
+                                            titleElement.setAttribute('title', parentTitle);
+                                        }
+                                        browsingTitlesErrorLog(
+                                            `No title found for %c${videoId}%c and no title element, restoring title: %c${normalizeText(parentTitle)}%c`,
+                                            'color: #4ade80',
+                                            'color: #F44336',
+                                            'color: white',
+                                            'color: #F44336'
+                                        );
+                                    }
+                                } else if (titleElement.getAttribute('title') !== currentTitle) {
+                                    titleElement.setAttribute('title', currentTitle);
+                                }
                                 continue;
                             } else {
                                 // First failure - allow retry
@@ -334,9 +296,36 @@ async function refreshBrowsingVideos(): Promise<void> {
                             }
                         } else if (!originalTitle) {
                             // If we still don't have a title, mark as failed
-                            browsingTitlesErrorLog(`No title found for ${videoId}, keeping current title: ${normalizeText(currentTitle)}`);
                             titleElement.setAttribute('ynt-fail', videoId);
-                            currentTitle && titleElement.setAttribute('title', currentTitle);
+                            
+                            if (!currentTitle) {
+                                // Try to use the parent element's title attribute as a fallback
+                                const parentTitle = titleElement.parentElement?.getAttribute('title');
+                                if (parentTitle) {
+                                    titleElement.textContent = parentTitle;
+                                    if (titleElement.getAttribute('title') !== parentTitle) {
+                                        titleElement.setAttribute('title', parentTitle);
+                                    }
+                                    browsingTitlesErrorLog(
+                                        `No title found for %c${videoId}%c and no title element, restoring title: %c${normalizeText(parentTitle)}%c`,
+                                        'color: #4ade80', // videoId color
+                                        'color: #F44336', // reset color
+                                        'color: white',   // parentTitle color
+                                        'color: #F44336'  // reset color
+                                    );                                    
+                                }
+                            } else {
+                                if (titleElement.getAttribute('title') !== currentTitle) {
+                                    titleElement.setAttribute('title', currentTitle);
+                                }
+                                browsingTitlesErrorLog(
+                                    `No title found for %c${videoId}%c, keeping current title: %c${normalizeText(currentTitle)}%c`,
+                                    'color: #4ade80', // videoId color
+                                    'color: #F44336', // reset color
+                                    'color: white',   // parentTitle color
+                                    'color: #F44336'  // reset color
+                                );
+                            }
                             continue;
                         }
 

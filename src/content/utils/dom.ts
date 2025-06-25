@@ -33,3 +33,24 @@ function waitForElement(selector: string, timeout = 7500): Promise<Element> {
         }, timeout);
     });
 }
+
+
+// Waits for all #video-title elements to be present and non-empty before resolving
+function waitForFilledVideoTitles(timeout = 5000): Promise<void> {
+    return new Promise((resolve, reject) => {
+        const start = Date.now();
+        function check() {
+            const titles = Array.from(document.querySelectorAll('#video-title'));
+            const allFilled = titles.length > 0 && titles.every(el => el.textContent && el.textContent.trim().length > 0);
+            if (allFilled) {
+                resolve();
+            } else if (Date.now() - start > timeout) {
+                // Timeout: resolve anyway to avoid blocking forever
+                resolve();
+            } else {
+                setTimeout(check, 50);
+            }
+        }
+        check();
+    });
+}

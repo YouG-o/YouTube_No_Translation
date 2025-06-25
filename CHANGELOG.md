@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Refactored
+- Browsing titles : remove span logic and update video title directly via textContent for clarity and maintainability
+- Improved concatenated / empty titles handling.
+
 ## [2.4.27] - 2025-06-24
 
 ### Fixed

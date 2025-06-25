@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.4.30] - 2025-06-25
+
 ### Refactored
 - Browsing titles : remove span logic and update video title directly via textContent for clarity and maintainability
 - Improved concatenated / empty titles handling.
@@ -170,7 +172,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 *Note: This changelog was introduced in version 2.2.30. For earlier version history, please refer to the [GitHub releases](https://github.com/YouG-o/YouTube_No_Translation/releases).*
 
-[Unreleased]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.4.27...HEAD
+[Unreleased]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.4.30...HEAD
+[2.4.30]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.4.27...v2.4.30
 [2.4.27]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.4.25...v2.4.27
 [2.4.25]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.4.24...v2.4.25
 [2.4.24]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.4.21...v2.4.24

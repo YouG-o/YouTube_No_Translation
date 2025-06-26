@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.4.31] - 2025-06-26
+
+### Fixed
+- Prevent concatenated titles from being copied into the title attribute when original title retrieval fails (ynt-fail): now always restores the parent title instead of propagating a polluted value.
+
 ## [2.4.30] - 2025-06-25
 
 ### Refactored
@@ -172,7 +177,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 *Note: This changelog was introduced in version 2.2.30. For earlier version history, please refer to the [GitHub releases](https://github.com/YouG-o/YouTube_No_Translation/releases).*
 
-[Unreleased]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.4.30...HEAD
+[Unreleased]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.4.31...HEAD
+[2.4.31]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.4.30...v2.4.31
 [2.4.30]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.4.27...v2.4.30
 [2.4.27]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.4.25...v2.4.27
 [2.4.25]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.4.24...v2.4.25

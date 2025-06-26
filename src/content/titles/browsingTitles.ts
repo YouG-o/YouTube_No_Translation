@@ -208,10 +208,7 @@ async function refreshBrowsingVideos(): Promise<void> {
                             const directTextNodes = Array.from(titleElement.childNodes)
                                 .filter(node => node.nodeType === Node.TEXT_NODE && node.textContent?.trim());
                             // If there is exactly one text node and it matches the current title, skip processing
-                            if (
-                                directTextNodes.length === 1 &&
-                                normalizeText(directTextNodes[0].textContent || '') === normalizeText(titleElement.getAttribute('title') || '')
-                            ) {
+                            if (directTextNodes.length === 1 && normalizeText(directTextNodes[0].textContent || '') === normalizeText(titleElement.getAttribute('title') || '')) {
                                 continue;
                             } else {
                                 // Clean all extension-related attributes if text nodes are out of sync or duplicated
@@ -219,7 +216,6 @@ async function refreshBrowsingVideos(): Promise<void> {
                                 titleElement.removeAttribute('ynt-fail');
                                 titleElement.removeAttribute('ynt-fail-retry');
                                 titleElement.removeAttribute('ynt-original');
-                                titleElement.setAttribute('title', currentTitle);
                             }
                         } else {
                             // Clean all extension-related attributes if videoId does not match current ynt attribute
@@ -227,18 +223,36 @@ async function refreshBrowsingVideos(): Promise<void> {
                             titleElement.removeAttribute('ynt-fail');
                             titleElement.removeAttribute('ynt-fail-retry');
                             titleElement.removeAttribute('ynt-original');
-                            titleElement.setAttribute('title', currentTitle);
                         }
                     }
 
                     if (titleElement.hasAttribute('ynt-fail')) {
                         if (titleElement.getAttribute('ynt-fail') === videoId) {
+                            const parentTitle = titleElement.parentElement?.getAttribute('title');
+                            if (parentTitle){
+                                if (normalizeText(titleElement.getAttribute('title')) !== normalizeText(parentTitle)) {
+                                    titleElement.setAttribute('title', parentTitle);
+                                }
+                                if (normalizeText(titleElement.textContent) !== normalizeText(parentTitle)) {
+                                    titleElement.textContent = parentTitle;
+                                }
+                            }
                             continue;
                         }
                         titleElement.removeAttribute('ynt-fail');
                     }
+
                     if (titleElement.hasAttribute('ynt-original')) {
                         if (titleElement.getAttribute('ynt-original') === videoId) {
+                            const parentTitle = titleElement.parentElement?.getAttribute('title');
+                            if (parentTitle){
+                                if (normalizeText(titleElement.getAttribute('title')) !== normalizeText(parentTitle)) {
+                                    titleElement.setAttribute('title', parentTitle);
+                                }
+                                if (normalizeText(titleElement.textContent) !== normalizeText(parentTitle)) {
+                                    titleElement.textContent = parentTitle;
+                                }
+                            }
                             continue;
                         }
                         titleElement.removeAttribute('ynt-original');
@@ -268,12 +282,12 @@ async function refreshBrowsingVideos(): Promise<void> {
                                 browsingTitlesErrorLog(`Both oEmbed and fallback failed for ${videoId} after retry, keeping current title: ${normalizeText(currentTitle)}`);
                                 titleElement.removeAttribute('ynt-fail-retry');
                                 titleElement.setAttribute('ynt-fail', videoId);
+                                const parentTitle = titleElement.parentElement?.getAttribute('title');
 
                                 if (!currentTitle) {
-                                    const parentTitle = titleElement.parentElement?.getAttribute('title');
                                     if (parentTitle) {
                                         titleElement.textContent = parentTitle;
-                                        if (titleElement.getAttribute('title') !== parentTitle) {
+                                        if (normalizeText(titleElement.getAttribute('title')) !== normalizeText(parentTitle)) {
                                             titleElement.setAttribute('title', parentTitle);
                                         }
                                         browsingTitlesErrorLog(
@@ -284,7 +298,7 @@ async function refreshBrowsingVideos(): Promise<void> {
                                             'color: #F44336'
                                         );
                                     }
-                                } else if (titleElement.getAttribute('title') !== currentTitle) {
+                                } else if (normalizeText(titleElement.getAttribute('title')) !== normalizeText(currentTitle)) {
                                     titleElement.setAttribute('title', currentTitle);
                                 }
                                 continue;
@@ -297,13 +311,12 @@ async function refreshBrowsingVideos(): Promise<void> {
                         } else if (!originalTitle) {
                             // If we still don't have a title, mark as failed
                             titleElement.setAttribute('ynt-fail', videoId);
+                            const parentTitle = titleElement.parentElement?.getAttribute('title');
                             
                             if (!currentTitle) {
-                                // Try to use the parent element's title attribute as a fallback
-                                const parentTitle = titleElement.parentElement?.getAttribute('title');
                                 if (parentTitle) {
                                     titleElement.textContent = parentTitle;
-                                    if (titleElement.getAttribute('title') !== parentTitle) {
+                                    if (normalizeText(titleElement.getAttribute('title')) !== normalizeText(parentTitle)) {
                                         titleElement.setAttribute('title', parentTitle);
                                     }
                                     browsingTitlesErrorLog(
@@ -315,8 +328,13 @@ async function refreshBrowsingVideos(): Promise<void> {
                                     );                                    
                                 }
                             } else {
-                                if (titleElement.getAttribute('title') !== currentTitle) {
-                                    titleElement.setAttribute('title', currentTitle);
+                                if (parentTitle){
+                                    if (normalizeText(titleElement.getAttribute('title')) !== normalizeText(parentTitle)) {
+                                        titleElement.setAttribute('title', parentTitle);
+                                    }
+                                    if (normalizeText(currentTitle) !== normalizeText(parentTitle)) {
+                                        titleElement.textContent = parentTitle;
+                                    }
                                 }
                                 browsingTitlesErrorLog(
                                     `No title found for %c${videoId}%c, keeping current title: %c${normalizeText(currentTitle)}%c`,
@@ -333,12 +351,9 @@ async function refreshBrowsingVideos(): Promise<void> {
                             //browsingTitlesLog('Title is not translated: ', videoId);
                             titleElement.removeAttribute('ynt');
                             titleElement.setAttribute('ynt-original', videoId);
-                            currentTitle && titleElement.setAttribute('title', currentTitle);
-                            continue;
-                        }
-                        
-                        if (normalizeText(titleElement.getAttribute('title')) === normalizeText(originalTitle)) {
-                            titleElement.setAttribute('ynt', videoId);
+                            if (normalizeText(titleElement.getAttribute('title')) !== normalizeText(currentTitle)) {
+                                titleElement.setAttribute('title', currentTitle);
+                            }
                             continue;
                         }
                         //browsingTitlesLog('Title is translated: ', videoId);

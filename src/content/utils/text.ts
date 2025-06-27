@@ -17,20 +17,19 @@ function normalizeText(text: string | null | undefined, description = false): st
     let normalizedText = text;
     
     if (description) {
-        // For descriptions, we need more aggressive normalization
-
+        // Remove URLs
         normalizedText = normalizedText.replace(/https?:\/\/(?:www\.)?[^\s]+/g, '');
+        // Remove mentions and hashtags
         normalizedText = normalizedText.replace(/\/\s*@?[a-zA-Z0-9_-]+/g, '');
         normalizedText = normalizedText.replace(/@[a-zA-Z0-9_-]+/g, '');
-        
-        normalizedText = normalizedText.replace(/[^\w\s]/g, ''); // Remove punctuation and special characters
-        normalizedText = normalizedText.replace(/\d+:\d+/g, '');  // Remove timestamps
-        normalizedText = normalizedText.toLowerCase();            // Convert to lowercase
-        
-        //remove all non-alphanumeric characters
-        normalizedText = normalizedText.replace(/[^a-z0-9]/g, '');
+        // Remove timestamps
+        normalizedText = normalizedText.replace(/\d+:\d+/g, '');
+        // Remove all characters except Unicode letters, numbers, and spaces
+        normalizedText = normalizedText.replace(/[^\p{L}\p{N}\s]/gu, '');
+        // Convert to lowercase (will not affect CJK, but ok for global logic)
+        normalizedText = normalizedText.toLowerCase();
     }
-    
+
     return normalizedText
         .normalize('NFD')  // Decompose accented characters
         .replace(/[\u0300-\u036f]/g, '') // Remove diacritics

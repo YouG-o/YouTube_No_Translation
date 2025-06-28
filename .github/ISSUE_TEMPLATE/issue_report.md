@@ -47,3 +47,13 @@ assignees: 'YouG-o'
 ## Additional Context (Optional)
 <!-- Add any other context about the problem here -->
 <!-- For example: does it happen on all videos or just specific ones? Did it work before and stopped working recently? -->
+
+<!-- 
+⚠️ If your issue is related to video titles, please also provide the HTML of the title element and its children.
+To do this:
+1. Right-click on the title or its link in the YouTube page.
+2. Click "Inspect".
+3. In the Elements panel, right-click on the relevant <a> (the one that contain the <yt-formatted-string> element).
+4. Select "Copy" > "Copy outer HTML".
+5. Paste the result here.
+-->

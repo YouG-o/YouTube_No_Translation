@@ -77,7 +77,7 @@ async function refreshNotificationTitles(): Promise<void> {
             await new Promise(resolve => setTimeout(resolve, 600));
         }
 
-        if (originalTitle && normalizeText(currentTitle) !== normalizeText(originalTitle)) {
+        if (originalTitle && !normalizeText(currentTitle).includes(normalizeText(originalTitle))) {
             titleElement.textContent = originalTitle;
             titlesLog(
                 `Updated pop-up title from : %c${normalizeText(currentTitle)}%c to : %c${normalizeText(originalTitle)}%c (video id : %c${videoId}%c)`,

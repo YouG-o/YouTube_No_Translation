@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- Check if current notification title contains original title instead of strict equality, to handle prefix in textContent
+
 ## [2.4.40] - 2025-06-30
 
 ### Added

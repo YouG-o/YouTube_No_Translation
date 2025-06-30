@@ -621,6 +621,43 @@ function cleanupPlaylistVideosObserver() {
 
 
 
+// NOTIFICATION TITLES OBSERVER ------------------------------------------------------
+let notificationTitlesDropdownObserver: MutationObserver | null = null;
+let notificationDropdownHandled = false;
+
+function setupNotificationTitlesDropdownObserver() {
+    cleanupNotificationTitlesDropdownObserver();
+    notificationDropdownHandled = false;
+
+    notificationTitlesDropdownObserver = new MutationObserver(() => {
+        const dropdown = document.querySelector('tp-yt-iron-dropdown[vertical-align="top"]');
+        if (dropdown && !notificationDropdownHandled) {
+            notificationDropdownHandled = true;
+            coreLog('Notification titles dropdown appeared, setting up observer');
+            setupNotificationTitlesObserver();
+            // Disconnect the observer to avoid repeated triggers
+            notificationTitlesDropdownObserver?.disconnect();
+        }
+    });
+
+    notificationTitlesDropdownObserver.observe(document.body, {
+        childList: true,
+        subtree: true
+    });
+}
+
+function cleanupNotificationTitlesDropdownObserver() {
+    if (notificationTitlesDropdownObserver) {
+        notificationTitlesDropdownObserver.disconnect();
+        notificationTitlesDropdownObserver = null;
+    }
+    notificationDropdownHandled = false;
+    if (typeof cleanupNotificationTitlesObserver === 'function') {
+        cleanupNotificationTitlesObserver();
+    }
+}
+
+
 // URL OBSERVER -----------------------------------------------------------
 function setupUrlObserver() {
     coreLog('Setting up URL observer');    
@@ -689,9 +726,12 @@ function handleUrlChange() {
     cleanupChaptersObserver();
 
     cleanupAllSearchDescriptionsObservers();
-    
-    //coreLog('Observers cleaned up');
 
+    cleanupNotificationTitlesDropdownObserver();
+
+    //coreLog('Observers cleaned up');
+    
+    currentSettings?.titleTranslation && setupNotificationTitlesDropdownObserver();
     
     if (currentSettings?.titleTranslation) {
         setTimeout(() => {

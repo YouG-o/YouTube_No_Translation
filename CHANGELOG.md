@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.4.40] - 2025-06-30
+
+### Added
+- Added original title restoration for notification popup: notification dropdown is now observed and notification titles are replaced with their original (non-translated) versions when the popup is opened or updated.
+
 ## [2.4.32] - 2025-06-27
 
 ### Fixed
@@ -182,7 +187,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 *Note: This changelog was introduced in version 2.2.30. For earlier version history, please refer to the [GitHub releases](https://github.com/YouG-o/YouTube_No_Translation/releases).*
 
-[Unreleased]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.4.32...HEAD
+[Unreleased]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.4.40...HEAD
+[2.4.40]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.4.32...v2.4.40
 [2.4.32]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.4.31...v2.4.32
 [2.4.31]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.4.30...v2.4.31
 [2.4.30]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.4.27...v2.4.30

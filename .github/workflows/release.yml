@@ -35,40 +35,6 @@ jobs:
       id: package_version
       run: echo "PACKAGE_VERSION=$(node -p "require('./package.json').version")" >> $GITHUB_OUTPUT
       
-    - name: Clean Firefox ZIP
-      run: |
-        cd web-ext-artifacts/firefox
-        unzip firefox-ynt-*.zip -d temp-firefox
-        rm firefox-ynt-*.zip
-        cd temp-firefox
-        # Keep only necessary files
-        mkdir cleaned
-        cp -r dist cleaned/
-        cp LICENSE cleaned/
-        cp CHANGELOG.md cleaned/
-        cp manifest.json cleaned/
-        cd cleaned
-        zip -r ../../firefox-ynt-${{ steps.package_version.outputs.PACKAGE_VERSION }}.zip .
-        cd ../..
-        rm -rf temp-firefox
-        
-    - name: Clean Chrome ZIP
-      run: |
-        cd web-ext-artifacts/chrome
-        unzip chrome-ynt-*.zip -d temp-chrome
-        rm chrome-ynt-*.zip
-        cd temp-chrome
-        # Keep only necessary files
-        mkdir cleaned
-        cp -r dist cleaned/
-        cp LICENSE cleaned/
-        cp CHANGELOG.md cleaned/
-        cp manifest.json cleaned/
-        cd cleaned
-        zip -r ../../chrome-ynt-${{ steps.package_version.outputs.PACKAGE_VERSION }}.zip .
-        cd ../..
-        rm -rf temp-chrome
-
     - name: Upload Firefox extension to release
       uses: actions/upload-release-asset@v1
       env:

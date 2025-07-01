@@ -202,16 +202,6 @@ function updateDescriptionElement(element: HTMLElement, description: string): vo
         snippetAttributedString.appendChild(span.cloneNode(true));
     }
 
-    // Prevent translation on all levels
-    [element, attributedString, snippetAttributedString].forEach(el => {
-        if (el) {
-            el.setAttribute('translate', 'no');
-            if (el instanceof HTMLElement) {
-                el.style.setProperty('translate', 'no', 'important');
-            }
-        }
-    });
-    
     descriptionCache.setElement(element, description);
     
     // Set up content observer to prevent re-translation

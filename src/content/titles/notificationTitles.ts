@@ -69,8 +69,28 @@ async function refreshNotificationTitles(): Promise<void> {
         const apiUrl = `https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${videoId}`;
         let originalTitle = await titleCache.getOriginalTitle(apiUrl);
         let currentTitle = titleElement.textContent;
-        
-        // Fallback if needed
+
+        // If oEmbed fails, try YouTube Data API v3 if enabled and API key available
+        if (!originalTitle && currentSettings?.youtubeDataApi?.enabled && currentSettings?.youtubeDataApi?.apiKey) {
+            try {
+                const youtubeApiUrl = `https://www.googleapis.com/youtube/v3/videos?id=${videoId}&key=${currentSettings.youtubeDataApi.apiKey}&part=snippet`;
+                const response = await fetch(youtubeApiUrl);
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.items && data.items.length > 0) {
+                        originalTitle = data.items[0].snippet.title;
+                        //titlesLog(`Retrieved notification title via YouTube Data API v3 for ${videoId}`);
+                    }
+                } else {
+                    titlesErrorLog(`YouTube Data API v3 failed for notification ${videoId}: ${response.status} ${response.statusText}`);
+                }
+            } catch (apiError) {
+                titlesErrorLog(`YouTube Data API v3 error for notification ${videoId}:`, apiError);
+            }
+        }
+
+        // Player API fallback if oEmbed (and YouTube Data API v3 if activated) fails
         if (!originalTitle && currentSettings?.titlesFallbackApi) {
             const fallbackTitle = await getBrowsingTitleFallback(videoId);
             if (fallbackTitle) originalTitle = fallbackTitle;

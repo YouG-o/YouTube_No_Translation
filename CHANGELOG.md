@@ -10,6 +10,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Added YouTube Data API v3 fallback for notification titles: notification titles now use the Data API as a fallback.
 
+### Fixed
+- Improved notification dropdown observer: now detects visibility changes instead of just DOM presence, ensuring notification titles are always restored and preventing premature observer cleanup.
+
 ### Refactored
 - Unified settings structure: audio and subtitles settings now use objects with `enabled` and `language` properties.
 - Grouped experimental fallback options (`titles`, `searchResultsDescriptions`) under `youtubeIsolatedPlayerFallback` for better clarity and maintainability.

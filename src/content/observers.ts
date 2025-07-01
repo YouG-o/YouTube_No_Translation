@@ -631,18 +631,30 @@ function setupNotificationTitlesDropdownObserver() {
 
     notificationTitlesDropdownObserver = new MutationObserver(() => {
         const dropdown = document.querySelector('tp-yt-iron-dropdown[vertical-align="top"]');
-        if (dropdown && !notificationDropdownHandled) {
+        if (!dropdown) return;
+        
+        // Check if dropdown is visible by looking at computed style
+        const computedStyle = window.getComputedStyle(dropdown);
+        const isVisible = computedStyle.display !== 'none';
+        
+        if (isVisible && !notificationDropdownHandled) {
+            // Dropdown became visible
             notificationDropdownHandled = true;
             coreLog('Notification titles dropdown appeared, setting up observer');
             setupNotificationTitlesObserver();
-            // Disconnect the observer to avoid repeated triggers
-            notificationTitlesDropdownObserver?.disconnect();
+        } else if (!isVisible && notificationDropdownHandled) {
+            // Dropdown became hidden
+            notificationDropdownHandled = false;
+            coreLog('Notification titles dropdown disappeared, ready for next opening');
+            cleanupNotificationTitlesObserver();
         }
     });
 
     notificationTitlesDropdownObserver.observe(document.body, {
         childList: true,
-        subtree: true
+        subtree: true,
+        attributes: true,
+        attributeFilter: ['style']
     });
 }
 
@@ -652,9 +664,7 @@ function cleanupNotificationTitlesDropdownObserver() {
         notificationTitlesDropdownObserver = null;
     }
     notificationDropdownHandled = false;
-    if (typeof cleanupNotificationTitlesObserver === 'function') {
-        cleanupNotificationTitlesObserver();
-    }
+    cleanupNotificationTitlesObserver();
 }
 
 

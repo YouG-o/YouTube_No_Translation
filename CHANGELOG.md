@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.5.0] - 2025-07-01
+
 ### Added
 - **YouTube Data API v3 Support**: New fallback system using official YouTube Data API v3 for reliable title and description retrieval
   - User-configurable API key storage in popup settings (stored locally in browser)
@@ -199,7 +201,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 *Note: This changelog was introduced in version 2.2.30. For earlier version history, please refer to the [GitHub releases](https://github.com/YouG-o/YouTube_No_Translation/releases).*
 
-[Unreleased]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.4.40...HEAD
+[Unreleased]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.5.0...HEAD
+[2.5.0]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.4.40...v2.5.0
 [2.4.40]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.4.32...v2.4.40
 [2.4.32]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.4.31...v2.4.32
 [2.4.31]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.4.30...v2.4.31

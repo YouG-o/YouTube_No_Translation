@@ -91,7 +91,7 @@ async function refreshNotificationTitles(): Promise<void> {
         }
 
         // Player API fallback if oEmbed (and YouTube Data API v3 if activated) fails
-        if (!originalTitle && currentSettings?.titlesFallbackApi) {
+        if (!originalTitle && currentSettings?.youtubeIsolatedPlayerFallback?.titles) {
             const fallbackTitle = await getBrowsingTitleFallback(videoId);
             if (fallbackTitle) originalTitle = fallbackTitle;
             await new Promise(resolve => setTimeout(resolve, 600));

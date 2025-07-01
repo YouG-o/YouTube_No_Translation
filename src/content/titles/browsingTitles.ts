@@ -284,7 +284,7 @@ async function refreshBrowsingVideos(): Promise<void> {
                     }
                     
                     // If oEmbed (and YouTube Data API if activated) failed, try player API fallback ONLY if BETA option is enabled
-                    if (!originalTitle && currentSettings?.titlesFallbackApi) {
+                    if (!originalTitle && currentSettings?.youtubeIsolatedPlayerFallback?.titles) {
                         //browsingTitlesLog(`oEmbed failed for ${videoId}, trying player API fallback...`);
                         const fallbackTitle = await getBrowsingTitleFallback(videoId);
                         if (fallbackTitle) {
@@ -296,7 +296,7 @@ async function refreshBrowsingVideos(): Promise<void> {
                     }
                     
                     try {
-                        if (!originalTitle && currentSettings?.titlesFallbackApi) {
+                        if (!originalTitle && currentSettings?.youtubeIsolatedPlayerFallback?.titles) {
                             // Check if this was already a retry attempt
                             if (titleElement.hasAttribute('ynt-fail-retry')) {
                                 // Second failure - mark as permanent fail
@@ -390,7 +390,7 @@ async function refreshBrowsingVideos(): Promise<void> {
                     }
 
                     // Process search descriptions if on search page and feature enabled
-                    if (isSearchResultsPage() && isTranslated && currentSettings?.descriptionTranslation && (currentSettings?.descriptionSearchResults || (currentSettings?.youtubeDataApi?.enabled && currentSettings?.youtubeDataApi?.apiKey))) {
+                    if (isSearchResultsPage() && isTranslated && currentSettings?.descriptionTranslation && (currentSettings?.youtubeIsolatedPlayerFallback?.searchResultsDescriptions || (currentSettings?.youtubeDataApi?.enabled && currentSettings?.youtubeDataApi?.apiKey))) {
                         
                         try {
                             // Find the video element container to get description

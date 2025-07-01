@@ -11,7 +11,7 @@
 
 interface Message {
     action: 'toggleTranslation';
-    feature: 'titles' | 'titlesFallbackApi' | 'audio' | 'description' | 'descriptionSearchResults' | 'subtitles';
+    feature: 'titles' | 'isolatedPlayerTitles' | 'audio' | 'description' | 'isolatedPlayerDescriptionSearch' | 'subtitles';
     isEnabled: boolean;
 }
 
@@ -36,13 +36,15 @@ interface YouTubePlayer extends HTMLElement {
 
 interface ExtensionSettings {
     titleTranslation: boolean;
-    titlesFallbackApi: boolean;
     audioTranslation: boolean;
     audioLanguage: string;
     descriptionTranslation: boolean;
-    descriptionSearchResults: boolean;
     subtitlesTranslation: boolean;
     subtitlesLanguage: string;
+    youtubeIsolatedPlayerFallback: {
+        titles: boolean;
+        searchResultsDescriptions: boolean;
+    };
     youtubeDataApi: {
         enabled: boolean;
         apiKey: string;

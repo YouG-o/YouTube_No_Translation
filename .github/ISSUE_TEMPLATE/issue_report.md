@@ -37,8 +37,9 @@ assignees: 'YouG-o'
 - [ ] Description translation prevention  
 - [ ] Audio language preference
 - [ ] Subtitles language preference
-- [ ] BETA: Player API Fallback for Browsing Titles
-- [ ] BETA: Search Results Description Replacement
+- [ ] YouTube Data API v3
+- [ ] BETA: Fallback for Browsing Titles (player API)
+- [ ] BETA: Search Results Description Replacement (player API)
 
 ## Screenshots (Optional)
 <!-- If applicable, add screenshots to help explain your problem -->
@@ -47,7 +48,6 @@ assignees: 'YouG-o'
 ## Additional Context (Optional)
 <!-- Add any other context about the problem here -->
 <!-- For example: does it happen on all videos or just specific ones? Did it work before and stopped working recently? -->
-
 <!-- 
 ⚠️ If your issue is related to video titles, please also provide the HTML of the title element and its children.
 To do this:
@@ -57,3 +57,8 @@ To do this:
 4. Select "Copy" > "Copy outer HTML".
 5. Paste the result here.
 -->
+
+## Other YouTube-related extensions you are using
+<!-- Please list any other browser extensions/add-ons you have installed that interact with YouTube -->
+<!-- This helps identify possible conflicts or side effects. For example : DeArrow can cause conflicts as it also interact with videos titles -->
+

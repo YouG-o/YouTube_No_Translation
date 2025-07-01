@@ -16,8 +16,11 @@ const descriptionSearchToggle = document.getElementById('descriptionSearchResult
 const subtitlesToggle = document.getElementById('subtitlesTranslation') as HTMLInputElement;
 const subtitlesLanguageSelect = document.getElementById('subtitlesLanguage') as HTMLSelectElement;
 const extensionVersionElement = document.getElementById('extensionVersion') as HTMLSpanElement;
+const youtubeDataApiToggle = document.getElementById('youtubeDataApiEnabled') as HTMLInputElement;
+const youtubeDataApiKeyInput = document.getElementById('youtubeDataApiKey') as HTMLInputElement;
+const youtubeApiKeyContainer = document.getElementById('youtubeApiKeyContainer') as HTMLDivElement;
 
-// Advanced features collapsible section
+// Advanced features collapsible section - only exists in popup
 const advancedFeaturesToggle = document.getElementById('advancedFeaturesToggle') as HTMLDivElement;
 const advancedFeaturesContent = document.getElementById('advancedFeaturesContent') as HTMLDivElement;
 const advancedFeaturesArrow = document.getElementById('advancedFeaturesArrow');
@@ -32,18 +35,16 @@ function displayExtensionVersion() {
 
 // Function to toggle advanced features section
 function toggleAdvancedFeatures() {
+    if (!advancedFeaturesContent || !advancedFeaturesArrow) return;
+    
     const isHidden = advancedFeaturesContent.classList.contains('hidden');
     if (isHidden) {
         advancedFeaturesContent.classList.remove('hidden');
-        if (advancedFeaturesArrow) {
-            advancedFeaturesArrow.style.transform = 'rotate(180deg)';
-        }
-        adjustTooltipPositions(); // Recalculate tooltip positions when section is shown
+        advancedFeaturesArrow.style.transform = 'rotate(180deg)';
+        adjustTooltipPositions();
     } else {
         advancedFeaturesContent.classList.add('hidden');
-        if (advancedFeaturesArrow) {
-            advancedFeaturesArrow.style.transform = 'rotate(0deg)';
-        }
+        advancedFeaturesArrow.style.transform = 'rotate(0deg)';
     }
 }
 
@@ -62,7 +63,11 @@ document.addEventListener('DOMContentLoaded', async () => {
                 descriptionTranslation: true,
                 descriptionSearchResults: false,
                 subtitlesTranslation: false,
-                subtitlesLanguage: 'original'
+                subtitlesLanguage: 'original',
+                youtubeDataApi: {
+                    enabled: false,
+                    apiKey: ''
+                }
             };
             await browser.storage.local.set({
                 settings: defaultSettings
@@ -75,6 +80,8 @@ document.addEventListener('DOMContentLoaded', async () => {
             descriptionSearchToggle.checked = defaultSettings.descriptionSearchResults;
             subtitlesToggle.checked = defaultSettings.subtitlesTranslation;
             subtitlesLanguageSelect.value = defaultSettings.subtitlesLanguage;
+            youtubeDataApiToggle.checked = defaultSettings.youtubeDataApi.enabled;
+            youtubeDataApiKeyInput.value = defaultSettings.youtubeDataApi.apiKey;
             return;
         }
         
@@ -86,6 +93,13 @@ document.addEventListener('DOMContentLoaded', async () => {
         descriptionToggle.checked = settings.descriptionTranslation;
         descriptionSearchToggle.checked = settings.descriptionSearchResults || false;
         subtitlesToggle.checked = settings.subtitlesTranslation;
+        youtubeDataApiToggle.checked = settings.youtubeDataApi?.enabled || false;
+        youtubeDataApiKeyInput.value = settings.youtubeDataApi?.apiKey || '';
+        
+        // Show/hide API key input based on toggle state (only for popup, not welcome)
+        if (youtubeDataApiToggle.checked && youtubeApiKeyContainer && youtubeApiKeyContainer.style.display !== undefined) {
+            youtubeApiKeyContainer.style.display = 'block';
+        }
         
         if (settings.subtitlesLanguage) {
             subtitlesLanguageSelect.value = settings.subtitlesLanguage;
@@ -122,8 +136,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 });
 
-// Handle advanced features toggle click
-advancedFeaturesToggle.addEventListener('click', toggleAdvancedFeatures);
+// Handle advanced features toggle click - only if element exists
+if (advancedFeaturesToggle) {
+    advancedFeaturesToggle.addEventListener('click', toggleAdvancedFeatures);
+}
 
 // Handle description search results toggle changes
 descriptionSearchToggle.addEventListener('change', async () => {
@@ -389,5 +405,61 @@ titlesFallbackApiToggle.addEventListener('change', async () => {
         }
     } catch (error) {
         console.error('Titles fallback API update error:', error);
+    }
+});
+
+// Handle YouTube Data API toggle changes
+youtubeDataApiToggle.addEventListener('change', async () => {
+    const isEnabled = youtubeDataApiToggle.checked;
+    
+    // Show/hide API key input only if container exists and has display style
+    if (youtubeApiKeyContainer && youtubeApiKeyContainer.style.display !== undefined) {
+        if (isEnabled) {
+            youtubeApiKeyContainer.style.display = 'block';
+        } else {
+            youtubeApiKeyContainer.style.display = 'none';
+        }
+    }
+    
+    // Save state
+    try {
+        const data = await browser.storage.local.get('settings');
+        const settings = data.settings as ExtensionSettings;
+        
+        await browser.storage.local.set({
+            settings: {
+                ...settings,
+                youtubeDataApi: {
+                    ...settings.youtubeDataApi,
+                    enabled: isEnabled
+                }
+            }
+        });
+        console.log('YouTube Data API state saved:', isEnabled);
+    } catch (error) {
+        console.error('YouTube Data API save error:', error);
+    }
+});
+
+// Handle YouTube Data API key changes
+youtubeDataApiKeyInput.addEventListener('input', async () => {
+    const apiKey = youtubeDataApiKeyInput.value.trim();
+    
+    try {
+        const data = await browser.storage.local.get('settings');
+        const settings = data.settings as ExtensionSettings;
+        
+        await browser.storage.local.set({
+            settings: {
+                ...settings,
+                youtubeDataApi: {
+                    ...settings.youtubeDataApi,
+                    apiKey: apiKey
+                }
+            }
+        });
+        console.log('YouTube Data API key saved');
+    } catch (error) {
+        console.error('YouTube Data API key save error:', error);
     }
 });

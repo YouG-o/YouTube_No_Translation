@@ -16,7 +16,11 @@ const DEFAULT_SETTINGS: ExtensionSettings = {
     descriptionTranslation: true,
     descriptionSearchResults: false,
     subtitlesTranslation: false,
-    subtitlesLanguage: 'original'
+    subtitlesLanguage: 'original',
+    youtubeDataApi: {
+        enabled: false,
+        apiKey: ''
+    }
 };
 
 // Define the type for installation details

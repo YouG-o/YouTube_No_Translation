@@ -7,8 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- **YouTube Data API v3 Support**: New fallback system using official YouTube Data API v3 for reliable title retrieval
+  - User-configurable API key storage in popup settings (stored locally in browser)
+  - Dedicated settings section with clear explanations and link to Google's API documentation
+  - Positioned as second fallback (after oEmbed, before experimental Player API) for optimal reliability
+  - Proper error handling and logging for API failures
+
 ### Fixed
 - Check if current notification title contains original title instead of strict equality, to handle prefix in textContent
+- Fixed popup settings synchronization between popup and welcome pages by adding proper element existence checks
 
 ## [2.4.40] - 2025-06-30
 

@@ -43,6 +43,10 @@ interface ExtensionSettings {
     descriptionSearchResults: boolean;
     subtitlesTranslation: boolean;
     subtitlesLanguage: string;
+    youtubeDataApi: {
+        enabled: boolean;
+        apiKey: string;
+    };
 }
 
 interface YouTubePlayerResponse {

@@ -13,8 +13,8 @@ async function syncAudioLanguagePreference() {
         const result = await browser.storage.local.get('settings');
         const settings = result.settings as ExtensionSettings;
         
-        if (settings?.audioLanguage) {
-            localStorage.setItem('ynt-audioLanguage', settings.audioLanguage);
+        if (settings?.audioTranslation?.language) {
+            localStorage.setItem('ynt-audioLanguage', settings.audioTranslation.language);
         }
     } catch (error) {
         audioErrorLog('Error syncing audio language preference:', error);

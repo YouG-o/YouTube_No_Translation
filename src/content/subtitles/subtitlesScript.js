@@ -92,8 +92,6 @@
         
         playerPollRetryCount = 0; // Reset poll counter for any future distinct script executions
 
-        // const subtitlesLanguage = localStorage.getItem('ynt-subtitlesLanguage') || 'original'; // This line is not needed here anymore
-
         // If this specific script instance has already started the API/state waiting process, don't restart it.
         if (settingsAttemptOrchestrationInitiated) {
             // log('Subtitle settings orchestration already initiated by this script instance.');

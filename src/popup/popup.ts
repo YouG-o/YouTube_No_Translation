@@ -57,11 +57,15 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (!data.settings) {
             const defaultSettings: ExtensionSettings = {
                 titleTranslation: true,
-                audioTranslation: true,
-                audioLanguage: 'original',
+                audioTranslation: {
+                    enabled: true,
+                    language: 'original',
+                },
                 descriptionTranslation: true,
-                subtitlesTranslation: false,
-                subtitlesLanguage: 'original',
+                subtitlesTranslation: {
+                    enabled: false,
+                    language: 'original',
+                },
                 youtubeIsolatedPlayerFallback: {
                     titles: false,
                     searchResultsDescriptions: false
@@ -76,12 +80,12 @@ document.addEventListener('DOMContentLoaded', async () => {
             });
             titleToggle.checked = defaultSettings.titleTranslation;
             isolatedPlayerTitlesToggle.checked = defaultSettings.youtubeIsolatedPlayerFallback.titles;
-            audioToggle.checked = defaultSettings.audioTranslation;
-            audioLanguageSelect.value = defaultSettings.audioLanguage;
+            audioToggle.checked = defaultSettings.audioTranslation?.enabled;
+            audioLanguageSelect.value = defaultSettings.audioTranslation?.language;
             descriptionToggle.checked = defaultSettings.descriptionTranslation;
             isolatedPlayerSearchDescriptionToggle.checked = defaultSettings.youtubeIsolatedPlayerFallback.searchResultsDescriptions;
-            subtitlesToggle.checked = defaultSettings.subtitlesTranslation;
-            subtitlesLanguageSelect.value = defaultSettings.subtitlesLanguage;
+            subtitlesToggle.checked = defaultSettings.subtitlesTranslation?.enabled;
+            subtitlesLanguageSelect.value = defaultSettings.subtitlesTranslation?.language;
             youtubeDataApiToggle.checked = defaultSettings.youtubeDataApi.enabled;
             youtubeDataApiKeyInput.value = defaultSettings.youtubeDataApi.apiKey;
             return;
@@ -91,10 +95,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         
         titleToggle.checked = settings.titleTranslation;
         isolatedPlayerTitlesToggle.checked = settings.youtubeIsolatedPlayerFallback.titles || false;
-        audioToggle.checked = settings.audioTranslation;
+        audioToggle.checked = settings.audioTranslation?.enabled
         descriptionToggle.checked = settings.descriptionTranslation;
         isolatedPlayerSearchDescriptionToggle.checked = settings.youtubeIsolatedPlayerFallback.searchResultsDescriptions || false;
-        subtitlesToggle.checked = settings.subtitlesTranslation;
+        subtitlesToggle.checked = settings.subtitlesTranslation?.enabled;
         youtubeDataApiToggle.checked = settings.youtubeDataApi?.enabled || false;
         youtubeDataApiKeyInput.value = settings.youtubeDataApi?.apiKey || '';
         
@@ -103,12 +107,12 @@ document.addEventListener('DOMContentLoaded', async () => {
             youtubeApiKeyContainer.style.display = 'block';
         }
         
-        if (settings.subtitlesLanguage) {
-            subtitlesLanguageSelect.value = settings.subtitlesLanguage;
+        if (settings.subtitlesTranslation?.language) {
+            subtitlesLanguageSelect.value = settings.subtitlesTranslation.language;
         }
 
-        if (settings.audioLanguage) {
-            audioLanguageSelect.value = settings.audioLanguage;
+        if (settings.audioTranslation?.language) {
+            audioLanguageSelect.value = settings.audioTranslation.language;
         } else {
             audioLanguageSelect.value = 'original';
         }
@@ -120,8 +124,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         );
         console.log(
             '[YNT] Settings loaded - Audio translation prevention is: %c%s',
-            settings.audioTranslation ? 'color: green; font-weight: bold' : 'color: red; font-weight: bold',
-            settings.audioTranslation ? 'ON' : 'OFF'
+            settings.audioTranslation?.enabled ? 'color: green; font-weight: bold' : 'color: red; font-weight: bold',
+            settings.audioTranslation?.enabled ? 'ON' : 'OFF'
         );
         console.log(
             '[YNT] Settings loaded - Description translation prevention is: %c%s',
@@ -130,8 +134,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         );
         console.log(
             '[YNT] Settings loaded - Subtitles translation prevention is: %c%s',
-            settings.subtitlesTranslation ? 'color: green; font-weight: bold' : 'color: red; font-weight: bold',
-            settings.subtitlesTranslation ? 'ON' : 'OFF'
+            settings.subtitlesTranslation?.enabled ? 'color: green; font-weight: bold' : 'color: red; font-weight: bold',
+            settings.subtitlesTranslation?.enabled ? 'ON' : 'OFF'
         );
     } catch (error) {
         console.error('Load error:', error);
@@ -221,7 +225,10 @@ audioToggle.addEventListener('change', async () => {
         await browser.storage.local.set({
             settings: {
                 ...settings,
-                audioTranslation: isEnabled
+                audioTranslation: {
+                    ...settings.audioTranslation,
+                    enabled: isEnabled
+                }
             }
         });
         console.log('Audio state saved');
@@ -282,7 +289,10 @@ subtitlesToggle.addEventListener('change', async () => {
         await browser.storage.local.set({
             settings: {
                 ...settings,
-                subtitlesTranslation: isEnabled
+                subtitlesTranslation: {
+                    ...settings.subtitlesTranslation,
+                    enabled: isEnabled
+                }
             }
         });
 
@@ -310,7 +320,10 @@ subtitlesLanguageSelect.addEventListener('change', async () => {
         await browser.storage.local.set({
             settings: {
                 ...settings,
-                subtitlesLanguage: selectedLanguage
+                subtitlesTranslation: {
+                    ...settings.subtitlesTranslation,
+                    language: selectedLanguage
+                }
             }
         });
         
@@ -340,7 +353,10 @@ audioLanguageSelect.addEventListener('change', async () => {
         await browser.storage.local.set({
             settings: {
                 ...settings,
-                audioLanguage: selectedLanguage
+                audioTranslation: {
+                    ...settings.audioTranslation,
+                    language: selectedLanguage
+                }
             }
         });
         

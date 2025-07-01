@@ -12,9 +12,9 @@ async function syncSubtitlesLanguagePreference() {
         const result = await browser.storage.local.get('settings');
         const settings = result.settings as ExtensionSettings;
         
-        if (settings?.subtitlesLanguage) {
-            localStorage.setItem('ynt-subtitlesLanguage', settings.subtitlesLanguage);
-            //subtitlesLog(`Synced subtitle language preference from extension storage: ${settings.subtitlesLanguage}`);
+        if (settings?.subtitlesTranslation?.language) {
+            localStorage.setItem('ynt-subtitlesLanguage', settings.subtitlesTranslation.language);
+            //subtitlesLog(`Synced subtitle language preference from extension storage: ${settings.subtitlesTranslation.language}`);
         }
     } catch (error) {
         subtitlesLog('Error syncing subtitle language preference:', error);

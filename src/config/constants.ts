@@ -10,11 +10,15 @@
 // Default settings as a constant
 const DEFAULT_SETTINGS: ExtensionSettings = {
     titleTranslation: true,
-    audioTranslation: true,
-    audioLanguage: 'original',
+    audioTranslation: {
+        enabled: true,
+        language: 'original',
+    },
     descriptionTranslation: true,
-    subtitlesTranslation: false,
-    subtitlesLanguage: 'original',
+    subtitlesTranslation: {
+        enabled: false,
+        language: 'original',
+    },
     youtubeIsolatedPlayerFallback: {
         titles: false,
         searchResultsDescriptions: false,

@@ -39,11 +39,11 @@ async function initializeFeatures() {
 
     currentSettings?.titleTranslation && initializeTitleTranslation();
 
-    currentSettings?.audioTranslation && initializeAudioTranslation();
+    currentSettings?.audioTranslation?.enabled && initializeAudioTranslation();
 
     currentSettings?.descriptionTranslation && initializeDescriptionTranslation();
-    
-    currentSettings?.subtitlesTranslation && initializeSubtitlesTranslation();
+
+    currentSettings?.subtitlesTranslation?.enabled && initializeSubtitlesTranslation();
 
 }
 
@@ -51,7 +51,7 @@ async function initializeFeatures() {
 let videoPlayerListenerInitialized = false;
 
 function initializeVideoPlayerListener() {
-    if (!videoPlayerListenerInitialized && (currentSettings?.audioTranslation || currentSettings?.subtitlesTranslation)) {
+    if (!videoPlayerListenerInitialized && (currentSettings?.audioTranslation?.enabled || currentSettings?.subtitlesTranslation?.enabled)) {
         setupVideoPlayerListener();
         videoPlayerListenerInitialized = true;
     }

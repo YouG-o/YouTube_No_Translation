@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.5.1] - 2025-07-02
+
 ### Added
 - Added YouTube Data API v3 fallback for notification titles: notification titles now use the Data API as a fallback.
 
@@ -215,7 +217,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 *Note: This changelog was introduced in version 2.2.30. For earlier version history, please refer to the [GitHub releases](https://github.com/YouG-o/YouTube_No_Translation/releases).*
 
-[Unreleased]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.5.0...HEAD
+[Unreleased]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.5.1...HEAD
+[2.5.1]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.5.0...v2.5.1
 [2.5.0]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.4.40...v2.5.0
 [2.4.40]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.4.32...v2.4.40
 [2.4.32]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.4.31...v2.4.32

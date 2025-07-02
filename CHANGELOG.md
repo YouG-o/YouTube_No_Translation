@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- Added options page support for Chrome, Firefox, and Safari: users can now access extension settings via the standard "Extension options" link in browser extension management pages.
+
+### Refactored
+- Renamed `welcome.html` to `settings.html` for better clarity and dual usage.
+- The settings page now supports both first install welcome mode and standard options page access.
+- Updated all manifests to declare the options page entry point.
+
 ## [2.5.11] - 2025-07-02
 
 ### Quickfix

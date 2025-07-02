@@ -80,7 +80,7 @@ async function toDoOnFirstInstall(details: InstalledDetails) {
         if (details.reason === 'install') {
         // Open the welcome page
         api.tabs.create({
-            url: api.runtime.getURL('dist/popup/welcome.html')
+            url: api.runtime.getURL('dist/popup/settings.html?welcome=true')
         });
 
         // Find all open YouTube and YouTube No-Cookie tabs and refresh them

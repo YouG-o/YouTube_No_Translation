@@ -64,5 +64,10 @@
         "*://*.youtube.com/*",
         "*://*.youtube-nocookie.com/*"
       ]
-  }]
+  }],
+
+  "options_ui": {
+    "page": "dist/popup/settings.html",
+    "open_in_tab": true
+  }
 }

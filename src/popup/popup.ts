@@ -142,6 +142,30 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 });
 
+// Check if this is a welcome page (first install)
+const urlParams = new URLSearchParams(window.location.search);
+const isWelcome = urlParams.get('welcome') === 'true';
+
+if (isWelcome) {
+    const pageTitle = document.getElementById('pageTitle');
+    const welcomeMessage = document.getElementById('welcomeMessage');
+    
+    if (pageTitle) {
+        // Keep the image and change only the text part
+        const imgElement = pageTitle.querySelector('img');
+        if (imgElement) {
+            pageTitle.innerHTML = '';
+            pageTitle.appendChild(imgElement);
+            pageTitle.appendChild(document.createTextNode('Welcome to YouTube No Translation!'));
+            pageTitle.className = 'text-2xl font-semibold text-white flex items-center gap-2 mb-2';
+        }
+    }
+    
+    if (welcomeMessage) {
+        welcomeMessage.classList.remove('hidden');
+    }
+}
+
 // Handle advanced features toggle click - only if element exists
 if (advancedFeaturesToggle) {
     advancedFeaturesToggle.addEventListener('click', toggleAdvancedFeatures);

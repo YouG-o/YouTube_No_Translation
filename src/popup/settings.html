@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="../styles/main.css">
-    <title>Welcome to YouTube No Translation!</title>
+    <title>YouTube No Translation!</title>
     <style>
         /* Additional styles for the welcome page for better centering and readability */
         body {
@@ -29,16 +29,18 @@
     <div class="welcome-container">
         <!-- Header -->
         <header class="pb-4 border-b border-gray-600">
-            <h1 class="text-2xl font-semibold text-white flex items-center gap-2 mb-2">
+            <h1 class="text-2xl font-semibold text-white flex items-center gap-2 mb-2" id="pageTitle">
                 <img src="../assets/icons/icon.png" alt="Logo" class="w-8 h-8">
-                Welcome to YouTube No Translation!
+                YouTube No Translation Settings
             </h1>
-            <p class="text-md text-gray-300 mb-1">
-                Thanks for installing! Here you can configure how the extension behaves.
-            </p>
-            <p class="text-sm text-gray-400">
-                These settings will help you keep YouTube content in its original form.
-            </p>
+            <div id="welcomeMessage" class="hidden">
+                <p class="text-md text-gray-300 mb-1">
+                    Thanks for installing! Here you can configure how the extension behaves.
+                </p>
+                <p class="text-sm text-gray-400">
+                    These settings will help you keep YouTube content in its original form.
+                </p>
+            </div>
             <div class="mt-3 text-xs text-gray-400 flex items-center gap-1">
                 Created by YouGo
                 <a href="https://github.com/YouG-o" target="_blank" rel="noopener noreferrer">

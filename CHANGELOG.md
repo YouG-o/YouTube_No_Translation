@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - Improved notification dropdown observer: now detects visibility changes instead of just DOM presence, ensuring notification titles are always restored and preventing premature observer cleanup.
+- Use more specific selector for notification dropdown observer (ytd-popup-container tp-yt-iron-dropdown[vertical-align="top"])
 - Improved playlist observer: now detects changes inside playlists, ensuring video title updates are always handled.
 - Updated album/playlist detection: reliably distinguishes albums/playlists from individual playlist videos, preventing album/playlist titles from being overwritten by the first video title.
 

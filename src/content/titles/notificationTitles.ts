@@ -17,7 +17,7 @@ function setupNotificationTitlesObserver(): void {
     cleanupNotificationTitlesObserver();
 
     // Wait for the notification popup to appear in the DOM
-    const dropdown = document.querySelector('tp-yt-iron-dropdown[vertical-align="top"]');
+    const dropdown = document.querySelector('ytd-popup-container tp-yt-iron-dropdown[vertical-align="top"]');
     if (!dropdown) return;
 
     // Initial refresh when popup opens

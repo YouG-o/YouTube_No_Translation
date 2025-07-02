@@ -664,27 +664,31 @@ function setupNotificationTitlesDropdownObserver() {
     notificationDropdownHandled = false;
 
     notificationTitlesDropdownObserver = new MutationObserver(() => {
-        const dropdown = document.querySelector('tp-yt-iron-dropdown[vertical-align="top"]');
-        if (!dropdown) return;
-        
-        // Check if dropdown is visible by looking at computed style
-        const computedStyle = window.getComputedStyle(dropdown);
-        const isVisible = computedStyle.display !== 'none';
-        
-        if (isVisible && !notificationDropdownHandled) {
-            // Dropdown became visible
-            notificationDropdownHandled = true;
-            coreLog('Notification titles dropdown appeared, setting up observer');
-            setupNotificationTitlesObserver();
-        } else if (!isVisible && notificationDropdownHandled) {
-            // Dropdown became hidden
-            notificationDropdownHandled = false;
-            coreLog('Notification titles dropdown disappeared, ready for next opening');
-            cleanupNotificationTitlesObserver();
-        }
+        waitForElement('ytd-popup-container tp-yt-iron-dropdown[vertical-align="top"]').then((dropdown) => {
+            const computedStyle = window.getComputedStyle(dropdown);
+            const isVisible = computedStyle.display !== 'none';
+            
+            if (isVisible && !notificationDropdownHandled) {
+                // Dropdown became visible
+                notificationDropdownHandled = true;
+                coreLog('Notification titles dropdown appeared, setting up observer');
+                setupNotificationTitlesObserver();
+            } else if (!isVisible && notificationDropdownHandled) {
+                // Dropdown became hidden
+                notificationDropdownHandled = false;
+                coreLog('Notification titles dropdown disappeared, ready for next opening');
+                cleanupNotificationTitlesObserver();
+            }
+        }).catch(() => {
+            // Element not found within timeout, skip processing
+        });
     });
 
-    notificationTitlesDropdownObserver.observe(document.body, {
+    // Observe only the popup container instead of entire body
+    const popupContainer = document.querySelector('ytd-popup-container');
+    const targetElement = popupContainer || document.body;
+    
+    notificationTitlesDropdownObserver.observe(targetElement, {
         childList: true,
         subtree: true,
         attributes: true,

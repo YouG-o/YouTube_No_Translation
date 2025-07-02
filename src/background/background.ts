@@ -12,6 +12,60 @@
 declare const chrome: any;
 const api = typeof chrome !== 'undefined' ? chrome : browser;
 
+async function migrateSettings() {
+    try {
+        const data = await api.storage.local.get('settings');
+        if (!data.settings) return;
+
+        const settings = data.settings as any;
+        let needsUpdate = false;
+
+        // Check if audioTranslation needs migration from boolean to object
+        if (typeof settings.audioTranslation === 'boolean') {
+            console.log('[YNT-Debug] Migrating audioTranslation setting from boolean to object');
+            settings.audioTranslation = {
+                enabled: settings.audioTranslation,
+                language: settings.audioLanguage || 'original' // Preserve existing audioLanguage preference
+            };
+            delete settings.audioLanguage;
+            needsUpdate = true;
+        }
+
+        // Check if subtitlesTranslation needs migration from boolean to object
+        if (typeof settings.subtitlesTranslation === 'boolean') {
+            console.log('[YNT-Debug] Migrating subtitlesTranslation setting from boolean to object');
+            settings.subtitlesTranslation = {
+                enabled: settings.subtitlesTranslation,
+                language: settings.subtitlesLanguage || 'original' // Preserve existing subtitlesLanguage preference
+            };
+            delete settings.subtitlesLanguage;
+            needsUpdate = true;
+        }
+
+        // Check if the new object is missing but old properties exist
+        if (!settings.youtubeIsolatedPlayerFallback && (settings.titlesFallbackApi !== undefined || settings.descriptionSearchResults !== undefined)) {
+            console.log('[YNT-Debug] Migrating fallback settings to youtubeIsolatedPlayerFallback object');
+            // Create the new object
+            settings.youtubeIsolatedPlayerFallback = {
+                titles: !!settings.titlesFallbackApi,
+                searchResultsDescriptions: !!settings.descriptionSearchResults
+            };
+            delete settings.titlesFallbackApi;
+            delete settings.descriptionSearchResults;
+            needsUpdate = true;
+        }
+
+        if (needsUpdate) {
+            await api.storage.local.set({ settings });
+            console.log('[YNT-Debug] Settings migration completed successfully. Reloading extension to apply changes.');
+            // Reload the extension to ensure all parts (content scripts, popup) use the new settings structure
+            api.runtime.reload();
+        }
+    } catch (error) {
+        console.error('[YNT-Debug] Error during settings migration:', error);
+    }
+}
+
 async function initializeSettings() {
     const data = await api.storage.local.get('settings');
     if (!data.settings) {
@@ -50,7 +104,8 @@ async function toDoOnFirstInstall(details: InstalledDetails) {
 }
 
 // Initialize settings when extension is installed or updated
-api.runtime.onInstalled.addListener((details: InstalledDetails) => {
-    toDoOnFirstInstall(details);
-    initializeSettings();
+api.runtime.onInstalled.addListener(async (details: InstalledDetails) => {
+    await toDoOnFirstInstall(details);
+    await migrateSettings();
+    await initializeSettings();
 });

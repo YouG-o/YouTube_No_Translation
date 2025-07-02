@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.5.11] - 2025-07-02
+
+### Quickfix
+- Fixed settings migration: fallback options (`titlesFallbackApi`, `descriptionSearchResults`) are now correctly migrated to the new `youtubeIsolatedPlayerFallback` object, preventing popup settings from breaking after update.
+
 ## [2.5.1] - 2025-07-02
 
 ### Added
@@ -217,7 +222,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 *Note: This changelog was introduced in version 2.2.30. For earlier version history, please refer to the [GitHub releases](https://github.com/YouG-o/YouTube_No_Translation/releases).*
 
-[Unreleased]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.5.1...HEAD
+[Unreleased]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.5.11...HEAD
+[2.5.11]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.5.1...v2.5.11
 [2.5.1]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.5.0...v2.5.1
 [2.5.0]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.4.40...v2.5.0
 [2.4.40]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.4.32...v2.4.40

@@ -564,27 +564,61 @@ function searchResultsObserver() {
 function playlistVideosObserver() {
     cleanupPlaylistVideosObserver();
 
-    // --- Observer for playlist/queue videos
-    waitForElement('#playlist ytd-playlist-panel-renderer #items').then((contents) => {
-        browsingTitlesLog('Setting up playlist/queue videos observer');
-        waitForFilledVideoTitles().then(() => {
-            refreshBrowsingVideos();
-        });
-        playlistObserver = new MutationObserver(() => {
-            const now = Date.now();
-            if (now - lastPlaylistRefresh >= THROTTLE_DELAY) {
-                browsingTitlesLog('Playlist/Queue mutation detected');
+    waitForElement('ytd-playlist-panel-renderer#playlist #items').then((contents) => {
+        browsingTitlesLog('Setting up playlist observer');
+
+        playlistObserver = new MutationObserver((mutations) => {
+            let hasVideoChange = false;
+            
+            mutations.forEach((mutation) => {
+                const target = mutation.target as Element;
+                
+                // Focus only on relevant mutations
+                const isRelevant = (
+                    // Direct childList changes on #items
+                    (mutation.type === 'childList' && target.id === 'items') ||
+                    
+                    // Direct addition/removal of video renderer elements
+                    (mutation.type === 'childList' && 
+                     Array.from(mutation.addedNodes).some(node => 
+                         node instanceof Element && node.tagName === 'YTD-PLAYLIST-PANEL-VIDEO-RENDERER'
+                     )) ||
+                    (mutation.type === 'childList' && 
+                     Array.from(mutation.removedNodes).some(node => 
+                         node instanceof Element && node.tagName === 'YTD-PLAYLIST-PANEL-VIDEO-RENDERER'
+                     ))
+                );
+                
+                if (isRelevant) {
+                    // Check for actual video changes
+                    const hasAddedVideos = Array.from(mutation.addedNodes).some(node => 
+                        node instanceof Element && node.tagName === 'YTD-PLAYLIST-PANEL-VIDEO-RENDERER'
+                    );
+                    const hasRemovedVideos = Array.from(mutation.removedNodes).some(node => 
+                        node instanceof Element && node.tagName === 'YTD-PLAYLIST-PANEL-VIDEO-RENDERER'
+                    );
+                    
+                    if (hasAddedVideos || hasRemovedVideos) {
+                        hasVideoChange = true;
+                        browsingTitlesLog('Playlist video change detected');
+                    }
+                }
+            });
+            
+            if (hasVideoChange) {
+                //browsingTitlesLog('Refreshing playlist titles');
                 refreshBrowsingVideos();
-                lastPlaylistRefresh = now;
             }
         });
         
-        playlistObserver.observe(contents, {
-            childList: true
+        playlistObserver.observe(document.body, {
+            childList: true,
+            subtree: true
         });
-        browsingTitlesLog('Playlist/Queue observer setup completed');
+
+        //browsingTitlesLog('Playlist observer setup completed');
     });
-};
+}
 
 
 function cleanupAllBrowsingTitlesObservers() {
@@ -816,6 +850,11 @@ function handleUrlChange() {
             break;
         case '/watch': // --- Video page
             coreLog(`[URL] Detected video page`);
+            // Check if we're on a video with a playlist
+            if (currentSettings?.titleTranslation && window.location.search.includes('list=')) {
+                coreLog(`[URL] Detected video page with playlist`);
+                playlistVideosObserver();
+            }
             if (currentSettings?.titleTranslation || currentSettings?.descriptionTranslation) {
                 setupMainVideoObserver();
             };

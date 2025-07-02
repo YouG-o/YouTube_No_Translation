@@ -159,10 +159,13 @@ async function refreshBrowsingVideos(): Promise<void> {
         const videoUrl = titleElement.closest('a')?.href;
         let isTranslated = false;
         if (videoUrl) {
-            // If the video URL contains a 'list' parameter, it's likely an album or playlist item.
+            // Check if this is a playlist/album container (not individual video)
             // We skip it because it would apply wrong title (video title instead of album/playlist title).
-            if (videoUrl.includes('&list=') || videoUrl.includes('/playlist?list=')) {
-                //browsingTitlesLog(`Skipping playlist/album item: ${titleElement.textContent} (URL: ${videoUrl})`);
+            const isPlaylistContainer = titleElement.closest('ytd-rich-grid-media') !== null && 
+                           videoUrl.includes('&list=') && 
+                           !videoUrl.includes('&index=');
+
+            if (isPlaylistContainer) {
                 // Clean up any attributes the extension might have previously set incorrectly on this element
                 titleElement.removeAttribute('ynt-fail');
                 titleElement.removeAttribute('ynt-original');

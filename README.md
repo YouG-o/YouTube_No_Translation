@@ -64,6 +64,12 @@ You can get the Firefox and Chrome extensions on their official stores, but **fo
   - **Audio Tracks**: Always use the original audio track (or choose a specific one)
   - **Descriptions**: Prevent description translations
   - **Subtitles**: Set your preferred subtitle language, if unavailable, subtitles are disabled (auto generated ones are ignored)
+
+    <p>
+    A (very small) percentage of titles may remain translated because the extension relies on the oEmbed API by default.
+    That's why you can enable the YouTube Data API v3 option (requires your own API key) to handle all titles. It will also prevent translation of descriptions in the search page. <br>
+    <a href="./docs/YT_DATA_API.md">See the documentation for more infos and get your own API key.</a>
+  </p>
 </div>
 
 ###

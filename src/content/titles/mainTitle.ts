@@ -7,6 +7,12 @@
  * This program is distributed without any warranty; see the license for details.
  */
 
+import { mainTitleLog, mainTitleErrorLog } from "../loggings";
+import { normalizeText } from "../utils/text";
+import { waitForElement } from "../utils/dom";
+import { TitleDataEvent } from "../../types/types";
+
+import { titleCache } from "./index";
 
 
 let mainTitleContentObserver: MutationObserver | null = null;
@@ -17,7 +23,7 @@ let miniplayerTitleContentObserver: MutationObserver | null = null;
 let mainTitleIsUpdating = false;
 
 // --- Utility Functions
-function cleanupMainTitleContentObserver(): void {
+export function cleanupMainTitleContentObserver(): void {
     if (mainTitleContentObserver) {
         //mainTitleLog('Cleaning up title content observer');
         mainTitleContentObserver.disconnect();
@@ -25,7 +31,7 @@ function cleanupMainTitleContentObserver(): void {
     }
 }
 
-function cleanupIsEmptyObserver(): void {
+export function cleanupIsEmptyObserver(): void {
     if (isEmptyObserver) {
         //mainTitleLog('Cleaning up is-empty observer');
         isEmptyObserver.disconnect();
@@ -33,7 +39,7 @@ function cleanupIsEmptyObserver(): void {
     }
 }
 
-function cleanupPageTitleObserver(): void {
+export function cleanupPageTitleObserver(): void {
     if (pageTitleObserver) {
         //mainTitleLog('Cleaning up page title observer');
         pageTitleObserver.disconnect();
@@ -41,7 +47,7 @@ function cleanupPageTitleObserver(): void {
     }
 }
 
-function cleanupEmbedTitleContentObserver(): void {
+export function cleanupEmbedTitleContentObserver(): void {
     if (embedTitleContentObserver) {
         //mainTitleLog('Cleaning up embed title content observer');
         embedTitleContentObserver.disconnect();
@@ -49,7 +55,7 @@ function cleanupEmbedTitleContentObserver(): void {
     }
 }
 
-function cleanupMiniplayerTitleContentObserver(): void {
+export function cleanupMiniplayerTitleContentObserver(): void {
     if (miniplayerTitleContentObserver) {
         //mainTitleLog('Cleaning up miniplayer title content observer');
         miniplayerTitleContentObserver.disconnect();
@@ -57,7 +63,7 @@ function cleanupMiniplayerTitleContentObserver(): void {
     }
 }
 
-function updateMainTitleElement(element: HTMLElement, title: string, videoId: string): void {
+export function updateMainTitleElement(element: HTMLElement, title: string, videoId: string): void {
     cleanupMainTitleContentObserver();
     cleanupIsEmptyObserver();
     
@@ -221,7 +227,7 @@ function updateMiniplayerTitleElement(element: HTMLElement, title: string, video
 }
 
 // --- Main Title Function
-async function refreshMainTitle(): Promise<void> {
+export async function refreshMainTitle(): Promise<void> {
     const mainTitle = document.querySelector('h1.ytd-watch-metadata > yt-formatted-string') as HTMLElement;
     if (mainTitle && window.location.pathname === '/watch' && !titleCache.hasElement(mainTitle)) {
         //mainTitleLog('Processing main title element');
@@ -293,7 +299,7 @@ async function refreshMainTitle(): Promise<void> {
 
 
 // --- Embed Title Function (Fullscreen and Embed Pages)
-async function refreshEmbedTitle(): Promise<void> {
+export async function refreshEmbedTitle(): Promise<void> {
     // Clean up existing observer first
     cleanupEmbedTitleContentObserver();
     
@@ -378,7 +384,7 @@ async function refreshEmbedTitle(): Promise<void> {
 }
 
 // --- Miniplayer Title Function
-async function refreshMiniplayerTitle(): Promise<void> {
+export async function refreshMiniplayerTitle(): Promise<void> {
     // Clean up existing observer first
     cleanupMiniplayerTitleContentObserver();
     

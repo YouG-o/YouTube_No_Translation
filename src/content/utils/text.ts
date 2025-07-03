@@ -9,7 +9,7 @@
 
 
 // Function to normalize texts before comparison
-function normalizeText(text: string | null | undefined, description = false): string {
+export function normalizeText(text: string | null | undefined, description = false): string {
     if (text === null || text === undefined) {
         return '';
     }
@@ -38,7 +38,7 @@ function normalizeText(text: string | null | undefined, description = false): st
         .trim();  // Remove leading/trailing spaces
 }
 
-function calculateSimilarity(str1: string, str2: string): number {
+export function calculateSimilarity(str1: string, str2: string): number {
     // Use character frequency approach for better handling of long strings
     const charCount1 = new Map<string, number>();
     const charCount2 = new Map<string, number>();

@@ -7,6 +7,10 @@
  * This program is distributed without any warranty; see the license for details.
  */
 
+import { descriptionLog, descriptionErrorLog } from '../loggings';
+import { ensureIsolatedPlayer } from '../utils/isolatedPlayer';
+
+
 let searchDescriptionsObserver = new Map<HTMLElement, MutationObserver>();
 let lastSearchDescriptionsRefresh = 0;
 const SEARCH_DESCRIPTIONS_THROTTLE = 1000;
@@ -19,7 +23,7 @@ function cleanupSearchDescriptionElement(element: HTMLElement): void {
     }
 }
 
-function cleanupAllSearchDescriptionsObservers(): void {
+export function cleanupAllSearchDescriptionsObservers(): void {
     searchDescriptionsObserver.forEach((observer, element) => {
         observer.disconnect();
     });
@@ -36,7 +40,7 @@ function extractVideoId(url: string): string | null {
     }
 }
 
-async function fetchSearchDescription(videoId: string): Promise<string | null> {
+export async function fetchSearchDescription(videoId: string): Promise<string | null> {
     return new Promise<string | null>(async (resolve) => {
         // Ensure isolated player exists before proceeding with specific ID for descriptions
         const playerReady = await ensureIsolatedPlayer('ynt-player-descriptions');
@@ -79,7 +83,7 @@ async function fetchSearchDescription(videoId: string): Promise<string | null> {
     });
 }
 
-function updateSearchDescriptionElement(element: HTMLElement, description: string, videoId: string): void {
+export function updateSearchDescriptionElement(element: HTMLElement, description: string, videoId: string): void {
     cleanupSearchDescriptionElement(element);
     
     descriptionLog(

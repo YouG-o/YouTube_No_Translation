@@ -11,7 +11,7 @@
 /**
  * Create isolated player by injecting script in page context with custom ID
  */
-function createIsolatedPlayer(playerId: string = 'ynt-player'): Promise<boolean> {
+export function createIsolatedPlayer(playerId: string = 'ynt-player'): Promise<boolean> {
     return new Promise((resolve) => {
         const containerSelector = `${playerId}-container`;
         
@@ -52,7 +52,7 @@ function createIsolatedPlayer(playerId: string = 'ynt-player'): Promise<boolean>
 /**
  * Ensure isolated player exists for specific use case
  */
-async function ensureIsolatedPlayer(playerId: string = 'ynt-player'): Promise<boolean> {
+export async function ensureIsolatedPlayer(playerId: string = 'ynt-player'): Promise<boolean> {
     const containerSelector = `${playerId}-container`;
     if (document.getElementById(containerSelector)) {
         return true;
@@ -64,7 +64,7 @@ async function ensureIsolatedPlayer(playerId: string = 'ynt-player'): Promise<bo
 /**
  * Cleanup isolated player when no longer needed
  */
-function cleanupIsolatedPlayer(playerId: string = 'ynt-player'): void {
+export function cleanupIsolatedPlayer(playerId: string = 'ynt-player'): void {
     const container = document.getElementById(`${playerId}-container`);
     if (container) {
         container.remove();

@@ -1,10 +1,10 @@
 {
   "compilerOptions": {
     "target": "ES2020",
-    "module": "none",
+    "module": "ESNext",
     "moduleResolution": "node",
     "strict": true,
-    "outFile": "./dist/background/background.js",
+    "outDir": "./dist",
     "rootDir": "./src",
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
@@ -17,10 +17,7 @@
     ],
     "types": ["webextension-polyfill"]
   },
-  "files": [
-    "src/types/global.d.ts",
-    "src/types/types.ts",
-    "src/config/constants.ts",
-    "src/background/background.ts"
+  "include": [
+    "src/**/*.ts"
   ]
 }

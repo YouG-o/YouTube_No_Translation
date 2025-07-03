@@ -7,10 +7,13 @@
  * This program is distributed without any warranty; see the license for details.
  */
 
+import { channelNameLog, channelNameErrorLog } from '../loggings';
+import { normalizeText } from '../utils/text';
+
 
 let channelNameContentObserver: MutationObserver | null = null;
 
-function cleanupChannelNameContentObserver(): void {
+export function cleanupChannelNameContentObserver(): void {
     if (channelNameContentObserver) {
         channelNameContentObserver.disconnect();
         channelNameContentObserver = null;
@@ -72,7 +75,7 @@ function updateChannelNameElement(element: HTMLElement, originalName: string): v
     });
 }
 
-async function refreshChannelName(): Promise<void> {
+export async function refreshChannelName(): Promise<void> {
     // Find the channel name element
     const channelNameElement = document.querySelector('ytd-watch-metadata ytd-video-owner-renderer ytd-channel-name yt-formatted-string#text') as HTMLElement;
     

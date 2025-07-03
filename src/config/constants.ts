@@ -7,8 +7,11 @@
  * This program is distributed without any warranty; see the license for details.
  */
 
+import { ExtensionSettings } from '../types/types';
+
+
 // Default settings as a constant
-const DEFAULT_SETTINGS: ExtensionSettings = {
+export const DEFAULT_SETTINGS: ExtensionSettings = {
     titleTranslation: true,
     audioTranslation: {
         enabled: true,
@@ -30,7 +33,7 @@ const DEFAULT_SETTINGS: ExtensionSettings = {
 };
 
 // Define the type for installation details
-interface InstalledDetails {
+export interface InstalledDetails {
     reason: 'install' | 'update' | 'browser_update' | 'chrome_update';
     previousVersion?: string;
     id?: string;

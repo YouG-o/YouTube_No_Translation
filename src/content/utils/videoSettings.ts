@@ -7,13 +7,18 @@
  * This program is distributed without any warranty; see the license for details.
  */
 
+import { currentSettings } from "../index";
+
+import { handleAudioTranslation } from "../audio/audioIndex";
+import { refreshEmbedTitle } from "../titles/mainTitle";
+import { handleSubtitlesTranslation } from "../subtitles/subtitlesIndex";
 
 
 /**
  * Apply configured translation settings for video loads
  * Handles audio, subtitles, and embed title translations
  */
-function applyVideoPlayerSettings(): void {
+export function applyVideoPlayerSettings(): void {
     currentSettings?.audioTranslation && handleAudioTranslation();
     currentSettings?.subtitlesTranslation && handleSubtitlesTranslation();
     

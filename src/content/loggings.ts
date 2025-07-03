@@ -8,7 +8,6 @@
  */
 
 
-
 const LOG_PREFIX = '[YNT]';
 
 const LOG_STYLES = {
@@ -76,29 +75,29 @@ function createErrorLogger(category: { context: string; color: string }) {
 }
 
 // Create standard loggers
-const coreLog = createLogger(LOG_STYLES.CORE);
-const coreErrorLog = createErrorLogger(LOG_STYLES.CORE);
+export const coreLog = createLogger(LOG_STYLES.CORE);
+export const coreErrorLog = createErrorLogger(LOG_STYLES.CORE);
 
-const titlesLog = createLogger(LOG_STYLES.TITLES);
-const titlesErrorLog = createErrorLogger(LOG_STYLES.TITLES);
+export const titlesLog = createLogger(LOG_STYLES.TITLES);
+export const titlesErrorLog = createErrorLogger(LOG_STYLES.TITLES);
 
-const mainTitleLog = createLogger(LOG_STYLES.MAIN_TITLE);
-const mainTitleErrorLog = createErrorLogger(LOG_STYLES.MAIN_TITLE);
+export const mainTitleLog = createLogger(LOG_STYLES.MAIN_TITLE);
+export const mainTitleErrorLog = createErrorLogger(LOG_STYLES.MAIN_TITLE);
 
-const browsingTitlesLog = createLogger(LOG_STYLES.BROWSING_TITLES);
-const browsingTitlesErrorLog = createErrorLogger(LOG_STYLES.BROWSING_TITLES);
+export const browsingTitlesLog = createLogger(LOG_STYLES.BROWSING_TITLES);
+export const browsingTitlesErrorLog = createErrorLogger(LOG_STYLES.BROWSING_TITLES);
 
-const audioLog = createLogger(LOG_STYLES.AUDIO);
-const audioErrorLog = createErrorLogger(LOG_STYLES.AUDIO);
+export const audioLog = createLogger(LOG_STYLES.AUDIO);
+export const audioErrorLog = createErrorLogger(LOG_STYLES.AUDIO);
 
-const descriptionLog = createLogger(LOG_STYLES.DESCRIPTION);
-const descriptionErrorLog = createErrorLogger(LOG_STYLES.DESCRIPTION);
+export const descriptionLog = createLogger(LOG_STYLES.DESCRIPTION);
+export const descriptionErrorLog = createErrorLogger(LOG_STYLES.DESCRIPTION);
 
-const subtitlesLog = createLogger(LOG_STYLES.SUBTITLES);
-const subtitlesErrorLog = createErrorLogger(LOG_STYLES.SUBTITLES);
+export const subtitlesLog = createLogger(LOG_STYLES.SUBTITLES);
+export const subtitlesErrorLog = createErrorLogger(LOG_STYLES.SUBTITLES);
 
-const channelNameLog = createLogger(LOG_STYLES.CHANNEL_NAME);
-const channelNameErrorLog = createErrorLogger(LOG_STYLES.CHANNEL_NAME);
+export const channelNameLog = createLogger(LOG_STYLES.CHANNEL_NAME);
+export const channelNameErrorLog = createErrorLogger(LOG_STYLES.CHANNEL_NAME);
 
-const chaptersLog = createLogger(LOG_STYLES.CHAPTERS);
-const chaptersErrorLog = createErrorLogger(LOG_STYLES.CHAPTERS);
+export const chaptersLog = createLogger(LOG_STYLES.CHAPTERS);
+export const chaptersErrorLog = createErrorLogger(LOG_STYLES.CHAPTERS);

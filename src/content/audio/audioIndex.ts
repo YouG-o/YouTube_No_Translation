@@ -7,6 +7,9 @@
  * This program is distributed without any warranty; see the license for details.
  */
 
+import { ExtensionSettings } from "../../types/types";
+import { audioLog, audioErrorLog } from '../loggings';
+
 
 async function syncAudioLanguagePreference() {
     try {
@@ -21,7 +24,7 @@ async function syncAudioLanguagePreference() {
     }
 }
 
-async function handleAudioTranslation() {   
+export async function handleAudioTranslation() {   
     await syncAudioLanguagePreference();
     const script = document.createElement('script');
     script.src = browser.runtime.getURL('dist/content/scripts/audioScript.js');

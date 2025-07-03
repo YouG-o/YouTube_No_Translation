@@ -7,9 +7,11 @@
  * This program is distributed without any warranty; see the license for details.
  */
 
+import { titlesLog, titlesErrorLog } from '../loggings';
+
 
 // Optimized cache manager
-class TitleCache {
+export class TitleCache {
     private apiCache = new Map<string, string>();
     private lastCleanupTime = Date.now();
     private readonly MAX_ENTRIES = 300;
@@ -80,4 +82,4 @@ class TitleCache {
     }
 }
 
-const titleCache = new TitleCache();
+export const titleCache = new TitleCache();

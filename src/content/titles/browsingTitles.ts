@@ -7,11 +7,24 @@
  * This program is distributed without any warranty; see the license for details.
  */
 
+import { browsingTitlesLog, browsingTitlesErrorLog, descriptionErrorLog } from '../loggings';
+import { ensureIsolatedPlayer, cleanupIsolatedPlayer } from '../utils/isolatedPlayer';
+import { isSearchResultsPage } from '../utils/navigation';
+import { currentSettings } from '../index';
+import { normalizeText } from '../utils/text';
+
+import { fetchSearchDescription, updateSearchDescriptionElement } from '../description/searchDescriptions';
+import { titleCache } from './index';
+
+
 // --- Global variables
 let browsingTitlesObserver = new Map<HTMLElement, MutationObserver>();
 let lastBrowsingTitlesRefresh = 0;
-let lastBrowsingShortsRefresh = 0;
-const TITLES_THROTTLE = 1000;
+export let lastBrowsingShortsRefresh = 0;
+export function setLastBrowsingShortsRefresh(value: number) {
+    lastBrowsingShortsRefresh = value;
+}
+export const TITLES_THROTTLE = 1000;
 const browsingTitlesFallbackQueue = new Set<string>();
 const processingVideos = new Set<string>(); // Track individual videos being processed
 
@@ -25,7 +38,7 @@ function cleanupBrowsingTitleElement(element: HTMLElement): void {
     }
 }
 
-function cleanupAllBrowsingTitlesElementsObservers(): void {
+export function cleanupAllBrowsingTitlesElementsObservers(): void {
     //browsingTitlesLog('Cleaning up all title observers');
     browsingTitlesObserver.forEach((observer, element) => {
         observer.disconnect();
@@ -88,7 +101,7 @@ function updateBrowsingTitleElement(element: HTMLElement, title: string, videoId
 }
 
 // Add function to handle fallback title retrieval
-async function getBrowsingTitleFallback(videoId: string): Promise<string | null> {
+export async function getBrowsingTitleFallback(videoId: string): Promise<string | null> {
     return new Promise((resolve) => {
         // Prevent duplicate requests
         if (browsingTitlesFallbackQueue.has(videoId)) {
@@ -143,7 +156,7 @@ async function getBrowsingTitleFallback(videoId: string): Promise<string | null>
     });
 }
 
-async function refreshBrowsingVideos(): Promise<void> {
+export async function refreshBrowsingVideos(): Promise<void> {
     const now = Date.now();
     if (now - lastBrowsingTitlesRefresh < TITLES_THROTTLE) {
         return;

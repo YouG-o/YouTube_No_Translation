@@ -7,8 +7,15 @@
  * This program is distributed without any warranty; see the license for details.
 */
 
+import { descriptionLog, descriptionErrorLog } from '../loggings';
+import { waitForElement } from '../utils/dom';
+import { normalizeText } from '../utils/text';
 
-async function fetchOriginalDescription(): Promise<string | null> {
+import { setupDescriptionContentObserver } from '../observers';
+import { initializeChaptersReplacement } from '../chapters/chaptersIndex';
+
+
+export async function fetchOriginalDescription(): Promise<string | null> {
     return new Promise<string | null>((resolve) => {
         const handleDescription = (event: CustomEvent) => {
             window.removeEventListener('ynt-description-data', handleDescription as EventListener);
@@ -21,7 +28,7 @@ async function fetchOriginalDescription(): Promise<string | null> {
     });
 }
 
-async function refreshDescription(): Promise<void> {
+export async function refreshDescription(): Promise<void> {
     //descriptionLog('Waiting for description element');
     try {
         await waitForElement('#description-inline-expander');
@@ -40,7 +47,7 @@ async function refreshDescription(): Promise<void> {
         if (description) {
             const descriptionElement = document.querySelector('#description-inline-expander');
             if (descriptionElement) {
-                // Always update the element, whether it's in cache or not
+                // Always updateupdate the element, whether it's in cache or not
                 updateDescriptionElement(descriptionElement as HTMLElement, description);
                 descriptionLog('Description updated to original');
             }
@@ -50,7 +57,7 @@ async function refreshDescription(): Promise<void> {
     }
 }
 
-class DescriptionCache {
+export class DescriptionCache {
     private processedElements = new WeakMap<HTMLElement, string>();
     private currentVideoDescription: string | null = null;
 
@@ -73,9 +80,9 @@ class DescriptionCache {
     }
 }
 
-const descriptionCache = new DescriptionCache();
+export const descriptionCache = new DescriptionCache();
 
-function updateDescriptionElement(element: HTMLElement, description: string): void {
+export function updateDescriptionElement(element: HTMLElement, description: string): void {
     // Find the text containers
     const attributedString = element.querySelector('yt-attributed-string');
     const snippetAttributedString = element.querySelector('#attributed-snippet-text');
@@ -213,7 +220,7 @@ function updateDescriptionElement(element: HTMLElement, description: string): vo
 
 
 // Compare description text and determine if update is needed
-function compareDescription(element: HTMLElement): Promise<boolean> {
+export function compareDescription(element: HTMLElement): Promise<boolean> {
     return new Promise(async (resolve) => {
         // Get the cached description or fetch a new one
         let description = descriptionCache.getCurrentDescription();

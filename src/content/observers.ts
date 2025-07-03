@@ -10,8 +10,23 @@
 // TODO: Current observer implementation could be refactored for better efficiency / performances
 // Keeping current structure for stability, needs architectural review in future updates
 
-// MAIN OBSERVERS -----------------------------------------------------------
+import { coreLog, descriptionLog, browsingTitlesLog } from './loggings';
+import { currentSettings } from './index';
+import { normalizeText, calculateSimilarity } from './utils/text';
+import { applyVideoPlayerSettings } from './utils/videoSettings';
+import { waitForElement, waitForFilledVideoTitles } from './utils/dom';
 
+import { refreshMainTitle, refreshEmbedTitle, refreshMiniplayerTitle, cleanupMainTitleContentObserver ,cleanupIsEmptyObserver, cleanupPageTitleObserver, cleanupEmbedTitleContentObserver, cleanupMiniplayerTitleContentObserver } from './titles/mainTitle';
+import { refreshBrowsingVideos, cleanupAllBrowsingTitlesElementsObservers } from './titles/browsingTitles';
+import { descriptionCache, compareDescription, refreshDescription, updateDescriptionElement, fetchOriginalDescription } from './description/descriptionIndex';
+import { refreshChannelName, cleanupChannelNameContentObserver } from './channelName/channelName';
+import { refreshShortsAlternativeFormat, checkShortsId } from './titles/shortsTitles';
+import { setupNotificationTitlesObserver, cleanupNotificationTitlesObserver } from './titles/notificationTitles';
+import { cleanupChaptersObserver } from './chapters/chaptersIndex';
+import { cleanupAllSearchDescriptionsObservers } from './description/searchDescriptions';
+
+
+// MAIN OBSERVERS -----------------------------------------------------------
 let videoPlayerListener: ((e: Event) => void) | null = null;
 let hasInitialPlayerLoadTriggered = false;
 
@@ -33,7 +48,7 @@ const allVideoEvents = [
 ];
 let videoEvents = allVideoEvents;
 
-function setupVideoPlayerListener() {
+export function setupVideoPlayerListener() {
     cleanUpVideoPlayerListener();
 
     coreLog('Setting up video player listener');
@@ -111,7 +126,7 @@ function cleanUpVideoPlayerListener() {
 
 //let mainVideoObserver: MutationObserver | null = null;
 
-function setupMainVideoObserver() {
+export function setupMainVideoObserver() {
     //cleanupMainVideoObserver();
     waitForElement('ytd-watch-flexy').then((watchFlexy) => {
         /*coreLog('Setting up video-id observer');
@@ -239,7 +254,7 @@ function descriptionExpandObserver() {
     });
 }
 
-function setupDescriptionContentObserver() {
+export function setupDescriptionContentObserver() {
     // Cleanup existing observer avoiding infinite loops
     cleanupDescriptionContentObserver();
     const descriptionElement = document.querySelector('#description-inline-expander');
@@ -707,7 +722,7 @@ function cleanupNotificationTitlesDropdownObserver() {
 
 
 // URL OBSERVER -----------------------------------------------------------
-function setupUrlObserver() {
+export function setupUrlObserver() {
     coreLog('Setting up URL observer');    
     // --- Standard History API monitoring
     const originalPushState = history.pushState;
@@ -882,7 +897,7 @@ function handleUrlChange() {
 // --- Visibility change listener to refresh titles when tab becomes visible
 let visibilityChangeListener: ((event: Event) => void) | null = null;
 
-function setupVisibilityChangeListener(): void {
+export function setupVisibilityChangeListener(): void {
     // Clean up existing listener first
     cleanupVisibilityChangeListener();
     

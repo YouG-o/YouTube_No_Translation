@@ -14,6 +14,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Renamed `welcome.html` to `settings.html` for better clarity and dual usage.
 - The settings page now supports both first install welcome mode and standard options page access.
 - Updated all manifests to declare the options page entry point.
+- Migrated from multiple tsconfig files (content, background, popup) to a single global tsconfig.json.
+- Removed all usage of TypeScript's `outFile` option and switched to a fully modular codebase using explicit ES module imports/exports.
+- Updated all source files to use ES module imports/exports where necessary.
+- Integrated esbuild as the bundler for content, background, and popup scripts, replacing the old TypeScript outFile build.
+- Simplified and modernized the build process for better maintainability and scalability.
 
 ## [2.5.11] - 2025-07-02
 

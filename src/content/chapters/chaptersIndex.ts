@@ -7,13 +7,17 @@
  * This program is distributed without any warranty; see the license for details.
  */
 
+import { chaptersLog, chaptersErrorLog } from '../loggings';
+import { Chapter } from '../../types/types';
+
+
 // Global variables for cleanup
 let chaptersObserver: MutationObserver | null = null;
 let chapterButtonObserver: MutationObserver | null = null;
 let chaptersUpdateInterval: number | null = null;
 
 // Cleanup function for chapters observer
-function cleanupChaptersObserver(): void {
+export function cleanupChaptersObserver(): void {
     if (chaptersObserver) {
         chaptersObserver.disconnect();
         chaptersObserver = null;
@@ -236,7 +240,7 @@ function setupChapterButtonObserver(): void {
 }
 
 // Initialize chapters replacement system
-function initializeChaptersReplacement(originalDescription: string): void {
+export function initializeChaptersReplacement(originalDescription: string): void {
     // Clean up any existing observer first
     cleanupChaptersObserver();
     

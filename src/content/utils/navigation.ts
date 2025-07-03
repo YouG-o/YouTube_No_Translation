@@ -8,6 +8,6 @@
  */
 
 // Function to dynamically check if current page is search results
-function isSearchResultsPage(): boolean {
+export function isSearchResultsPage(): boolean {
     return window.location.pathname === '/results' || window.location.pathname === '/feed/history';
 }

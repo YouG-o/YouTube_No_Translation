@@ -7,7 +7,8 @@
  * This program is distributed without any warranty; see the license for details.
  */
 
-/// <reference types="webextension-polyfill" />
+import { DEFAULT_SETTINGS, InstalledDetails } from '../config/constants';
+
 
 declare const chrome: any;
 const api = typeof chrome !== 'undefined' ? chrome : browser;

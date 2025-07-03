@@ -7,11 +7,12 @@
  * This program is distributed without any warranty; see the license for details.
  */
 
+import { Message } from '../../types/types';
 
 
-const MUTATION_THRESHOLD = 10;
+export const MUTATION_THRESHOLD = 10;
 
-function isToggleMessage(message: unknown): message is Message {
+export function isToggleMessage(message: unknown): message is Message {
     return (
         typeof message === 'object' &&
         message !== null &&

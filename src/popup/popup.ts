@@ -7,6 +7,9 @@
  * This program is distributed without any warranty; see the license for details.
  */
 
+import { ExtensionSettings, Message } from "../types/types";
+
+
 const titleToggle = document.getElementById('titleTranslation') as HTMLInputElement;
 const audioToggle = document.getElementById('audioTranslation') as HTMLInputElement;
 const audioLanguageSelect = document.getElementById('audioLanguage') as HTMLSelectElement;

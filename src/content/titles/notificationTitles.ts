@@ -7,12 +7,18 @@
  * This program is distributed without any warranty; see the license for details.
  */
 
+import { titlesLog, titlesErrorLog } from "../loggings";
+import { normalizeText } from "../utils/text";
+import { currentSettings } from '../index';
+
+import { getBrowsingTitleFallback } from "./browsingTitles";
+import { titleCache } from "./index";
+
 
 // Observer and refresh logic for notification popup titles
-
 let notificationMutationObserver: MutationObserver | null = null;
 
-function setupNotificationTitlesObserver(): void {
+export function setupNotificationTitlesObserver(): void {
     // Clean up any existing observer
     cleanupNotificationTitlesObserver();
 
@@ -37,7 +43,7 @@ function setupNotificationTitlesObserver(): void {
     });
 }
 
-function cleanupNotificationTitlesObserver(): void {
+export function cleanupNotificationTitlesObserver(): void {
     if (notificationMutationObserver) {
         notificationMutationObserver.disconnect();
         notificationMutationObserver = null;

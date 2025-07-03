@@ -7,6 +7,10 @@
  * This program is distributed without any warranty; see the license for details.
  */
 
+import { subtitlesLog, coreLog } from '../loggings';
+import { ExtensionSettings } from '../../types/types';
+
+
 async function syncSubtitlesLanguagePreference() {
     try {
         const result = await browser.storage.local.get('settings');
@@ -22,7 +26,7 @@ async function syncSubtitlesLanguagePreference() {
 }
 
 // Call this function during initialization
-async function handleSubtitlesTranslation() {   
+export async function handleSubtitlesTranslation() {   
     //subtitlesLog('Initializing subtitles translation prevention');
     await syncSubtitlesLanguagePreference(); // Sync language preference
     const script = document.createElement('script');

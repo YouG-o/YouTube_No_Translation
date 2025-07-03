@@ -8,14 +8,13 @@
  */
 
 
-
-interface Message {
+export interface Message {
     action: 'toggleTranslation';
     feature: 'titles' | 'isolatedPlayerTitles' | 'audio' | 'description' | 'isolatedPlayerDescriptionSearch' | 'subtitles';
     isEnabled: boolean;
 }
 
-interface AudioTrack {
+export interface AudioTrack {
     id: string;
     K4: any;
     captionTracks: any[];
@@ -29,12 +28,12 @@ interface AudioTrack {
     [key: string]: any;
 }
 
-interface YouTubePlayer extends HTMLElement {
+export interface YouTubePlayer extends HTMLElement {
     getInternalApiInterface: () => string[];
     [key: string]: any;
 }
 
-interface ExtensionSettings {
+export interface ExtensionSettings {
     titleTranslation: boolean;
     audioTranslation: {
         enabled: boolean;
@@ -55,7 +54,7 @@ interface ExtensionSettings {
     };
 }
 
-interface YouTubePlayerResponse {
+export interface YouTubePlayerResponse {
     videoDetails: {
         shortDescription: string;
         [key: string]: any;
@@ -63,25 +62,25 @@ interface YouTubePlayerResponse {
     [key: string]: any;
 }
 
-interface Window {
+export interface Window {
     ytInitialPlayerResponse?: YouTubePlayerResponse;
 }
 
-interface TitleData {
+export interface TitleData {
     title: string | null;
 }
 
-interface TitleDataEvent extends CustomEvent {
+export interface TitleDataEvent extends CustomEvent {
     detail: TitleData;
 }
 
-interface Chapter {
+export interface Chapter {
     startTime: number;
     title: string;
 }
 
 // YouTube Player API types
-interface Window {
+export interface Window {
     YT: {
         Player: new (elementId: string, config: {
             height?: string;

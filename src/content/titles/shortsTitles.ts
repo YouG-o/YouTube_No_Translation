@@ -7,9 +7,19 @@
  * This program is distributed without any warranty; see the license for details.
  */
 
+import { browsingTitlesLog, browsingTitlesErrorLog, mainTitleLog, mainTitleErrorLog } from "../loggings";
+import { TitleDataEvent } from "../../types/types";
+import { waitForElement } from "../utils/dom";
+import { normalizeText } from "../utils/text";
+
+import { updateMainTitleElement } from "./mainTitle";
+import { titleCache } from "./index";
+import { lastBrowsingShortsRefresh, setLastBrowsingShortsRefresh, TITLES_THROTTLE } from "./browsingTitles";
+
+
 
 // --- Shorts Title Function
-async function refreshShortMainTitle(): Promise<void> {
+export async function refreshShortMainTitle(): Promise<void> {
     // Get the shorts title element
     const shortTitle = document.querySelector('yt-shorts-video-title-view-model h2.ytShortsVideoTitleViewModelShortsVideoTitle span') as HTMLElement;
     
@@ -115,7 +125,7 @@ async function refreshShortMainTitle(): Promise<void> {
 }
 
 
-const checkShortsId = () => {
+export const checkShortsId = () => {
     if (window.location.pathname.startsWith('/shorts')) {
         waitForElement('yt-shorts-video-title-view-model h2.ytShortsVideoTitleViewModelShortsVideoTitle span')
         .then(() => {
@@ -147,12 +157,12 @@ const checkShortsId = () => {
 };
 
 // Handle alternative shorts format with different HTML structure
-async function refreshShortsAlternativeFormat(): Promise<void> {
+export async function refreshShortsAlternativeFormat(): Promise<void> {
     const now = Date.now();
     if (now - lastBrowsingShortsRefresh < TITLES_THROTTLE) {
         return;
     }
-    lastBrowsingShortsRefresh = now;
+    setLastBrowsingShortsRefresh(now);
 
     // Target the specific structure used for alternative shorts display
     const shortsLinks = document.querySelectorAll('.shortsLockupViewModelHostEndpoint') as NodeListOf<HTMLAnchorElement>;

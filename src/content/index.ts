@@ -7,11 +7,22 @@
  * This program is distributed without any warranty; see the license for details.
  */
 
+import { coreLog, titlesLog, audioLog, descriptionLog, subtitlesLog } from './loggings';
+import { ExtensionSettings } from '../types/types';
+import { isToggleMessage } from './utils/utils';
+
+import { setupUrlObserver, setupVisibilityChangeListener, setupVideoPlayerListener, setupMainVideoObserver } from './observers';
+import { refreshBrowsingVideos } from './titles/browsingTitles';
+import { refreshShortsAlternativeFormat } from './titles/shortsTitles';
+import { refreshMainTitle } from './titles/mainTitle';
+import { refreshDescription } from './description/descriptionIndex';
+import { handleAudioTranslation } from './audio/audioIndex';
+import { handleSubtitlesTranslation } from './subtitles/subtitlesIndex';
 
 
 coreLog('Content script starting to load...');
 
-let currentSettings: ExtensionSettings | null = null;
+export let currentSettings: ExtensionSettings | null = null;
 
 // Fetch settings once and store them in currentSettings
 async function fetchSettings() {

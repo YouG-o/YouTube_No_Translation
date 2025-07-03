@@ -9,7 +9,7 @@
 
 
 // Function to wait for an element to be present in the DOM
-function waitForElement(selector: string, timeout = 7500): Promise<Element> {
+export function waitForElement(selector: string, timeout = 7500): Promise<Element> {
     return new Promise((resolve, reject) => {
         if (document.querySelector(selector)) {
             return resolve(document.querySelector(selector)!);
@@ -36,7 +36,7 @@ function waitForElement(selector: string, timeout = 7500): Promise<Element> {
 
 
 // Waits for all #video-title elements to be present and non-empty before resolving
-function waitForFilledVideoTitles(timeout = 5000): Promise<void> {
+export function waitForFilledVideoTitles(timeout = 5000): Promise<void> {
     return new Promise((resolve, reject) => {
         const start = Date.now();
         function check() {

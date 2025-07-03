@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- Fixed original description replacement for search results videos with chapters: now also targets `.metadata-snippet-container-one-line` containers, ensuring all search result types are handled.
+
 ### Added
 - Added options page support for Chrome, Firefox, and Safari: users can now access extension settings via the standard "Extension options" link in browser extension management pages.
 

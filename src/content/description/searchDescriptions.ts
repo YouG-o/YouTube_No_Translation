@@ -102,8 +102,18 @@ export function updateSearchDescriptionElement(element: HTMLElement, description
                 display: none !important;
             }
 
-            /* Show original description using CSS variables */
+            /* Show original description using CSS variables for regular videos */
             .metadata-snippet-container[ynt-search]::after {
+                content: attr(data-original-description);
+                font-size: var(--ytd-tab-system-font-size-body);
+                line-height: var(--ytd-tab-system-line-height-body);
+                font-family: var(--ytd-tab-system-font-family);
+                color: var(--yt-spec-text-secondary);
+                white-space: pre-line;
+            }
+
+            /* Show original description using CSS variables for videos with chapters */
+            .metadata-snippet-container-one-line[ynt-search]::after {
                 content: attr(data-original-description);
                 font-size: var(--ytd-tab-system-font-size-body);
                 line-height: var(--ytd-tab-system-line-height-body);
@@ -115,7 +125,7 @@ export function updateSearchDescriptionElement(element: HTMLElement, description
         document.head.appendChild(style);
     }
 
-    const container = element.closest('.metadata-snippet-container') as HTMLElement;
+    const container = element.closest('.metadata-snippet-container, .metadata-snippet-container-one-line') as HTMLElement;
     if (!container) return;
 
     const lines = description.split('\n');

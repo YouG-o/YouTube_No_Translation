@@ -60,9 +60,9 @@ You can get the Firefox and Chrome extensions on their official stores, but **fo
 <div>
   <h1 align="center">Features :</h1>
   
-  - **Video Titles**: Keep titles in their original language
+  - **Video Titles**: Keep titles in their original language (Video titles, Shorts, Notifications...)
   - **Audio Tracks**: Always use the original audio track (or choose a specific one)
-  - **Descriptions**: Prevent description translations
+  - **Descriptions**: Prevent automatic translation of the currently playing video’s description(also on search page if you enabled [YouTube Data API](./docs/YT_DATA_API.md))
   - **Subtitles**: Set your preferred subtitle language, if unavailable, subtitles are disabled (auto generated ones are ignored)
 
     <p>

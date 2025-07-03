@@ -72,9 +72,6 @@ src/
 - Use the established logging system with color-coded categories, or create a new one if needed.
 - Maintain the modular architecture (one feature per directory)
 
-**Note:** TypeScript content files are compiled into a single bundled `content.js` file, so no imports are needed between them. However, individual JavaScript scripts (like `audioScript.js`, `subtitlesScript.js`) remain separate and have their own logging functions.
-Same thing for background files.
-So if you create a new file, don't forget to add it to the appropriate tsconfig file.
 
 ### Logging
 

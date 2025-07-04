@@ -8,7 +8,9 @@
  */
 
 import { descriptionLog, descriptionErrorLog } from '../loggings';
+import { currentSettings } from '../index';
 import { ensureIsolatedPlayer } from '../utils/isolatedPlayer';
+import { isSearchResultsPage } from '../utils/navigation';
 
 
 let searchDescriptionsObserver = new Map<HTMLElement, MutationObserver>();
@@ -156,4 +158,74 @@ export function updateSearchDescriptionElement(element: HTMLElement, description
     observer.observe(container, { childList: true, attributes: true });
     
     searchDescriptionsObserver.set(element, observer);
+}
+
+
+export function shouldProcessSearchDescriptionElement(isTranslated: boolean): boolean {
+    return isSearchResultsPage() && 
+           isTranslated && 
+           currentSettings?.descriptionTranslation && 
+           (currentSettings?.youtubeIsolatedPlayerFallback?.searchResultsDescriptions || 
+            (currentSettings?.youtubeDataApi?.enabled && currentSettings?.youtubeDataApi?.apiKey));
+}
+
+export async function processSearchDescriptionElement(titleElement: HTMLElement, videoId: string): Promise<void> {
+    try {
+        // Find the video element container to get description
+        const videoElement = titleElement.closest('ytd-video-renderer') as HTMLElement;
+        if (videoElement) {
+            const descriptionElement = videoElement.querySelector('.metadata-snippet-text') as HTMLElement;
+            if (descriptionElement) {
+                // Check if description already processed
+                const isAlreadyProcessed = descriptionElement.hasAttribute('ynt-search') && 
+                                           descriptionElement.getAttribute('ynt-search') === videoId;
+                const hasFailed = descriptionElement.hasAttribute('ynt-search-fail') && 
+                                  descriptionElement.getAttribute('ynt-search-fail') === videoId;
+                
+                if (!isAlreadyProcessed && !hasFailed) {
+                    try {
+                        let originalDescription: string | null = null;
+                        
+                        // Try YouTube Data API v3 first if enabled and API key available
+                        if (currentSettings?.youtubeDataApi?.enabled && currentSettings?.youtubeDataApi?.apiKey) {
+                            try {
+                                const youtubeApiUrl = `https://www.googleapis.com/youtube/v3/videos?id=${videoId}&key=${currentSettings.youtubeDataApi.apiKey}&part=snippet`;
+                                const response = await fetch(youtubeApiUrl);
+                                
+                                if (response.ok) {
+                                    const data = await response.json();
+                                    if (data.items && data.items.length > 0) {
+                                        originalDescription = data.items[0].snippet.description;
+                                    }
+                                } else {
+                                    descriptionErrorLog(`YouTube Data API v3 failed for description ${videoId}: ${response.status} ${response.statusText}`);
+                                }
+                            } catch (apiError) {
+                                descriptionErrorLog(`YouTube Data API v3 error for description ${videoId}:`, apiError);
+                            }
+                        }
+                        
+                        // If YouTube Data API failed or not enabled, use player API fallback
+                        if (!originalDescription) {
+                            const playerReady = await ensureIsolatedPlayer('ynt-player-descriptions');
+                            if (playerReady) {
+                                originalDescription = await fetchSearchDescription(videoId);
+                            }
+                        }
+                        
+                        if (originalDescription) {
+                            updateSearchDescriptionElement(descriptionElement, originalDescription, videoId);
+                        } else {
+                            descriptionElement.setAttribute('ynt-search-fail', videoId);
+                        }
+                    } catch (descError) {
+                        descriptionErrorLog(`Failed to update search description for ${videoId}:`, descError);
+                        descriptionElement.setAttribute('ynt-search-fail', videoId);
+                    }
+                }
+            }
+        }
+    } catch (error) {
+        descriptionErrorLog(`Failed to process description for ${videoId}:`, error);
+    }
 }

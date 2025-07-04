@@ -9,11 +9,10 @@
 
 import { browsingTitlesLog, browsingTitlesErrorLog, descriptionErrorLog } from '../loggings';
 import { ensureIsolatedPlayer, cleanupIsolatedPlayer } from '../utils/isolatedPlayer';
-import { isSearchResultsPage } from '../utils/navigation';
 import { currentSettings } from '../index';
 import { normalizeText } from '../utils/text';
 
-import { fetchSearchDescription, updateSearchDescriptionElement } from '../description/searchDescriptions';
+import { shouldProcessSearchDescriptionElement, processSearchDescriptionElement } from '../description/searchDescriptions';
 import { titleCache } from './index';
 
 
@@ -406,68 +405,8 @@ export async function refreshBrowsingVideos(): Promise<void> {
                     }
 
                     // Process search descriptions if on search page and feature enabled
-                    if (isSearchResultsPage() && isTranslated && currentSettings?.descriptionTranslation && (currentSettings?.youtubeIsolatedPlayerFallback?.searchResultsDescriptions || (currentSettings?.youtubeDataApi?.enabled && currentSettings?.youtubeDataApi?.apiKey))) {
-                        
-                        try {
-                            // Find the video element container to get description
-                            const videoElement = titleElement.closest('ytd-video-renderer') as HTMLElement;
-                            if (videoElement) {
-                                const descriptionElement = videoElement.querySelector('.metadata-snippet-text') as HTMLElement;
-                                if (descriptionElement) {
-                                    // Check if description already processed
-                                    const isAlreadyProcessed = descriptionElement.hasAttribute('ynt-search') && 
-                                                               descriptionElement.getAttribute('ynt-search') === videoId;
-                                    const hasFailed = descriptionElement.hasAttribute('ynt-search-fail') && 
-                                                      descriptionElement.getAttribute('ynt-search-fail') === videoId;
-                                    
-                                    if (!isAlreadyProcessed && !hasFailed) {
-                                        try {
-                                            let originalDescription: string | null = null;
-                                            
-                                            // Try YouTube Data API v3 first if enabled and API key available
-                                            if (currentSettings?.youtubeDataApi?.enabled && currentSettings?.youtubeDataApi?.apiKey) {
-                                                try {
-                                                    const youtubeApiUrl = `https://www.googleapis.com/youtube/v3/videos?id=${videoId}&key=${currentSettings.youtubeDataApi.apiKey}&part=snippet`;
-                                                    const response = await fetch(youtubeApiUrl);
-                                                    
-                                                    if (response.ok) {
-                                                        const data = await response.json();
-                                                        if (data.items && data.items.length > 0) {
-                                                            originalDescription = data.items[0].snippet.description;
-                                                            //descriptionLog(`Retrieved description via YouTube Data API v3 for ${videoId}`);
-                                                        }
-                                                    } else {
-                                                        descriptionErrorLog(`YouTube Data API v3 failed for description ${videoId}: ${response.status} ${response.statusText}`);
-                                                    }
-                                                } catch (apiError) {
-                                                    descriptionErrorLog(`YouTube Data API v3 error for description ${videoId}:`, apiError);
-                                                }
-                                            }
-                                            
-                                            // If YouTube Data API failed or not enabled, use player API fallback
-                                            if (!originalDescription) {
-                                                const playerReady = await ensureIsolatedPlayer('ynt-player-descriptions');
-                                                if (playerReady) {
-                                                    originalDescription = await fetchSearchDescription(videoId);
-                                                }
-                                            }
-                                            
-                                            if (originalDescription) {
-                                                updateSearchDescriptionElement(descriptionElement, originalDescription, videoId);
-                                            } else {
-                                                descriptionElement.setAttribute('ynt-search-fail', videoId);
-                                            }
-                                        } catch (descError) {
-                                            descriptionErrorLog(`Failed to update search description for ${videoId}:`, descError);
-                                            descriptionElement.setAttribute('ynt-search-fail', videoId);
-                                        }
-                                    }
-                                }
-                            }
-                        } catch (error) {
-                            // Handle any errors in description processing
-                            descriptionErrorLog(`Failed to process description for ${videoId}:`, error);
-                        }
+                    if (shouldProcessSearchDescriptionElement(isTranslated)) {
+                        await processSearchDescriptionElement(titleElement, videoId);
                     }
 
                 } finally {

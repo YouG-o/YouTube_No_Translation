@@ -28,7 +28,6 @@ async function migrateSettings() {
                 enabled: settings.audioTranslation,
                 language: settings.audioLanguage || 'original' // Preserve existing audioLanguage preference
             };
-            delete settings.audioLanguage;
             needsUpdate = true;
         }
 
@@ -39,28 +38,34 @@ async function migrateSettings() {
                 enabled: settings.subtitlesTranslation,
                 language: settings.subtitlesLanguage || 'original' // Preserve existing subtitlesLanguage preference
             };
-            delete settings.subtitlesLanguage;
             needsUpdate = true;
         }
 
-        // Check if the new object is missing but old properties exist
+        // Check if the new fallback object is missing but old properties exist
         if (!settings.youtubeIsolatedPlayerFallback && (settings.titlesFallbackApi !== undefined || settings.descriptionSearchResults !== undefined)) {
             console.log('[YNT-Debug] Migrating fallback settings to youtubeIsolatedPlayerFallback object');
-            // Create the new object
             settings.youtubeIsolatedPlayerFallback = {
                 titles: !!settings.titlesFallbackApi,
                 searchResultsDescriptions: !!settings.descriptionSearchResults
             };
-            delete settings.titlesFallbackApi;
-            delete settings.descriptionSearchResults;
             needsUpdate = true;
         }
+
+        // Clean up any remaining old properties that might exist
+        const oldPropertiesToRemove = ['audioLanguage', 'subtitlesLanguage', 'titlesFallbackApi', 'descriptionSearchResults'];
+        oldPropertiesToRemove.forEach(prop => {
+            if (settings[prop] !== undefined) {
+                console.log(`[YNT-Debug] Removing old property: ${prop}`);
+                delete settings[prop];
+                needsUpdate = true;
+            }
+        });
 
         if (needsUpdate) {
             await api.storage.local.set({ settings });
             console.log('[YNT-Debug] Settings migration completed successfully. Reloading extension to apply changes.');
             // Reload the extension to ensure all parts (content scripts, popup) use the new settings structure
-            api.runtime.reload();
+            //api.runtime.reload();
         }
     } catch (error) {
         console.error('[YNT-Debug] Error during settings migration:', error);

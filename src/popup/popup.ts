@@ -57,67 +57,90 @@ document.addEventListener('DOMContentLoaded', async () => {
     try {
         const data = await browser.storage.local.get('settings');
         
+        // Default values for missing properties
+        const defaultSettings: ExtensionSettings = {
+            titleTranslation: true,
+            audioTranslation: {
+                enabled: true,
+                language: 'original',
+            },
+            descriptionTranslation: true,
+            subtitlesTranslation: {
+                enabled: false,
+                language: 'original',
+            },
+            youtubeIsolatedPlayerFallback: {
+                titles: false,
+                searchResultsDescriptions: false
+            },
+            youtubeDataApi: {
+                enabled: false,
+                apiKey: ''
+            }
+        };
+
+        let settings: ExtensionSettings;
+        let needsUpdate = false;
+
         if (!data.settings) {
-            const defaultSettings: ExtensionSettings = {
-                titleTranslation: true,
-                audioTranslation: {
-                    enabled: true,
-                    language: 'original',
-                },
-                descriptionTranslation: true,
-                subtitlesTranslation: {
-                    enabled: false,
-                    language: 'original',
-                },
-                youtubeIsolatedPlayerFallback: {
-                    titles: false,
-                    searchResultsDescriptions: false
-                },
-                youtubeDataApi: {
-                    enabled: false,
-                    apiKey: ''
+            // No settings at all, use complete defaults
+            settings = defaultSettings;
+            needsUpdate = true;
+        } else {
+            // Start with existing settings
+            settings = { ...data.settings } as ExtensionSettings;
+            
+            // Function to check and add missing properties recursively
+            function ensureProperty(obj: any, defaultObj: any, path: string = ''): boolean {
+                let updated = false;
+                
+                for (const key in defaultObj) {
+                    const currentPath = path ? `${path}.${key}` : key;
+                    
+                    if (obj[key] === undefined) {
+                        obj[key] = defaultObj[key];
+                        console.log(`[YNT] Added missing property: ${currentPath}`);
+                        updated = true;
+                    } else if (typeof defaultObj[key] === 'object' && defaultObj[key] !== null && !Array.isArray(defaultObj[key])) {
+                        // Recursively check nested objects
+                        if (typeof obj[key] !== 'object' || obj[key] === null) {
+                            obj[key] = defaultObj[key];
+                            console.log(`[YNT] Fixed invalid property type: ${currentPath}`);
+                            updated = true;
+                        } else {
+                            const nestedUpdated = ensureProperty(obj[key], defaultObj[key], currentPath);
+                            if (nestedUpdated) updated = true;
+                        }
+                    }
                 }
-            };
-            await browser.storage.local.set({
-                settings: defaultSettings
-            });
-            titleToggle.checked = defaultSettings.titleTranslation;
-            isolatedPlayerTitlesToggle.checked = defaultSettings.youtubeIsolatedPlayerFallback.titles;
-            audioToggle.checked = defaultSettings.audioTranslation?.enabled;
-            audioLanguageSelect.value = defaultSettings.audioTranslation?.language;
-            descriptionToggle.checked = defaultSettings.descriptionTranslation;
-            isolatedPlayerSearchDescriptionToggle.checked = defaultSettings.youtubeIsolatedPlayerFallback.searchResultsDescriptions;
-            subtitlesToggle.checked = defaultSettings.subtitlesTranslation?.enabled;
-            subtitlesLanguageSelect.value = defaultSettings.subtitlesTranslation?.language;
-            youtubeDataApiToggle.checked = defaultSettings.youtubeDataApi.enabled;
-            youtubeDataApiKeyInput.value = defaultSettings.youtubeDataApi.apiKey;
-            return;
-        }
-        
-        const settings = data.settings as ExtensionSettings;
-        
-        titleToggle.checked = settings.titleTranslation;
-        isolatedPlayerTitlesToggle.checked = settings.youtubeIsolatedPlayerFallback.titles || false;
-        audioToggle.checked = settings.audioTranslation?.enabled
-        descriptionToggle.checked = settings.descriptionTranslation;
-        isolatedPlayerSearchDescriptionToggle.checked = settings.youtubeIsolatedPlayerFallback.searchResultsDescriptions || false;
-        subtitlesToggle.checked = settings.subtitlesTranslation?.enabled;
-        youtubeDataApiToggle.checked = settings.youtubeDataApi?.enabled || false;
-        youtubeDataApiKeyInput.value = settings.youtubeDataApi?.apiKey || '';
-        
-        // Show/hide API key input based on toggle state (only for popup, not welcome)
-        if (youtubeDataApiToggle.checked && youtubeApiKeyContainer && youtubeApiKeyContainer.style.display !== undefined) {
-            youtubeApiKeyContainer.style.display = 'block';
-        }
-        
-        if (settings.subtitlesTranslation?.language) {
-            subtitlesLanguageSelect.value = settings.subtitlesTranslation.language;
+                
+                return updated;
+            }
+            
+            needsUpdate = ensureProperty(settings, defaultSettings);
         }
 
-        if (settings.audioTranslation?.language) {
-            audioLanguageSelect.value = settings.audioTranslation.language;
-        } else {
-            audioLanguageSelect.value = 'original';
+        // Save updated settings if any properties were missing
+        if (needsUpdate) {
+            await browser.storage.local.set({ settings });
+            console.log('[YNT] Updated settings with missing properties');
+        }
+
+        // Apply settings to UI elements
+        titleToggle.checked = settings.titleTranslation;
+        isolatedPlayerTitlesToggle.checked = settings.youtubeIsolatedPlayerFallback.titles;
+        audioToggle.checked = settings.audioTranslation.enabled;
+        audioLanguageSelect.value = settings.audioTranslation.language;
+        descriptionToggle.checked = settings.descriptionTranslation;
+        isolatedPlayerSearchDescriptionToggle.checked = settings.youtubeIsolatedPlayerFallback.searchResultsDescriptions;
+        subtitlesToggle.checked = settings.subtitlesTranslation.enabled;
+        subtitlesLanguageSelect.value = settings.subtitlesTranslation.language;
+        youtubeDataApiToggle.checked = settings.youtubeDataApi.enabled;
+        youtubeDataApiKeyInput.value = settings.youtubeDataApi.apiKey;
+        
+        // Show/hide API key input based on toggle state
+        if (youtubeDataApiToggle.checked && youtubeApiKeyContainer && youtubeApiKeyContainer.style.display !== undefined) {
+            youtubeApiKeyContainer.style.display = 'block';
         }
         
         console.log(
@@ -127,8 +150,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         );
         console.log(
             '[YNT] Settings loaded - Audio translation prevention is: %c%s',
-            settings.audioTranslation?.enabled ? 'color: green; font-weight: bold' : 'color: red; font-weight: bold',
-            settings.audioTranslation?.enabled ? 'ON' : 'OFF'
+            settings.audioTranslation.enabled ? 'color: green; font-weight: bold' : 'color: red; font-weight: bold',
+            settings.audioTranslation.enabled ? 'ON' : 'OFF'
         );
         console.log(
             '[YNT] Settings loaded - Description translation prevention is: %c%s',
@@ -137,8 +160,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         );
         console.log(
             '[YNT] Settings loaded - Subtitles translation prevention is: %c%s',
-            settings.subtitlesTranslation?.enabled ? 'color: green; font-weight: bold' : 'color: red; font-weight: bold',
-            settings.subtitlesTranslation?.enabled ? 'ON' : 'OFF'
+            settings.subtitlesTranslation.enabled ? 'color: green; font-weight: bold' : 'color: red; font-weight: bold',
+            settings.subtitlesTranslation.enabled ? 'ON' : 'OFF'
         );
     } catch (error) {
         console.error('Load error:', error);

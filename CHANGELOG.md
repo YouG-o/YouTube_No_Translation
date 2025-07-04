@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - Fixed original description replacement for search results videos with chapters: now also targets `.metadata-snippet-container-one-line` containers, ensuring all search result types are handled.
+- Ensure individual settings properties are completed without overwriting user values in popup
 
 ### Added
 - Added options page support for Chrome, Firefox, and Safari: users can now access extension settings via the standard "Extension options" link in browser extension management pages.
@@ -25,6 +26,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Simplified and modernized the build process for better maintainability and scalability.
 
 - Extracted all description-related logic from `refreshBrowsingVideos` into two dedicated functions: `shouldProcessSearchDescriptionElement` and `processSearchDescriptionElement`, now placed in the appropriate file to better respect single responsibility principles. This is the first step of a broader refactor to further simplify and clarify the orchestration logic.
+
+- Clarify settings type checks and remove unnecessary boolean coercion in search description logic
 
 ## [2.5.11] - 2025-07-02
 

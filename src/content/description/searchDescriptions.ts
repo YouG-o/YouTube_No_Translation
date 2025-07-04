@@ -162,11 +162,16 @@ export function updateSearchDescriptionElement(element: HTMLElement, description
 
 
 export function shouldProcessSearchDescriptionElement(isTranslated: boolean): boolean {
-    return isSearchResultsPage() && 
-           isTranslated && 
-           currentSettings?.descriptionTranslation && 
-           (currentSettings?.youtubeIsolatedPlayerFallback?.searchResultsDescriptions || 
-            (currentSettings?.youtubeDataApi?.enabled && currentSettings?.youtubeDataApi?.apiKey));
+    if (!currentSettings) return false;
+    return isSearchResultsPage() &&
+        isTranslated &&
+        currentSettings.descriptionTranslation &&
+        //Check if either YouTube Data API is enabled with an API key,
+        //or if isolated player fallback for search results descriptions is enabled
+        (
+            (currentSettings.youtubeDataApi.enabled && currentSettings.youtubeDataApi.apiKey.length > 0) ||
+            currentSettings.youtubeIsolatedPlayerFallback.searchResultsDescriptions
+        );
 }
 
 export async function processSearchDescriptionElement(titleElement: HTMLElement, videoId: string): Promise<void> {
@@ -205,8 +210,8 @@ export async function processSearchDescriptionElement(titleElement: HTMLElement,
                             }
                         }
                         
-                        // If YouTube Data API failed or not enabled, use player API fallback
-                        if (!originalDescription) {
+                        // If YouTube Data API failed or not enabled, use player API if 
+                        if (!originalDescription && currentSettings?.youtubeIsolatedPlayerFallback?.searchResultsDescriptions) {
                             const playerReady = await ensureIsolatedPlayer('ynt-player-descriptions');
                             if (playerReady) {
                                 originalDescription = await fetchSearchDescription(videoId);

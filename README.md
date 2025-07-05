@@ -1,109 +1,97 @@
-<div align="center">
-  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/typescript/typescript-original.svg" height="25" alt="typescript logo" title="typescript logo" />
-  <img src="https://cdn.simpleicons.org/tailwindcss/06B6D4" height="25" alt="tailwindcss logo" title="tailwindcss logo" />
-  <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/html5/html5-original.svg" height="25" alt="html5 logo"  />
-</div>
-<div align="center">
-  <a href="https://github.com/YouG-o/YouTube_No_Translation/releases/latest" target="_blank">
-    <img src="https://img.shields.io/github/v/release/YouG-o/YouTube_No_Translation?style=flat&logo=github&color=2ea44f" alt="GitHub Release Version"/>
-  </a>
-  <a href="https://github.com/YouG-o/YouTube_No_Translation/stargazers" target="_blank">
-    <img src="https://img.shields.io/github/stars/YouG-o/YouTube_No_Translation?style=flat&logo=github&color=f9d71c" alt="GitHub Stars"/>
-  </a>
-  <a href="https://github.com/YouG-o/YouTube_No_Translation/graphs/contributors" target="_blank">
-    <img src="https://img.shields.io/github/contributors/YouG-o/YouTube_No_Translation?style=flat&logo=github&color=blue" alt="GitHub Contributors"/>
-  </a>
-  <a href="https://addons.mozilla.org/firefox/addon/youtube-no-translation/" target="_blank">
-    <img src="https://img.shields.io/amo/users/youtube-no-translation?label=&style=flat&logo=firefox-browser&logoColor=white&color=ff7139" alt="Firefox Add-on Users"/>
-  </a>
-  <a href="https://chromewebstore.google.com/detail/youtube-no-translation/lmkeolibdeeglfglnncmfleojmakecjb" target="_blank">
-    <img src="https://img.shields.io/chrome-web-store/users/lmkeolibdeeglfglnncmfleojmakecjb?label=&style=flat&logo=google-chrome&logoColor=white&color=4285F4" alt="Chrome Web Store Users"/>
-  </a>
-  <a href="https://github.com/YouG-o/YouTube_No_Translation/blob/main/LICENSE" target="_blank">
-    <img src="https://img.shields.io/github/license/YouG-o/YouTube_No_Translation?label=&style=flat&logo=license&logoColor=white&color=3da639" alt="License"/>
-  </a>
+<div align='center'>
+
+  [![Release Version](https://img.shields.io/github/v/release/YouG-o/YouTube_No_Translation?style=flat&logo=github&color=2ea44f)](https://github.com/YouG-o/YouTube_No_Translation/releases/latest)
+  [![Github Stargazers](https://img.shields.io/github/stars/YouG-o/YouTube_No_Translation?style=flat&logo=github&color=f9d71c)](https://github.com/YouG-o/YouTube_No_Translation/stargazers)
+  [![Github Contributors](https://img.shields.io/github/contributors/YouG-o/YouTube_No_Translation?style=flat&logo=github&color=blue)](https://github.com/YouG-o/YouTube_No_Translation/graphs/contributors)
+  [![Mozilla Users](https://img.shields.io/amo/users/youtube-no-translation?label=&style=flat&logo=firefox-browser&logoColor=white&color=ff7139)](https://addons.mozilla.org/firefox/addon/youtube-no-translation/)
+  [![Chrome Web Store Users](https://img.shields.io/chrome-web-store/users/lmkeolibdeeglfglnncmfleojmakecjb?label=&style=flat&logo=google-chrome&logoColor=white&color=4285F4)](https://chromewebstore.google.com/detail/youtube-no-translation/lmkeolibdeeglfglnncmfleojmakecjb)
+  ![LICENSE](https://img.shields.io/github/license/YouG-o/YouTube_No_Translation?label=&style=flat&logo=license&logoColor=white&color=3da639)
+
 </div>
 
 ###
 
 <div align="center">
-  <a href="https://youtube-no-translation.vercel.app/" target="_blank">
-    <img src="./assets/images/icon.png" alt="Add-on icon"/>
-  </a>
-</div>
 
-###
+  ![Add-On icon](./assets/images/icon.png)
 
-<h1 align="center">YouTube No Translation</h1>
+  ###
 
+  # YouTube No Translation
 
   A web browser extension that keeps your YouTube experience authentic by preventing automatic translations.
   The extension is available on Chromium browsers, Firefox and Safari.
 
   <br>
 
+
+  [![Available on Mozzila](./assets/images/firefox.png)](https://addons.mozilla.org/firefox/addon/youtube-no-translation/)
+  [![Available on Chrome Web Store](./assets/images/chrome.png)](https://chromewebstore.google.com/detail/youtube-no-translation/lmkeolibdeeglfglnncmfleojmakecjb)
+
+
+  <br>
+
+  You can get the Firefox and Chrome extensions on their official stores, but **for Safari you must [build it yourself](#build-it-yourself)**. I do not provide support for Safari.
+
+</div>
+
+
+###
+
 <div align="center">
-  <a href="https://addons.mozilla.org/firefox/addon/youtube-no-translation/" target="_blank">
-    <img src="./assets/images/firefox.png" height="40" alt="Available on Mozilla Firefox" title="Available on Mozilla Firefox"/>
-  </a>
-  <a href="https://chromewebstore.google.com/detail/youtube-no-translation/lmkeolibdeeglfglnncmfleojmakecjb" target="_blank">
-    <img src="./assets/images/chrome.png" height="40" alt="Available on Chrome Web Store" title="Available on Chrome Web Store"/>
-  </a>
+
+  ## Features:
+
+</div>
+  
+- **Video Titles**: Keep titles in their original language (Video titles, Shorts, Notifications...)
+- **Audio Tracks**: Always use the original audio track (or choose a specific one)
+- **Descriptions**: Prevent automatic translation of the currently playing video’s description(also on search page if you enabled [YouTube Data API](./docs/YT_DATA_API.md))
+- **Subtitles**: Set your preferred subtitle language, if unavailable, subtitles are disabled (auto generated ones are ignored)
+
+A (very small) percentage of titles may remain translated because the extension relies on the oEmbed API by default.
+That's why you can enable the YouTube Data API v3 option (requires your own API key) to handle all titles. It will also prevent translation of descriptions in the search page. <br>
+[See the documentation for more infos and get your own API key.](./docs/YT_DATA_API.md)
+
+
+###
+
+<div align="center">
+  
+  ## Support This Project
+
+</div>  
+
+This extension is completely free and open-source. If you find it valuable, you can support its development with a pay-what-you-want contribution!
+
+<br>
+
+<div align="center">
+
+  [![Support me on Ko-Fi](./assets/images/support_me_on_kofi.png)](https://ko-fi.com/yougo)
+    
+  <br>
+
+  [![Support with Cryptocurrency](https://img.shields.io/badge/Support-Cryptocurrency-8256D0?style=for-the-badge&logo=bitcoin&logoColor=white)](https://youtube-no-translation.vercel.app/?donate=crypto)
+
 </div>
 
 <br>
 
-You can get the Firefox and Chrome extensions on their official stores, but **for Safari you must [build it yourself](#build-it-yourself)**. I do not provide support for Safari.
+You can also support this project by:
+
+- Starring this repository
+- Rating the extension on [Mozilla Add-ons](https://addons.mozilla.org/firefox/addon/youtube-no-translation/) or the [Chrome Web Store](https://chromewebstore.google.com/detail/youtube-no-translation/lmkeolibdeeglfglnncmfleojmakecjb)
+- Following me on [GitHub](https://github.com/YouG-o)
 
 ###
 
-<div>
-  <h1 align="center">Features :</h1>
-  
-  - **Video Titles**: Keep titles in their original language (Video titles, Shorts, Notifications...)
-  - **Audio Tracks**: Always use the original audio track (or choose a specific one)
-  - **Descriptions**: Prevent automatic translation of the currently playing video’s description(also on search page if you enabled [YouTube Data API](./docs/YT_DATA_API.md))
-  - **Subtitles**: Set your preferred subtitle language, if unavailable, subtitles are disabled (auto generated ones are ignored)
 
-    <p>
-    A (very small) percentage of titles may remain translated because the extension relies on the oEmbed API by default.
-    That's why you can enable the YouTube Data API v3 option (requires your own API key) to handle all titles. It will also prevent translation of descriptions in the search page. <br>
-    <a href="./docs/YT_DATA_API.md">See the documentation for more infos and get your own API key.</a>
-  </p>
+<div align="center">
+  
+  ## Build it yourself
+
 </div>
-
-###
-
-<div>
-  <h1 align="center">Support This Project</h1>
-  
-  <p>This extension is completely free and open-source. If you find it valuable, you can support its development with a pay-what-you-want contribution!</p>
-
-  <br>
-
-  <div align="center">
-    <a href="https://ko-fi.com/yougo" target="_blank">
-      <img src="./assets/icons/ko-fi.png" alt="Support me on Ko-fi" height="40">
-    </a>
-    <br>
-    <a href="https://youtube-no-translation.vercel.app/?donate=crypto" target="_blank">
-      <img src="https://img.shields.io/badge/Support-Cryptocurrency-8256D0?style=for-the-badge&logo=bitcoin&logoColor=white" alt="Support with Cryptocurrency" height="30">
-    </a>
-  </div>
-
-  <br>
-  
-  You can also support this project by:
- 
-  - Starring this repository
-  - Rating the extension on [Mozilla Add-ons](https://addons.mozilla.org/firefox/addon/youtube-no-translation/) or the [Chrome Web Store](https://chromewebstore.google.com/detail/youtube-no-translation/lmkeolibdeeglfglnncmfleojmakecjb)
-  - Following me on [GitHub](https://github.com/YouG-o)
-
-###
-
-
-<div>
-  <h1 align="center" id="build-it-yourself">Build it yourself</h1>
 
   While the extension is available through the official stores, you can also build it from source:
 
@@ -139,31 +127,35 @@ You can get the Firefox and Chrome extensions on their official stores, but **fo
   # Then build and run in Xcode to generate the .app
   ```
 
-</div>
 
 ###
 
 <div align="center">
-  <h1>Contributors</h1>
   
+  # Contributors:
+  
+
   Contributions are welcome! Whether you want to fix bugs, add features, or improve documentation, your help is appreciated.
   Please read [CONTRIBUTING.md](CONTRIBUTING.md) to get started, or browse [existing issues](https://github.com/YouG-o/YouTube_No_Translation/issues) to see what needs help.
 
-<br>
+  <br>
 
-  <a href="https://github.com/YouG-o/YouTube_No_Translation/graphs/contributors">
-    <img src="https://contrib.rocks/image?repo=YouG-o/YouTube_No_Translation" />
-  </a>
+  
+  Thanks to all [contributors](./docs/CONTRIBUTORS_LIST.md) !
+  <br>
+  ![Contributor](https://contrib.rocks/image?repo=YouG-o/YouTube_No_Translation)
+
+  
 </div>
+
 
 ###
 
 <div align="center">
-  <h1>License</h1>
-  This project is licensed under the <a href="LICENSE">GNU Affero General Public License v3.0</a>.
-  <br>
-  Any reuse, modification or distribution of this code must credit the original author.
-  <br>
-</div>
 
-###
+  # LICENSE
+
+
+This project is licensed under the [GNU Affero General Public License v3.0](LICENSE)
+
+</div>

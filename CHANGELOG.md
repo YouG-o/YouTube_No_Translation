@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Extracted browsing title element validation logic into a dedicated function `shouldProcessBrowsingElement`
 - Extracted browsing title element state check logic into a dedicated function `checkElementProcessingState`
 - Extracted original title fetching logic from `refreshBrowsingVideos` into a dedicated function `fetchOriginalTitle`
+- Notification title processing now uses the unified `extractVideoIdFromUrl` utility for video ID extraction.
 
 - Notification popup titles now use the unified `fetchOriginalTitle` logic for original title retrieval.
 - Extracted main title retrieval logic into a dedicated `fetchMainTitle` function, now used in `refreshMainTitle`, `refreshEmbedTitle`, and `refreshMiniplayerTitle`.

@@ -9,6 +9,7 @@
 
 import { titlesLog, titlesErrorLog } from "../loggings";
 import { normalizeText } from "../utils/text";
+import { extractVideoIdFromUrl } from "../utils/video";
 
 import { fetchOriginalTitle } from "./browsingTitles";
 
@@ -56,17 +57,8 @@ async function refreshNotificationTitles(): Promise<void> {
         if (!anchor) continue;
         const href = anchor.getAttribute('href');
         if (!href) continue;
-        let videoId: string | null = null;
-        try {
-            const url = new URL(href, window.location.origin);
-            if (url.pathname.startsWith('/watch')) {
-                videoId = new URLSearchParams(url.search).get('v');
-            }
-        } catch {
-            // Fallback: extract v= manually
-            const match = href.match(/[?&]v=([^&]+)/);
-            if (match) videoId = match[1];
-        }
+        
+        const videoId = extractVideoIdFromUrl(href.startsWith('http') ? href : window.location.origin + href);
         if (!videoId) continue;
 
         const currentTitle = titleElement.textContent;

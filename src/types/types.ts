@@ -123,3 +123,10 @@ export interface ProcessingResult {
     videoId?: string;
     videoUrl?: string;
 }
+
+export interface TitleFetchResult {
+    originalTitle: string | null;
+    shouldSkip: boolean;
+    shouldMarkAsOriginal: boolean;
+    shouldMarkAsFailed: boolean;
+}

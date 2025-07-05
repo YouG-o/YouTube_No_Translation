@@ -7,7 +7,8 @@
  * This program is distributed without any warranty; see the license for details.
  */
 
-import { browsingTitlesLog, browsingTitlesErrorLog, descriptionErrorLog } from '../loggings';
+import { browsingTitlesLog, browsingTitlesErrorLog } from '../loggings';
+import { ProcessingResult, ElementProcessingState } from '../../types/types';
 import { ensureIsolatedPlayer, cleanupIsolatedPlayer } from '../utils/isolatedPlayer';
 import { currentSettings } from '../index';
 import { normalizeText } from '../utils/text';
@@ -157,12 +158,6 @@ export async function getBrowsingTitleFallback(videoId: string): Promise<string 
 }
 
 
-interface ProcessingResult {
-    shouldProcess: boolean;
-    videoId?: string;
-    videoUrl?: string;
-}
-
 function shouldProcessBrowsingElement(titleElement: HTMLElement): ProcessingResult {
     const videoUrl = titleElement.closest('a')?.href;
     
@@ -207,6 +202,62 @@ function shouldProcessBrowsingElement(titleElement: HTMLElement): ProcessingResu
 }
 
 
+function checkElementProcessingState(titleElement: HTMLElement, videoId: string): ElementProcessingState {
+    // Check if already processed successfully - BEFORE making API calls
+    if (titleElement.hasAttribute('ynt')) {
+        if (titleElement.getAttribute('ynt') === videoId) {
+            // Check for duplicate or unexpected text nodes (e.g. YouTube injected a new node)
+            const directTextNodes = Array.from(titleElement.childNodes)
+                .filter(node => node.nodeType === Node.TEXT_NODE && node.textContent?.trim());
+            // If there is exactly one text node and it matches the current title, skip processing
+            if (directTextNodes.length === 1 && normalizeText(directTextNodes[0].textContent || '') === normalizeText(titleElement.getAttribute('title') || '')) {
+                return { shouldSkip: true, shouldClean: false };
+            } else {
+                // Clean all extension-related attributes if text nodes are out of sync or duplicated
+                return { shouldSkip: false, shouldClean: true };
+            }
+        } else {
+            // Clean all extension-related attributes if videoId does not match current ynt attribute
+            return { shouldSkip: false, shouldClean: true };
+        }
+    }
+
+    if (titleElement.hasAttribute('ynt-fail')) {
+        if (titleElement.getAttribute('ynt-fail') === videoId) {
+            const parentTitle = titleElement.parentElement?.getAttribute('title');
+            if (parentTitle) {
+                if (normalizeText(titleElement.getAttribute('title')) !== normalizeText(parentTitle)) {
+                    titleElement.setAttribute('title', parentTitle);
+                }
+                if (normalizeText(titleElement.textContent) !== normalizeText(parentTitle)) {
+                    titleElement.textContent = parentTitle;
+                }
+            }
+            return { shouldSkip: true, shouldClean: false };
+        }
+        titleElement.removeAttribute('ynt-fail');
+    }
+
+    if (titleElement.hasAttribute('ynt-original')) {
+        if (titleElement.getAttribute('ynt-original') === videoId) {
+            const parentTitle = titleElement.parentElement?.getAttribute('title');
+            if (parentTitle) {
+                if (normalizeText(titleElement.getAttribute('title')) !== normalizeText(parentTitle)) {
+                    titleElement.setAttribute('title', parentTitle);
+                }
+                if (normalizeText(titleElement.textContent) !== normalizeText(parentTitle)) {
+                    titleElement.textContent = parentTitle;
+                }
+            }
+            return { shouldSkip: true, shouldClean: false };
+        }
+        titleElement.removeAttribute('ynt-original');
+    }
+
+    return { shouldSkip: false, shouldClean: false };
+}
+
+
 export async function refreshBrowsingVideos(): Promise<void> {
     const now = Date.now();
     if (now - lastBrowsingTitlesRefresh < TITLES_THROTTLE) {
@@ -234,60 +285,14 @@ export async function refreshBrowsingVideos(): Promise<void> {
         try {
             const currentTitle = titleElement.textContent || '';
 
-            // Check if already processed successfully - BEFORE making API calls
-            if (titleElement.hasAttribute('ynt')) {
-                if (titleElement.getAttribute('ynt') === videoId) {
-                    // Check for duplicate or unexpected text nodes (e.g. YouTube injected a new node)
-                    const directTextNodes = Array.from(titleElement.childNodes)
-                        .filter(node => node.nodeType === Node.TEXT_NODE && node.textContent?.trim());
-                    // If there is exactly one text node and it matches the current title, skip processing
-                    if (directTextNodes.length === 1 && normalizeText(directTextNodes[0].textContent || '') === normalizeText(titleElement.getAttribute('title') || '')) {
-                        continue;
-                    } else {
-                        // Clean all extension-related attributes if text nodes are out of sync or duplicated
-                        titleElement.removeAttribute('ynt');
-                        titleElement.removeAttribute('ynt-fail');
-                        titleElement.removeAttribute('ynt-fail-retry');
-                        titleElement.removeAttribute('ynt-original');
-                    }
-                } else {
-                    // Clean all extension-related attributes if videoId does not match current ynt attribute
-                    titleElement.removeAttribute('ynt');
-                    titleElement.removeAttribute('ynt-fail');
-                    titleElement.removeAttribute('ynt-fail-retry');
-                    titleElement.removeAttribute('ynt-original');
-                }
+            const processingState = checkElementProcessingState(titleElement, videoId);
+            if (processingState.shouldSkip) {
+                continue;
             }
-
-            if (titleElement.hasAttribute('ynt-fail')) {
-                if (titleElement.getAttribute('ynt-fail') === videoId) {
-                    const parentTitle = titleElement.parentElement?.getAttribute('title');
-                    if (parentTitle){
-                        if (normalizeText(titleElement.getAttribute('title')) !== normalizeText(parentTitle)) {
-                            titleElement.setAttribute('title', parentTitle);
-                        }
-                        if (normalizeText(titleElement.textContent) !== normalizeText(parentTitle)) {
-                            titleElement.textContent = parentTitle;
-                        }
-                    }
-                    continue;
-                }
+            if (processingState.shouldClean) {
+                titleElement.removeAttribute('ynt');
                 titleElement.removeAttribute('ynt-fail');
-            }
-
-            if (titleElement.hasAttribute('ynt-original')) {
-                if (titleElement.getAttribute('ynt-original') === videoId) {
-                    const parentTitle = titleElement.parentElement?.getAttribute('title');
-                    if (parentTitle){
-                        if (normalizeText(titleElement.getAttribute('title')) !== normalizeText(parentTitle)) {
-                            titleElement.setAttribute('title', parentTitle);
-                        }
-                        if (normalizeText(titleElement.textContent) !== normalizeText(parentTitle)) {
-                            titleElement.textContent = parentTitle;
-                        }
-                    }
-                    continue;
-                }
+                titleElement.removeAttribute('ynt-fail-retry');
                 titleElement.removeAttribute('ynt-original');
             }
             

@@ -11,6 +11,7 @@ import { browsingTitlesLog, browsingTitlesErrorLog, descriptionErrorLog } from '
 import { ensureIsolatedPlayer, cleanupIsolatedPlayer } from '../utils/isolatedPlayer';
 import { currentSettings } from '../index';
 import { normalizeText } from '../utils/text';
+import { extractVideoIdFromUrl } from '../utils/video';
 
 import { shouldProcessSearchDescriptionElement, processSearchDescriptionElement } from '../description/searchDescriptions';
 import { titleCache } from './index';
@@ -189,22 +190,7 @@ export async function refreshBrowsingVideos(): Promise<void> {
                 continue;
             }
 
-            let videoId: string | null = null;
-            try {
-                const url = new URL(videoUrl);
-
-                if (url.pathname.startsWith('/watch')) {
-                    // Classic video
-                    videoId = new URLSearchParams(url.search).get('v');
-                } else if (url.pathname.startsWith('/shorts/')) {
-                    // Short video - extract ID from path
-                    const pathParts = url.pathname.split('/');
-                    videoId = pathParts.length > 2 ? pathParts[2] : null;
-                }
-            } catch (urlError) {
-                browsingTitlesErrorLog('Failed to parse video URL:', urlError);
-                continue;
-            }
+            const videoId = extractVideoIdFromUrl(videoUrl);
             
             if (videoId) {
                 // Skip if this video is currently being processed

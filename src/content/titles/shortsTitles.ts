@@ -11,6 +11,7 @@ import { browsingTitlesLog, browsingTitlesErrorLog, mainTitleLog, mainTitleError
 import { TitleDataEvent } from "../../types/types";
 import { waitForElement } from "../utils/dom";
 import { normalizeText } from "../utils/text";
+import { extractVideoIdFromUrl } from "../utils/video";
 
 import { updateMainTitleElement } from "./mainTitle";
 import { titleCache } from "./index";
@@ -29,10 +30,7 @@ export async function refreshShortMainTitle(): Promise<void> {
     if (window.location.pathname.startsWith('/shorts')) {
         //mainTitleLog('Processing shorts title elements');
         
-        // Extract the video ID from the URL
-        // Format: /shorts/TNtpUQbW4mg
-        const pathSegments = window.location.pathname.split('/');
-        const videoId = pathSegments.length > 2 ? pathSegments[2] : null;
+        const videoId = extractVideoIdFromUrl(window.location.href);
         
         if (videoId) {
             // Process main shorts title
@@ -97,9 +95,7 @@ export async function refreshShortMainTitle(): Promise<void> {
                 if (linkedVideoAnchor) {
                     const linkedVideoUrl = linkedVideoAnchor.getAttribute('href');
                     if (linkedVideoUrl) {
-                        // Extract video ID from URL format "/watch?v=VIDEO_ID"
-                        const linkedVideoIdMatch = linkedVideoUrl.match(/\/watch\?v=([^&]+)/);
-                        const linkedVideoId = linkedVideoIdMatch ? linkedVideoIdMatch[1] : null;
+                        const linkedVideoId = extractVideoIdFromUrl(`https://www.youtube.com${linkedVideoUrl}`);
                         
                         if (linkedVideoId) {
                            // mainTitleLog(`Processing linked video title with ID: ${linkedVideoId}`);
@@ -129,9 +125,7 @@ export const checkShortsId = () => {
     if (window.location.pathname.startsWith('/shorts')) {
         waitForElement('yt-shorts-video-title-view-model h2.ytShortsVideoTitleViewModelShortsVideoTitle span')
         .then(() => {
-            // Extract the current video ID
-            const pathSegments = window.location.pathname.split('/');
-            const currentVideoId = pathSegments.length > 2 ? pathSegments[2] : null;
+            const currentVideoId = extractVideoIdFromUrl(window.location.href);
             
             if (currentVideoId) {
                 mainTitleLog('Shorts ID changed, updating title for ID:', currentVideoId);
@@ -187,7 +181,7 @@ export async function refreshShortsAlternativeFormat(): Promise<void> {
                 continue;
             }
             
-            const videoId = href.split('/shorts/')[1]?.split('?')[0];
+            const videoId = extractVideoIdFromUrl(`https://www.youtube.com${href}`);
             if (!videoId) {
                 continue;
             }

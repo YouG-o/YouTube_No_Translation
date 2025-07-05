@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Refactored
 - Extracted video ID parsing logic from `refreshBrowsingVideos` into a dedicated utility function `extractVideoIdFromUrl` in `src/content/utils/video.ts` for better code reuse and clarity.
+- Extracted browsing title element validation logic into a dedicated function `shouldProcessBrowsingElement` for improved code
 
 ## [2.6.0] - 2025-07-04
 

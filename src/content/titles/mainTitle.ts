@@ -409,7 +409,7 @@ export async function refreshMiniplayerTitle(): Promise<void> {
 }
 
 
-async function fetchMainTitle(videoId: string, fallbackToPageTitle: boolean = true): Promise<string | null> {
+export async function fetchMainTitle(videoId: string, fallbackToPageTitle: boolean = true, isShorts: boolean = false): Promise<string | null> {
     let originalTitle: string | null = null;
 
     // First try: Get title from player
@@ -440,9 +440,8 @@ async function fetchMainTitle(videoId: string, fallbackToPageTitle: boolean = tr
     // Second try: Fallback to oembed API
     if (!originalTitle) {
         mainTitleLog('Falling back to oembed API');
-        originalTitle = await titleCache.getOriginalTitle(
-            `https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${videoId}`
-        );
+        const oembedUrl = isShorts ? `https://www.youtube.com/oembed?url=https://www.youtube.com/shorts/${videoId}` : `https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${videoId}`;
+        originalTitle = await titleCache.getOriginalTitle(oembedUrl);
     }
 
     // Third try: YouTube Data API v3 if enabled

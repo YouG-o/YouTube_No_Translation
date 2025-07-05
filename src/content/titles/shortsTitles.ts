@@ -11,10 +11,11 @@ import { browsingTitlesLog, browsingTitlesErrorLog, mainTitleLog, mainTitleError
 import { TitleDataEvent } from "../../types/types";
 import { waitForElement } from "../utils/dom";
 import { normalizeText } from "../utils/text";
+import { extractVideoIdFromUrl } from "../utils/video";
 
-import { updateMainTitleElement } from "./mainTitle";
+import { updateMainTitleElement, fetchMainTitle } from "./mainTitle";
+import { fetchOriginalTitle, lastBrowsingShortsRefresh, setLastBrowsingShortsRefresh, TITLES_THROTTLE } from "./browsingTitles";
 import { titleCache } from "./index";
-import { lastBrowsingShortsRefresh, setLastBrowsingShortsRefresh, TITLES_THROTTLE } from "./browsingTitles";
 
 
 
@@ -29,50 +30,14 @@ export async function refreshShortMainTitle(): Promise<void> {
     if (window.location.pathname.startsWith('/shorts')) {
         //mainTitleLog('Processing shorts title elements');
         
-        // Extract the video ID from the URL
-        // Format: /shorts/TNtpUQbW4mg
-        const pathSegments = window.location.pathname.split('/');
-        const videoId = pathSegments.length > 2 ? pathSegments[2] : null;
+        const videoId = extractVideoIdFromUrl(window.location.href);
         
         if (videoId) {
             // Process main shorts title
             if (shortTitle && !titleCache.hasElement(shortTitle)) {
                 const currentTitle = shortTitle.textContent;
-                let originalTitle: string | null = null;
 
-                // First try: Get title from player
-                try {
-                    // Create and inject script
-                    const mainTitleScript = document.createElement('script');
-                    mainTitleScript.type = 'text/javascript';
-                    mainTitleScript.src = browser.runtime.getURL('dist/content/scripts/mainTitleScript.js');
-
-                    // Set up event listener before injecting script
-                    const playerTitle = await new Promise<string | null>((resolve) => {
-                        const titleListener = (event: TitleDataEvent) => {
-                            window.removeEventListener('ynt-title-data', titleListener as EventListener);
-                            resolve(event.detail.title);
-                        };
-                        window.addEventListener('ynt-title-data', titleListener as EventListener);
-                        
-                        // Inject script after listener is ready
-                        document.head.appendChild(mainTitleScript);
-                    });
-
-                    if (playerTitle) {
-                        originalTitle = playerTitle;
-                    }
-                } catch (error) {
-                    mainTitleErrorLog('Failed to get shorts title from player:', error);
-                }
-
-                // Second try: Fallback to oembed API
-                if (!originalTitle) {
-                    mainTitleLog('Falling back to oembed API for shorts');
-                    originalTitle = await titleCache.getOriginalTitle(
-                        `https://www.youtube.com/oembed?url=https://www.youtube.com/shorts/${videoId}`
-                    );
-                }
+                const originalTitle = await fetchMainTitle(videoId, false, true);
 
                 // Skip if title is already correct
                 if (!originalTitle || normalizeText(currentTitle) === normalizeText(originalTitle)) {
@@ -97,9 +62,7 @@ export async function refreshShortMainTitle(): Promise<void> {
                 if (linkedVideoAnchor) {
                     const linkedVideoUrl = linkedVideoAnchor.getAttribute('href');
                     if (linkedVideoUrl) {
-                        // Extract video ID from URL format "/watch?v=VIDEO_ID"
-                        const linkedVideoIdMatch = linkedVideoUrl.match(/\/watch\?v=([^&]+)/);
-                        const linkedVideoId = linkedVideoIdMatch ? linkedVideoIdMatch[1] : null;
+                        const linkedVideoId = extractVideoIdFromUrl(`https://www.youtube.com${linkedVideoUrl}`);
                         
                         if (linkedVideoId) {
                            // mainTitleLog(`Processing linked video title with ID: ${linkedVideoId}`);
@@ -129,9 +92,7 @@ export const checkShortsId = () => {
     if (window.location.pathname.startsWith('/shorts')) {
         waitForElement('yt-shorts-video-title-view-model h2.ytShortsVideoTitleViewModelShortsVideoTitle span')
         .then(() => {
-            // Extract the current video ID
-            const pathSegments = window.location.pathname.split('/');
-            const currentVideoId = pathSegments.length > 2 ? pathSegments[2] : null;
+            const currentVideoId = extractVideoIdFromUrl(window.location.href);
             
             if (currentVideoId) {
                 mainTitleLog('Shorts ID changed, updating title for ID:', currentVideoId);
@@ -142,8 +103,7 @@ export const checkShortsId = () => {
                 delays.forEach(delay => {
                     setTimeout(() => {
                         // Only refresh if we're still on the same video
-                        const newPathSegments = window.location.pathname.split('/');
-                        const newVideoId = newPathSegments.length > 2 ? newPathSegments[2] : null;
+                        const newVideoId = extractVideoIdFromUrl(window.location.href);
                         
                         if (window.location.pathname.startsWith('/shorts') && newVideoId === currentVideoId) {
                             //mainTitleLog(`Refreshing shorts title after ${delay}ms delay`);
@@ -187,7 +147,7 @@ export async function refreshShortsAlternativeFormat(): Promise<void> {
                 continue;
             }
             
-            const videoId = href.split('/shorts/')[1]?.split('?')[0];
+            const videoId = extractVideoIdFromUrl(`https://www.youtube.com${href}`);
             if (!videoId) {
                 continue;
             }
@@ -198,10 +158,13 @@ export async function refreshShortsAlternativeFormat(): Promise<void> {
                 continue;
             }
             
-            // Get original title through API
-            const apiUrl = `https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${videoId}`;
-            const originalTitle = await titleCache.getOriginalTitle(apiUrl);
             const currentTitle = titleSpan.textContent;
+            const titleFetchResult = await fetchOriginalTitle(videoId, shortLink, currentTitle || '');
+            const originalTitle = titleFetchResult.originalTitle;
+            if (!originalTitle) {
+                browsingTitlesLog(`Failed to get original title from API for short: ${videoId}, keeping current title : ${normalizeText(currentTitle)}`);
+                continue;
+            }
             
             if (!originalTitle) {
                 browsingTitlesLog(`Failed to get original title from API for short: ${videoId}, keeping current title : ${normalizeText(currentTitle)}`);

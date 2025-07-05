@@ -9,10 +9,9 @@
 
 import { titlesLog, titlesErrorLog } from "../loggings";
 import { normalizeText } from "../utils/text";
-import { currentSettings } from '../index';
+import { extractVideoIdFromUrl } from "../utils/video";
 
-import { getBrowsingTitleFallback } from "./browsingTitles";
-import { titleCache } from "./index";
+import { fetchOriginalTitle } from "./browsingTitles";
 
 
 // Observer and refresh logic for notification popup titles
@@ -58,49 +57,15 @@ async function refreshNotificationTitles(): Promise<void> {
         if (!anchor) continue;
         const href = anchor.getAttribute('href');
         if (!href) continue;
-        let videoId: string | null = null;
-        try {
-            const url = new URL(href, window.location.origin);
-            if (url.pathname.startsWith('/watch')) {
-                videoId = new URLSearchParams(url.search).get('v');
-            }
-        } catch {
-            // Fallback: extract v= manually
-            const match = href.match(/[?&]v=([^&]+)/);
-            if (match) videoId = match[1];
-        }
+        
+        const videoId = extractVideoIdFromUrl(href.startsWith('http') ? href : window.location.origin + href);
         if (!videoId) continue;
 
-        // Try oEmbed API first
-        const apiUrl = `https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${videoId}`;
-        let originalTitle = await titleCache.getOriginalTitle(apiUrl);
-        let currentTitle = titleElement.textContent;
-
-        // If oEmbed fails, try YouTube Data API v3 if enabled and API key available
-        if (!originalTitle && currentSettings?.youtubeDataApi?.enabled && currentSettings?.youtubeDataApi?.apiKey) {
-            try {
-                const youtubeApiUrl = `https://www.googleapis.com/youtube/v3/videos?id=${videoId}&key=${currentSettings.youtubeDataApi.apiKey}&part=snippet`;
-                const response = await fetch(youtubeApiUrl);
-                
-                if (response.ok) {
-                    const data = await response.json();
-                    if (data.items && data.items.length > 0) {
-                        originalTitle = data.items[0].snippet.title;
-                        //titlesLog(`Retrieved notification title via YouTube Data API v3 for ${videoId}`);
-                    }
-                } else {
-                    titlesErrorLog(`YouTube Data API v3 failed for notification ${videoId}: ${response.status} ${response.statusText}`);
-                }
-            } catch (apiError) {
-                titlesErrorLog(`YouTube Data API v3 error for notification ${videoId}:`, apiError);
-            }
-        }
-
-        // Player API fallback if oEmbed (and YouTube Data API v3 if activated) fails
-        if (!originalTitle && currentSettings?.youtubeIsolatedPlayerFallback?.titles) {
-            const fallbackTitle = await getBrowsingTitleFallback(videoId);
-            if (fallbackTitle) originalTitle = fallbackTitle;
-            await new Promise(resolve => setTimeout(resolve, 600));
+        const currentTitle = titleElement.textContent;
+        const titleFetchResult = await fetchOriginalTitle(videoId, titleElement, currentTitle || '');
+        const originalTitle = titleFetchResult.originalTitle;
+        if (!originalTitle) {
+            continue;
         }
 
         if (originalTitle && !normalizeText(currentTitle).includes(normalizeText(originalTitle))) {

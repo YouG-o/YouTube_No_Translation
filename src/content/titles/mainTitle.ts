@@ -8,6 +8,7 @@
  */
 
 import { mainTitleLog, mainTitleErrorLog } from "../loggings";
+import { currentSettings } from "../index";
 import { normalizeText } from "../utils/text";
 import { waitForElement } from "../utils/dom";
 import { TitleDataEvent } from "../../types/types";
@@ -234,48 +235,11 @@ export async function refreshMainTitle(): Promise<void> {
         const videoId = new URLSearchParams(window.location.search).get('v');
         if (videoId) {
             const currentTitle = mainTitle.textContent;
-            let originalTitle: string | null = null;
 
-            // First try: Get title from player
-            try {
-                // Create and inject script
-                const mainTitleScript = document.createElement('script');
-                mainTitleScript.type = 'text/javascript';
-                mainTitleScript.src = browser.runtime.getURL('dist/content/scripts/mainTitleScript.js');
+            const originalTitle = await fetchMainTitle(videoId, true);
 
-                // Set up event listener before injecting script
-                const playerTitle = await new Promise<string | null>((resolve) => {
-                    const titleListener = (event: TitleDataEvent) => {
-                        window.removeEventListener('ynt-title-data', titleListener as EventListener);
-                        resolve(event.detail.title);
-                    };
-                    window.addEventListener('ynt-title-data', titleListener as EventListener);
-                    
-                    // Inject script after listener is ready
-                    document.head.appendChild(mainTitleScript);
-                });
-
-                if (playerTitle) {
-                    //mainTitleLog('Got original title from player');
-                    originalTitle = playerTitle;
-                }
-            } catch (error) {
-                mainTitleErrorLog('Failed to get title from player:', error);
-            }
-
-            // Second try: Fallback to oembed API
             if (!originalTitle) {
-                mainTitleLog('Falling back to oembed API');
-                originalTitle = await titleCache.getOriginalTitle(
-                    `https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${videoId}`
-                );
-            }
-
-            // Last resort: Use page title
-            if (!originalTitle) {
-                const currentPageTitle = document.title.replace(/ - YouTube$/, '');
-                mainTitleLog(`Failed to get original title using both methods, using page title as last resort`);
-                updateMainTitleElement(mainTitle, currentPageTitle, videoId);
+                mainTitleLog('Failed to get original title, keeping current');
                 return;
             }
 
@@ -323,40 +287,8 @@ export async function refreshEmbedTitle(): Promise<void> {
             
             if (videoId) {
                 const currentTitle = embedTitle.textContent;
-                let originalTitle: string | null = null;
 
-                // First try: Get title from player
-                try {
-                    const mainTitleScript = document.createElement('script');
-                    mainTitleScript.type = 'text/javascript';
-                    mainTitleScript.src = browser.runtime.getURL('dist/content/scripts/mainTitleScript.js');
-
-                    // Set up event listener before injecting script
-                    const playerTitle = await new Promise<string | null>((resolve) => {
-                        const titleListener = (event: TitleDataEvent) => {
-                            window.removeEventListener('ynt-title-data', titleListener as EventListener);
-                            resolve(event.detail.title);
-                        };
-                        window.addEventListener('ynt-title-data', titleListener as EventListener);
-                        
-                        // Inject script after listener is ready
-                        document.head.appendChild(mainTitleScript);
-                    });
-
-                    if (playerTitle) {
-                        originalTitle = playerTitle;
-                    }
-                } catch (error) {
-                    mainTitleErrorLog('Failed to get title from player:', error);
-                }
-
-                // Second try: Fallback to oembed API
-                if (!originalTitle) {
-                    mainTitleLog('Falling back to oembed API');
-                    originalTitle = await titleCache.getOriginalTitle(
-                        `https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${videoId}`
-                    );
-                }
+                const originalTitle = await fetchMainTitle(videoId, true);
 
                 if (!originalTitle) {
                     mainTitleLog('Failed to get original title, keeping current');
@@ -446,41 +378,8 @@ export async function refreshMiniplayerTitle(): Promise<void> {
             }
 
             if (videoId) {
-                let originalTitle: string | null = null;
 
-                // First try: Get title from player
-                try {
-                    const mainTitleScript = document.createElement('script');
-                    mainTitleScript.type = 'text/javascript';
-                    mainTitleScript.src = browser.runtime.getURL('dist/content/scripts/mainTitleScript.js');
-
-                    // Set up event listener before injecting script
-                    const playerTitle = await new Promise<string | null>((resolve) => {
-                        const titleListener = (event: TitleDataEvent) => {
-                            window.removeEventListener('ynt-title-data', titleListener as EventListener);
-                            resolve(event.detail.title);
-                        };
-                        window.addEventListener('ynt-title-data', titleListener as EventListener);
-                        
-                        // Inject script after listener is ready
-                        document.head.appendChild(mainTitleScript);
-                    });
-
-                    if (playerTitle) {
-                        originalTitle = playerTitle;
-                        //mainTitleLog(`Got title from player: ${originalTitle}`);
-                    }
-                } catch (error) {
-                    mainTitleErrorLog('Failed to get title from player:', error);
-                }
-
-                // Second try: Fallback to oembed API
-                if (!originalTitle) {
-                    mainTitleLog('Falling back to oembed API');
-                    originalTitle = await titleCache.getOriginalTitle(
-                        `https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${videoId}`
-                    );
-                }
+                const originalTitle = await fetchMainTitle(videoId, false);
 
                 if (!originalTitle) {
                     mainTitleLog('Failed to get original title, keeping current');
@@ -507,4 +406,71 @@ export async function refreshMiniplayerTitle(): Promise<void> {
     } catch (error) {
         // Element not found or timeout, silently fail as it's expected behavior
     }
+}
+
+
+export async function fetchMainTitle(videoId: string, fallbackToPageTitle: boolean = true, isShorts: boolean = false): Promise<string | null> {
+    let originalTitle: string | null = null;
+
+    // First try: Get title from player
+    try {
+        const mainTitleScript = document.createElement('script');
+        mainTitleScript.type = 'text/javascript';
+        mainTitleScript.src = browser.runtime.getURL('dist/content/scripts/mainTitleScript.js');
+
+        // Set up event listener before injecting script
+        const playerTitle = await new Promise<string | null>((resolve) => {
+            const titleListener = (event: TitleDataEvent) => {
+                window.removeEventListener('ynt-title-data', titleListener as EventListener);
+                resolve(event.detail.title);
+            };
+            window.addEventListener('ynt-title-data', titleListener as EventListener);
+            
+            // Inject script after listener is ready
+            document.head.appendChild(mainTitleScript);
+        });
+
+        if (playerTitle) {
+            originalTitle = playerTitle;
+        }
+    } catch (error) {
+        mainTitleErrorLog('Failed to get title from player:', error);
+    }
+
+    // Second try: Fallback to oembed API
+    if (!originalTitle) {
+        mainTitleLog('Falling back to oembed API');
+        const oembedUrl = isShorts ? `https://www.youtube.com/oembed?url=https://www.youtube.com/shorts/${videoId}` : `https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${videoId}`;
+        originalTitle = await titleCache.getOriginalTitle(oembedUrl);
+    }
+
+    // Third try: YouTube Data API v3 if enabled
+    if (!originalTitle && currentSettings?.youtubeDataApi?.enabled && currentSettings?.youtubeDataApi?.apiKey) {
+        try {
+            const youtubeApiUrl = `https://www.googleapis.com/youtube/v3/videos?id=${videoId}&key=${currentSettings.youtubeDataApi.apiKey}&part=snippet`;
+            const response = await fetch(youtubeApiUrl);
+            
+            if (response.ok) {
+                const data = await response.json();
+                if (data.items && data.items.length > 0) {
+                    originalTitle = data.items[0].snippet.title;
+                }
+            } else {
+                mainTitleLog(`YouTube Data API v3 failed for ${videoId}: ${response.status} ${response.statusText}`);
+            }
+        } catch (apiError) {
+            mainTitleErrorLog(`YouTube Data API v3 error for ${videoId}:`, apiError);
+        }
+    }
+
+    // Last resort: Use page title if allowed
+    if (!originalTitle && fallbackToPageTitle) {
+        const currentPageTitle = document.title.replace(/ - YouTube$/, '');
+        if (currentPageTitle.length > 0) {
+            originalTitle = currentPageTitle;
+            mainTitleLog('Failed to get original title using APIs, using page title as last resort');
+        }
+    }
+
+    return originalTitle;
 }

@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Extracted browsing title element validation logic into a dedicated function `shouldProcessBrowsingElement`
 - Extracted browsing title element state check logic into a dedicated function `checkElementProcessingState`
 - Extracted original title fetching logic from `refreshBrowsingVideos` into a dedicated function `fetchOriginalTitle`
+- Notification popup titles now use the unified `fetchOriginalTitle` logic for original title retrieval.
 
 ## [2.6.0] - 2025-07-04
 

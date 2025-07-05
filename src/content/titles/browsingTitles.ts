@@ -258,7 +258,7 @@ function checkElementProcessingState(titleElement: HTMLElement, videoId: string)
 }
 
 
-async function fetchOriginalTitle(videoId: string, titleElement: HTMLElement, currentTitle: string): Promise<TitleFetchResult> {
+export async function fetchOriginalTitle(videoId: string, titleElement: HTMLElement, currentTitle: string): Promise<TitleFetchResult> {
     // Try oEmbed API first
     const apiUrl = `https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${videoId}`;
     let originalTitle = await titleCache.getOriginalTitle(apiUrl);

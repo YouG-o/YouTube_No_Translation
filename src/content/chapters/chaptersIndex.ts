@@ -8,6 +8,7 @@
  */
 
 import { chaptersLog, chaptersErrorLog } from '../loggings';
+import { normalizeText } from '../utils/text';
 import { Chapter } from '../../types/types';
 
 
@@ -137,7 +138,7 @@ function updateTooltipChapter(): void {
     if (targetChapter) {
         const currentOriginalChapter = titleElement.getAttribute('data-original-chapter');
         
-        if (currentOriginalChapter !== targetChapter.title) {
+        if (normalizeText(currentOriginalChapter) !== normalizeText(targetChapter.title)) {
             chaptersLog(`Time: ${timeString} (${timeInSeconds}s) -> Chapter: "${targetChapter.title}"`);
             titleElement.setAttribute('data-original-chapter', targetChapter.title);
         }
@@ -175,36 +176,16 @@ function updateChapterButton(): void {
     const currentTime = getCurrentVideoTime();
     const targetChapter = findChapterByTime(currentTime, cachedChapters);
     
-    
     if (targetChapter) {
-        // Always update or create the span with current YouTube content
-        let span = chapterButton.querySelector(`span[ynt-chapter-span]`);
-        if (!span) {
-            span = document.createElement('span');
-            span.setAttribute('ynt-chapter-span', 'current');
-            span.textContent = chapterButton.textContent;
-            chapterButton.textContent = '';
-            chapterButton.appendChild(span);
-        } else {
-            // Update existing span with current YouTube content
-            const currentYouTubeText = Array.from(chapterButton.childNodes)
-                .filter(node => node.nodeType === Node.TEXT_NODE)
-                .map(node => node.textContent)
-                .join('');
-            
-            if (currentYouTubeText && currentYouTubeText.trim()) {
-                span.textContent = currentYouTubeText;
-                chapterButton.childNodes.forEach(node => {
-                    if (node.nodeType === Node.TEXT_NODE) {
-                        node.textContent = '';
-                    }
-                });
-            }
+        const currentTitle = chapterButton.textContent?.trim() || '';
+        const storedOriginalTitle = chapterButton.getAttribute('data-original-chapter-button') || '';
+        
+        // Only update if the normalized titles are different
+        if (normalizeText(currentTitle) !== normalizeText(targetChapter.title)) {
+            chaptersLog(`Chapter button updated: Time ${currentTime}s -> from "${currentTitle}" to "${targetChapter.title}"`);
+            chapterButton.textContent = targetChapter.title;
+            chapterButton.setAttribute('data-original-chapter-button', targetChapter.title);
         }
-
-        chaptersLog(`Chapter button updated: Time ${currentTime}s -> from "${span.textContent}" to "${targetChapter.title}"`);
-        chapterButton.setAttribute('title', targetChapter.title);
-        chapterButton.setAttribute('data-original-chapter-button', targetChapter.title);
     }
 }
 
@@ -231,7 +212,7 @@ function setupChapterButtonObserver(): void {
         });
         
         if (shouldUpdate) {
-            setTimeout(updateChapterButton, 50);
+            setTimeout(updateChapterButton, 150);
         }
     });
     
@@ -362,20 +343,6 @@ export function initializeChaptersReplacement(originalDescription: string): void
             font-family: inherit;
             display: inline !important;
         }
-        
-            /* Hide all direct children of chapter button with data-original-chapter-button attribute */
-            .ytp-chapter-title-content[data-original-chapter-button] > * {
-                display: none !important;
-            }
-
-            /* Show the original chapter title using the title attribute */
-            .ytp-chapter-title-content[data-original-chapter-button]::after {
-                content: attr(title);
-                font-size: var(--ytd-tab-system-font-size-body);
-                line-height: var(--ytd-tab-system-line-height-body);
-                font-family: var(--ytd-tab-system-font-family);
-                color: inherit;
-            }
     `;
     document.head.appendChild(style);
     
@@ -455,8 +422,8 @@ function replaceChapterTitlesInPanels(): void {
             if (timeText) {
                 const timeInSeconds = timeStringToSeconds(timeText);
                 const matchingChapter = findChapterByTime(timeInSeconds, cachedChapters);
-                
-                if (matchingChapter && currentTitle !== matchingChapter.title) {
+
+                if (matchingChapter && normalizeText(currentTitle) !== normalizeText(matchingChapter.title)) {
                     h4Element.textContent = matchingChapter.title;
                     chaptersLog(`Replaced panel chapter: "${currentTitle}" -> "${matchingChapter.title}" at ${timeText}`);
                 }

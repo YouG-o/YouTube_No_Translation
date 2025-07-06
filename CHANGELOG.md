@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## Added
+- Chapters on the right panel (opened via chapter button in the player) are not translated anymore.
+
 ### Refactored
 - Extracted video ID parsing logic from `refreshBrowsingVideos` into a dedicated utility function `extractVideoIdFromUrl` in `src/content/utils/video.ts`
 - Extracted browsing title element validation logic into a dedicated function `shouldProcessBrowsingElement`

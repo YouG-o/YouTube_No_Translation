@@ -8,15 +8,20 @@
  */
 
 import { chaptersLog, chaptersErrorLog } from '../loggings';
-import { normalizeText } from '../utils/text';
 import { Chapter } from '../../types/types';
+
+import { updateChapterButton } from './button';
+import { updateTooltipChapter } from './tooltip';
+import { setupPanelsObserver } from './pannel';
 
 
 // Global variables for cleanup
-let chaptersObserver: MutationObserver | null = null;
 let chapterButtonObserver: MutationObserver | null = null;
+let chaptersObserver: MutationObserver | null = null;
 let panelsObserver: MutationObserver | null = null;
 let chaptersUpdateInterval: number | null = null;
+export let cachedChapters: Chapter[] = [];
+let lastDescriptionHash: string = '';
 
 // Cleanup function for chapters observer
 export function cleanupChaptersObserver(): void {
@@ -58,7 +63,7 @@ export function cleanupChaptersObserver(): void {
 }
 
 // Convert time string to seconds
-function timeStringToSeconds(timeString: string): number {
+export function timeStringToSeconds(timeString: string): number {
     const parts = timeString.split(':').map(Number);
     if (parts.length === 2) {
         return parts[0] * 60 + parts[1]; // MM:SS
@@ -101,7 +106,7 @@ function parseChaptersFromDescription(description: string): Chapter[] {
 }
 
 // Find chapter based on time in seconds
-function findChapterByTime(timeInSeconds: number, chapters: Chapter[]): Chapter | null {
+export function findChapterByTime(timeInSeconds: number, chapters: Chapter[]): Chapter | null {
     if (chapters.length === 0) return null;
     
     let targetChapter = chapters[0];
@@ -114,36 +119,6 @@ function findChapterByTime(timeInSeconds: number, chapters: Chapter[]): Chapter 
     return targetChapter;
 }
 
-// Cache for parsed chapters to avoid re-parsing
-let cachedChapters: Chapter[] = [];
-let lastDescriptionHash: string = '';
-
-// Optimized update function with early returns
-function updateTooltipChapter(): void {
-    // Only query for visible tooltips
-    const visibleTooltip = document.querySelector('.ytp-tooltip.ytp-bottom.ytp-preview:not([style*="display: none"])');
-    if (!visibleTooltip) return;
-    
-    const timeElement = visibleTooltip.querySelector('.ytp-tooltip-text');
-    const titleElement = visibleTooltip.querySelector('.ytp-tooltip-title span');
-    
-    if (!timeElement || !titleElement) return;
-    
-    const timeString = timeElement.textContent?.trim();
-    if (!timeString) return;
-    
-    const timeInSeconds = timeStringToSeconds(timeString);
-    const targetChapter = findChapterByTime(timeInSeconds, cachedChapters);
-    
-    if (targetChapter) {
-        const currentOriginalChapter = titleElement.getAttribute('data-original-chapter');
-        
-        if (normalizeText(currentOriginalChapter) !== normalizeText(targetChapter.title)) {
-            chaptersLog(`Time: ${timeString} (${timeInSeconds}s) -> Chapter: "${targetChapter.title}"`);
-            titleElement.setAttribute('data-original-chapter', targetChapter.title);
-        }
-    }
-}
 
 // Hash function for description caching
 function hashString(str: string): string {
@@ -157,7 +132,7 @@ function hashString(str: string): string {
 }
 
 // Get current video time from player
-function getCurrentVideoTime(): number {
+export function getCurrentVideoTime(): number {
     const video = document.querySelector('#movie_player video') || document.querySelector('video');
     if (video && 'currentTime' in video) {
         const time = Math.floor((video as HTMLVideoElement).currentTime);
@@ -168,144 +143,6 @@ function getCurrentVideoTime(): number {
     return 0;
 }
 
-// Update chapter button with original title
-function updateChapterButton(): void {
-    const chapterButton = document.querySelector('.ytp-chapter-title .ytp-chapter-title-content') as HTMLElement;
-    if (!chapterButton) return;
-    
-    const currentTime = getCurrentVideoTime();
-    const targetChapter = findChapterByTime(currentTime, cachedChapters);
-    
-    if (targetChapter) {
-        const currentTitle = chapterButton.textContent?.trim() || '';
-        const storedOriginalTitle = chapterButton.getAttribute('data-original-chapter-button') || '';
-        
-        // Only update if the normalized titles are different
-        if (normalizeText(currentTitle) !== normalizeText(targetChapter.title)) {
-            chaptersLog(`Chapter button updated: Time ${currentTime}s -> from "${currentTitle}" to "${targetChapter.title}"`);
-            chapterButton.textContent = targetChapter.title;
-            chapterButton.setAttribute('data-original-chapter-button', targetChapter.title);
-        }
-    }
-}
-
-// Setup chapter button observer
-function setupChapterButtonObserver(): void {
-    const chapterButton = document.querySelector('.ytp-chapter-title');
-    if (!chapterButton) {
-        return;
-    }
-    
-    
-    chapterButtonObserver = new MutationObserver(mutations => {
-        //chaptersLog('[DEBUG] Chapter button mutation detected');
-        let shouldUpdate = false;
-        
-        mutations.forEach(mutation => {
-            if (mutation.type === 'childList' || mutation.type === 'characterData') {
-                const target = mutation.target as Element;
-                if (target.classList?.contains('ytp-chapter-title-content') || 
-                    target.closest('.ytp-chapter-title-content')) {
-                    shouldUpdate = true;
-                }
-            }
-        });
-        
-        if (shouldUpdate) {
-            setTimeout(updateChapterButton, 150);
-        }
-    });
-    
-    chapterButtonObserver.observe(chapterButton, {
-        childList: true,
-        subtree: true,
-        characterData: true
-    });
-    
-    // Initial update
-    updateChapterButton();
-}
-
-function isPanelOpen(panel: Element): boolean {
-    // Primary method: Check visibility attribute (most reliable)
-    const visibility = panel.getAttribute('visibility');
-    if (visibility === 'ENGAGEMENT_PANEL_VISIBILITY_HIDDEN') {
-        return false;
-    }
-    if (visibility === 'ENGAGEMENT_PANEL_VISIBILITY_EXPANDED') {
-        return true;
-    }
-    
-    // Fallback: Check if panel is actually visible in viewport
-    const rect = (panel as HTMLElement).getBoundingClientRect();
-    const isVisuallyVisible = rect.height > 50 && rect.width > 50 && rect.top >= 0;
-    
-    // Additional check: panel should not have display: none
-    const computedStyle = window.getComputedStyle(panel as HTMLElement);
-    const isDisplayed = computedStyle.display !== 'none' && computedStyle.visibility !== 'hidden';
-    
-    return isVisuallyVisible && isDisplayed;
-}
-
-// Setup panels observer to detect when chapters panel opens
-function setupPanelsObserver(): void {
-    const panelsContainer = document.getElementById('panels');
-    if (!panelsContainer) return;
-
-    let lastPanelState: boolean | null = null;
-
-    const panelsObserver = new MutationObserver((mutations) => {
-        mutations.forEach((mutation) => {
-            if (mutation.type === 'attributes') {
-                const target = mutation.target as Element;
-                if (target.matches('ytd-engagement-panel-section-list-renderer')) {
-                    const targetId = target.getAttribute('target-id');
-                    if (targetId === 'engagement-panel-macro-markers-description-chapters') {
-                        
-                        const isOpen = isPanelOpen(target);
-                        
-                        // Only log if state actually changed
-                        if (lastPanelState !== isOpen) {
-                            lastPanelState = isOpen;
-                            chaptersLog(`Panel chapters ${isOpen ? 'opened' : 'closed'}`);
-                            
-                            if (isOpen) {
-                                replaceChapterTitlesInPanels();
-                            }
-                        }
-                    }
-                }
-            }
-            
-            if (mutation.type === 'childList') {
-                mutation.addedNodes.forEach((node) => {
-                    if (node.nodeType === Node.ELEMENT_NODE) {
-                        const element = node as Element;
-                        
-                        // More specific check: only react to changes in the open chapters panel
-                        if (element.matches('ytd-macro-markers-list-item-renderer') || 
-                            element.querySelector('ytd-macro-markers-list-item-renderer')) {
-                            
-                            const openChaptersPanel = document.querySelector('ytd-engagement-panel-section-list-renderer[target-id="engagement-panel-macro-markers-description-chapters"][visibility="ENGAGEMENT_PANEL_VISIBILITY_EXPANDED"]');
-                            if (openChaptersPanel && openChaptersPanel.contains(element)) {
-                                replaceChapterTitlesInPanels();
-                            }
-                        }
-                    }
-                });
-            }
-        });
-    });
-
-    panelsObserver.observe(panelsContainer, {
-        childList: true,
-        subtree: true,
-        attributes: true,
-        attributeFilter: ['visibility', 'style', 'target-id']
-    });
-
-    chaptersLog('Enhanced panels observer initialized');
-}
 
 // Initialize chapters replacement system
 export function initializeChaptersReplacement(originalDescription: string): void {
@@ -398,38 +235,39 @@ export function initializeChaptersReplacement(originalDescription: string): void
     chaptersLog('Optimized chapters replacement initialized with chapter button support');
 }
 
-function replaceChapterTitlesInPanels(): void {
-    if (cachedChapters.length === 0) return;
-    
-    // Only target chapter elements in the OPENED chapters panel, not in description or other places
-    const openChaptersPanel = document.querySelector('ytd-engagement-panel-section-list-renderer[target-id="engagement-panel-macro-markers-description-chapters"][visibility="ENGAGEMENT_PANEL_VISIBILITY_EXPANDED"]');
-    if (!openChaptersPanel) {
-        chaptersLog('No open chapters panel found');
+
+function setupChapterButtonObserver(): void {
+    const chapterButton = document.querySelector('.ytp-chapter-title');
+    if (!chapterButton) {
         return;
     }
     
-    // Find chapter title elements ONLY within the open panel
-    const chapterElements = openChaptersPanel.querySelectorAll('ytd-macro-markers-list-item-renderer h4.macro-markers');
     
-    chapterElements.forEach((element: Element) => {
-        const h4Element = element as HTMLElement;
-        const currentTitle = h4Element.textContent?.trim();
+    chapterButtonObserver = new MutationObserver(mutations => {
+        //chaptersLog('[DEBUG] Chapter button mutation detected');
+        let shouldUpdate = false;
         
-        if (currentTitle) {
-            const timeElement = h4Element.closest('ytd-macro-markers-list-item-renderer')?.querySelector('#time');
-            const timeText = timeElement?.textContent?.trim();
-            
-            if (timeText) {
-                const timeInSeconds = timeStringToSeconds(timeText);
-                const matchingChapter = findChapterByTime(timeInSeconds, cachedChapters);
-
-                if (matchingChapter && normalizeText(currentTitle) !== normalizeText(matchingChapter.title)) {
-                    h4Element.textContent = matchingChapter.title;
-                    chaptersLog(`Replaced panel chapter: "${currentTitle}" -> "${matchingChapter.title}" at ${timeText}`);
+        mutations.forEach(mutation => {
+            if (mutation.type === 'childList' || mutation.type === 'characterData') {
+                const target = mutation.target as Element;
+                if (target.classList?.contains('ytp-chapter-title-content') || 
+                    target.closest('.ytp-chapter-title-content')) {
+                    shouldUpdate = true;
                 }
-            } else {
-                chaptersLog(`No time element found for chapter: "${currentTitle}"`);
             }
+        });
+        
+        if (shouldUpdate) {
+            setTimeout(updateChapterButton, 150);
         }
     });
+    
+    chapterButtonObserver.observe(chapterButton, {
+        childList: true,
+        subtree: true,
+        characterData: true
+    });
+    
+    // Initial update
+    updateChapterButton();
 }

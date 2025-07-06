@@ -24,6 +24,7 @@ import { refreshShortsAlternativeFormat, checkShortsId } from './titles/shortsTi
 import { setupNotificationTitlesObserver, cleanupNotificationTitlesObserver } from './titles/notificationTitles';
 import { cleanupChaptersObserver } from './chapters/chaptersIndex';
 import { cleanupAllSearchDescriptionsObservers } from './description/searchDescriptions';
+import { refreshEndScreenTitles, setupEndScreenObserver, cleanupEndScreenObserver } from './titles/endScreenTitles';
 
 
 // MAIN OBSERVERS -----------------------------------------------------------
@@ -792,6 +793,8 @@ function handleUrlChange() {
 
     cleanupNotificationTitlesDropdownObserver();
 
+    cleanupEndScreenObserver();
+
     //coreLog('Observers cleaned up');
     
     currentSettings?.titleTranslation && setupNotificationTitlesDropdownObserver();
@@ -879,6 +882,8 @@ function handleUrlChange() {
             };
             currentSettings?.titleTranslation && recommendedVideosObserver();
             currentSettings?.descriptionTranslation && setupTimestampClickObserver();
+            currentSettings?.titleTranslation && setupEndScreenObserver();
+
             
             // Handle fullscreen titles (embed titles are specific to /watch pages)
             if (currentSettings?.titleTranslation) {
@@ -912,6 +917,7 @@ export function setupVisibilityChangeListener(): void {
             if (currentSettings?.titleTranslation) {
                 refreshBrowsingVideos();
                 refreshShortsAlternativeFormat();
+                refreshEndScreenTitles();
             }
         }
     };

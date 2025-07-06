@@ -91,7 +91,7 @@ export function setupPanelsObserver(): void {
         attributeFilter: ['visibility', 'style', 'target-id']
     });
 
-    chaptersLog('Enhanced panels observer initialized');
+    chaptersLog('Chapter panel observer initialized');
 }
 
 

@@ -7,7 +7,7 @@
  * This program is distributed without any warranty; see the license for details.
  */
 
-import { browsingTitlesLog, browsingTitlesErrorLog } from '../loggings';
+import { browsingTitlesLog, browsingTitlesErrorLog, titlesLog } from '../loggings';
 import { ProcessingResult, ElementProcessingState, TitleFetchResult } from '../../types/types';
 import { ensureIsolatedPlayer, cleanupIsolatedPlayer } from '../utils/isolatedPlayer';
 import { currentSettings } from '../index';
@@ -52,7 +52,7 @@ export function cleanupAllBrowsingTitlesElementsObservers(): void {
     processingVideos.clear();
 }
 
-function updateBrowsingTitleElement(element: HTMLElement, title: string, videoId: string): void {
+export function updateBrowsingTitleElement(element: HTMLElement, title: string, videoId: string, isBrowsingTitle: boolean = true): void {
     // Clean previous observer
     cleanupBrowsingTitleElement(element);
 
@@ -71,15 +71,27 @@ function updateBrowsingTitleElement(element: HTMLElement, title: string, videoId
     element.setAttribute('title', title);
     element.setAttribute('ynt', videoId);
     
-    browsingTitlesLog(
-        `Updated title from : %c${normalizeText(previousTitle)}%c to : %c${normalizeText(title)}%c (video id : %c${videoId}%c)`,
-        'color: grey',
-        'color: #fca5a5',
-        'color: white',
-        'color: #fca5a5',
-        'color: #4ade80',
-        'color: #fca5a5'
-    );
+    if (isBrowsingTitle) {
+        browsingTitlesLog(
+            `Updated title from : %c${normalizeText(previousTitle)}%c to : %c${normalizeText(title)}%c (video id : %c${videoId}%c)`,
+            'color: grey',
+            'color: #fca5a5',
+            'color: white',
+            'color: #fca5a5',
+            'color: #4ade80',
+            'color: #fca5a5'
+        );
+    } else {
+        titlesLog(
+            `Updated title from : %c${normalizeText(previousTitle)}%c to : %c${normalizeText(title)}%c (video id : %c${videoId}%c)`,
+            'color: grey',
+            'color: #fca5a5',
+            'color: white',
+            'color: #fca5a5',
+            'color: #4ade80',
+            'color: #fca5a5'
+        );
+    }
     
     // Add observer to keep textContent in sync if YouTube changes it
     const observer = new MutationObserver((mutations) => {

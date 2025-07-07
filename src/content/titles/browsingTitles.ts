@@ -171,6 +171,11 @@ export async function getBrowsingTitleFallback(videoId: string): Promise<string 
 
 
 function shouldProcessBrowsingElement(titleElement: HTMLElement): ProcessingResult {
+    // Skip DeArrow custom titles to avoid conflicts
+    if (titleElement.classList.contains('cbCustomTitle')) {
+        return { shouldProcess: false };
+    }
+    
     const videoUrl = titleElement.closest('a')?.href;
     
     if (!videoUrl) {

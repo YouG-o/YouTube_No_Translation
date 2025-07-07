@@ -53,6 +53,8 @@ A (very small) percentage of titles may remain translated because the extension 
 That's why you can enable the YouTube Data API v3 option (requires your own API key) to handle all titles. It will also prevent translation of descriptions in the search page. <br>
 [See the documentation for more infos and get your own API key.](./docs/YT_DATA_API.md)
 
+If you want to use the [DeArrow](https://github.com/ajayyy/DeArrow) extension alongside this one  [PLEASE CHECK THIS](./docs/DEARROW_SUPPORT.md) to avoid any conflicts.
+
 
 ###
 
@@ -147,7 +149,6 @@ You can also support this project by:
 
   
 </div>
-
 
 ###
 

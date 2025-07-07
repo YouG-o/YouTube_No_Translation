@@ -7,10 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- DeArrow custom titles are now ignored by the extension.
 
 ## [2.6.1] - 2025-07-06
 
-## Added
+### Added
 - Chapters on the right panel (opened via chapter button in the player) are not translated anymore.
 - Video end screen titles are not translated anymore.
 

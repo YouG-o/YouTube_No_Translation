@@ -187,6 +187,8 @@ We welcome feature suggestions! Please:
 
 This project is licensed under the [GNU Affero General Public License v3.0](LICENSE). Any contributions will be under the same license. 
 
+**By contributing to this project, you agree that your contributions will be distributed under the AGPLv3 license.**
+
 **Important:** All new files should include the following license header at the top:
 
 ```typescript

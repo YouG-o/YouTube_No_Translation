@@ -21,7 +21,7 @@ Go to the official Google documentation:
 https://developers.google.com/youtube/v3/getting-started  
 Everything is explained step by step to create a project and generate an API key.
 
-**Note: By default, the API has a limit of 10,000 requests per day, which is more than enough for most users. This is why the extension only uses it as a fallback for titles, to avoid reaching the quota too quickly.**
+**Note: By default, the API has a limit of 10,000 requests per day, which is more than enough for most users. But, just in case, the extension only uses it as a fallback for titles, to avoid reaching the quota too quickly.**
 
 ## How to use the key in the extension
 

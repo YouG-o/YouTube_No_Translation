@@ -7,10 +7,10 @@
  * This program is distributed without any warranty; see the license for details.
  */
 
-import { titlesLog, mainTitleErrorLog } from "../loggings";
+import { titlesLog, titlesErrorLog } from "../loggings";
 import { currentSettings } from "../index";
 import { normalizeText } from "../utils/text";
-import { getChannelName } from "../utils/utils";
+import { getChannelName, getChannelIdFromDom } from "../utils/utils";
 
 /**
  * Checks if the current channel name displayed on the page should be updated.
@@ -27,23 +27,27 @@ export function shouldUpdateChannelName(originalChannelName: string | null, curr
 }
 
 /**
- * Fetches the original channel name from the YouTube Data API using the search endpoint.
- * @param channelName The YouTube channel handle (without @).
+ * Fetches the original channel name from the YouTube Data API using the channels endpoint.
  * @param apiKey The YouTube Data API key.
  * @returns Promise resolving to the channel title string, or null if not found.
  */
-export async function fetchChannelName(channelName: string, apiKey: string): Promise<string | null> {
-    const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&type=channel&q=${encodeURIComponent(channelName)}&key=${apiKey}`;
+export async function fetchChannelName(apiKey: string): Promise<string | null> {
+    const channelId = getChannelIdFromDom();
+    if (!channelId) {
+        titlesErrorLog('Channel ID could not be found in the DOM.');
+        return null;
+    }
+    const url = `https://www.googleapis.com/youtube/v3/channels?part=snippet&id=${channelId}&key=${apiKey}`;
     try {
         const response = await fetch(url);
         const data = await response.json();
         if (data.items && data.items.length > 0) {
-            const channelTitle = data.items[0].snippet.channelTitle;
+            const channelTitle = data.items[0].snippet.title;
             return channelTitle || null;
         }
         return null;
     } catch (error) {
-        mainTitleErrorLog('Failed to fetch channel name:', error);
+        titlesErrorLog('Failed to fetch channel name:', error);
         return null;
     }
 }
@@ -56,21 +60,21 @@ export async function refreshMainChannelName(): Promise<void> {
     const channelHandle = getChannelName(window.location.href);
     const apiKey = currentSettings?.youtubeDataApi?.apiKey;
     if (!channelHandle) {
-        mainTitleErrorLog("Channel handle could not be extracted from URL.");
+        titlesErrorLog("Channel handle could not be extracted from URL.");
         return;
     }
     if (!apiKey) {
-        mainTitleErrorLog("YouTube Data API key is missing.");
+        titlesErrorLog("YouTube Data API key is missing.");
         return;
     }
 
     // Fetch the original channel name from the API
-    const originalChannelName = await fetchChannelName(channelHandle, apiKey);
+    const originalChannelName = await fetchChannelName(apiKey);
 
     // Select the channel name element in the new YouTube layout
     const channelNameElement = document.querySelector('yt-dynamic-text-view-model h1.dynamic-text-view-model-wiz__h1 > span.yt-core-attributed-string') as HTMLElement | null;
     if (!channelNameElement) {
-        mainTitleErrorLog("Channel name element not found on the page.");
+        titlesErrorLog("Channel name element not found on the page.");
         return;
     }
 

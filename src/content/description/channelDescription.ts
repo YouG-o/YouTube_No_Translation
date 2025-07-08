@@ -9,7 +9,7 @@
 
 
 import { descriptionLog, descriptionErrorLog } from "../loggings";
-import { getChannelName, getChannelId } from "../utils/utils";
+import { getChannelName, getChannelIdFromDom } from "../utils/utils";
 import { currentSettings } from "../index";
 import { normalizeText } from "../utils/text";
 
@@ -113,16 +113,9 @@ export async function refreshChannelShortDescription(): Promise<void> {
         return;
     }
 
-    // Get the channel name from the current URL
-    const channelName = getChannelName(window.location.href);
-    if (!channelName) {
-        descriptionErrorLog("Channel name could not be extracted from URL.");
-        return;
-    }
-
-    const channelId = await getChannelId(channelName, apiKey);
+    const channelId = await getChannelIdFromDom();
     if (!channelId) {
-        descriptionErrorLog("Channel ID could not be retrieved from YouTube Data API.");
+        descriptionErrorLog("Channel ID could not be retrieved from DOM.");
         return;
     }
 

@@ -25,6 +25,7 @@ import { setupNotificationTitlesObserver, cleanupNotificationTitlesObserver } fr
 import { cleanupChaptersObserver } from './chapters/chaptersIndex';
 import { cleanupAllSearchDescriptionsObservers } from './description/searchDescriptions';
 import { refreshEndScreenTitles, setupEndScreenObserver, cleanupEndScreenObserver } from './titles/endScreenTitles';
+import { refreshChannelShortDescription, cleanupChannelDescriptionModalObserver } from './description/channelDescription';
 
 
 // MAIN OBSERVERS -----------------------------------------------------------
@@ -795,6 +796,8 @@ function handleUrlChange() {
 
     cleanupEndScreenObserver();
 
+    cleanupChannelDescriptionModalObserver();
+
     //coreLog('Observers cleaned up');
     
     currentSettings?.titleTranslation && setupNotificationTitlesDropdownObserver();
@@ -826,6 +829,12 @@ function handleUrlChange() {
         coreLog(`[URL] Detected channel page`);
         if (currentSettings?.titleTranslation) {
             pageVideosObserver();
+            if (currentSettings?.youtubeDataApi.enabled && currentSettings?.youtubeDataApi.apiKey) {
+                // Refresh channel short description
+                waitForElement('yt-description-preview-view-model').then(() => {
+                    refreshChannelShortDescription();
+                });
+            }
         }
         return;
     }

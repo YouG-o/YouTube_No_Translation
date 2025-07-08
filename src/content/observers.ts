@@ -10,7 +10,7 @@
 // TODO: Current observer implementation could be refactored for better efficiency / performances
 // Keeping current structure for stability, needs architectural review in future updates
 
-import { coreLog, descriptionLog, browsingTitlesLog } from './loggings';
+import { coreLog, descriptionLog, browsingTitlesLog, titlesErrorLog } from './loggings';
 import { currentSettings } from './index';
 import { normalizeText, calculateSimilarity } from './utils/text';
 import { applyVideoPlayerSettings } from './utils/videoSettings';
@@ -25,6 +25,8 @@ import { setupNotificationTitlesObserver, cleanupNotificationTitlesObserver } fr
 import { cleanupChaptersObserver } from './chapters/chaptersIndex';
 import { cleanupAllSearchDescriptionsObservers } from './description/searchDescriptions';
 import { refreshEndScreenTitles, setupEndScreenObserver, cleanupEndScreenObserver } from './titles/endScreenTitles';
+import { refreshChannelShortDescription, cleanupChannelDescriptionModalObserver } from './description/channelDescription';
+import { refreshMainChannelName } from './channelName/mainChannelName';
 
 
 // MAIN OBSERVERS -----------------------------------------------------------
@@ -795,6 +797,8 @@ function handleUrlChange() {
 
     cleanupEndScreenObserver();
 
+    cleanupChannelDescriptionModalObserver();
+
     //coreLog('Observers cleaned up');
     
     currentSettings?.titleTranslation && setupNotificationTitlesDropdownObserver();
@@ -826,6 +830,22 @@ function handleUrlChange() {
         coreLog(`[URL] Detected channel page`);
         if (currentSettings?.titleTranslation) {
             pageVideosObserver();
+            if (currentSettings?.youtubeDataApi.enabled && currentSettings?.youtubeDataApi.apiKey) {
+                // Wait for the channel name element to be present before calling refreshMainChannelName
+                waitForElement('yt-dynamic-text-view-model h1.dynamic-text-view-model-wiz__h1 > span.yt-core-attributed-string')
+                    .then(() => {
+                        refreshMainChannelName();
+                    })
+                    .catch((err) => {
+                        titlesErrorLog("Timeout waiting for channel name element:", err);
+                    });
+            }
+        }
+        if (currentSettings?.descriptionTranslation && currentSettings?.youtubeDataApi.enabled && currentSettings?.youtubeDataApi.apiKey) {
+            // Refresh channel short description
+            waitForElement('yt-description-preview-view-model').then(() => {
+                refreshChannelShortDescription();
+            });
         }
         return;
     }

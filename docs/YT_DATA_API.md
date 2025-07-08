@@ -12,6 +12,7 @@ To work around these limitations, the extension offers a fallback mode using the
 With this API, you can:
 - Retrieve original titles even for restricted or non-embeddable videos.
 - Retrieve original video descriptions, which means on the search page, translated descriptions will no longer appear if you enable the YouTube Data API option with a valid key and the description option is enabled.
+- Retrieve original channel description
 
 **Note: Using the YouTube Data API requires you to obtain your own API key.**
 

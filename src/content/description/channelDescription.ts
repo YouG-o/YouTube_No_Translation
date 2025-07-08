@@ -8,7 +8,7 @@
 */
 
 
-import { titlesLog, titlesErrorLog } from "../loggings";
+import { descriptionLog, descriptionErrorLog } from "../loggings";
 import { getChannelName, getChannelId } from "../utils/utils";
 import { currentSettings } from "../index";
 import { normalizeText } from "../utils/text";
@@ -31,7 +31,7 @@ async function getOriginalChannelDescription(channelId: string, apiKey: string):
         }
         return null;
     } catch (error) {
-        titlesErrorLog('Failed to fetch channel description:', error);
+        descriptionErrorLog('Failed to fetch channel description:', error);
         return null;
     }
 }
@@ -109,20 +109,20 @@ export async function refreshChannelShortDescription(): Promise<void> {
     // Get the API key from current settings
     const apiKey = currentSettings?.youtubeDataApi?.apiKey;
     if (!apiKey) {
-        titlesErrorLog("YouTube Data API key is missing.");
+        descriptionErrorLog("YouTube Data API key is missing.");
         return;
     }
 
     // Get the channel name from the current URL
     const channelName = getChannelName(window.location.href);
     if (!channelName) {
-        titlesErrorLog("Channel name could not be extracted from URL.");
+        descriptionErrorLog("Channel name could not be extracted from URL.");
         return;
     }
 
     const channelId = await getChannelId(channelName, apiKey);
     if (!channelId) {
-        titlesErrorLog("Channel ID could not be retrieved from YouTube Data API.");
+        descriptionErrorLog("Channel ID could not be retrieved from YouTube Data API.");
         return;
     }
 
@@ -144,7 +144,7 @@ export async function refreshChannelShortDescription(): Promise<void> {
                 textSpan.textContent = originalDescription || "";
                 // Mark that we updated the short description
                 textSpan.setAttribute('data-original-updated', channelId);
-                titlesLog("Short channel description updated with original description.");
+                descriptionLog("Short channel description updated with original description.");
             }
         }
     }
@@ -170,7 +170,7 @@ export function cleanupChannelDescriptionModalObserver(): void {
     if (currentModalObserver) {
         currentModalObserver.disconnect();
         currentModalObserver = null;
-        titlesLog("Channel description modal observer cleaned up.");
+        descriptionLog("Channel description modal observer cleaned up.");
     }
 }
 
@@ -181,7 +181,7 @@ function observeChannelDescriptionModal(originalDescription: string): MutationOb
     // Observe the popup container for new dialogs
     const popupContainer = document.querySelector('ytd-popup-container');
     if (!popupContainer) {
-        titlesErrorLog('Popup container not found.');
+        descriptionErrorLog('Popup container not found.');
         throw new Error('Popup container not found.');
     }
 
@@ -228,7 +228,7 @@ async function refreshChannelFullDescription(originalDescription: string): Promi
                     const currentDescription = descriptionContainer.querySelector('.yt-core-attributed-string') as HTMLSpanElement | null;
                     if (currentDescription && normalizeText(currentDescription.textContent) !== normalizeText(originalDescription)) {
                         currentDescription.textContent = originalDescription;
-                        titlesLog("Full channel description updated with original description.");
+                        descriptionLog("Full channel description updated with original description.");
                         return;
                     }
                 }

@@ -829,12 +829,12 @@ function handleUrlChange() {
         coreLog(`[URL] Detected channel page`);
         if (currentSettings?.titleTranslation) {
             pageVideosObserver();
-            if (currentSettings?.youtubeDataApi.enabled && currentSettings?.youtubeDataApi.apiKey) {
-                // Refresh channel short description
-                waitForElement('yt-description-preview-view-model').then(() => {
-                    refreshChannelShortDescription();
-                });
-            }
+        }
+        if (currentSettings?.descriptionTranslation && currentSettings?.youtubeDataApi.enabled && currentSettings?.youtubeDataApi.apiKey) {
+            // Refresh channel short description
+            waitForElement('yt-description-preview-view-model').then(() => {
+                refreshChannelShortDescription();
+            });
         }
         return;
     }

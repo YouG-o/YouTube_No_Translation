@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.7.0] - 2025-07-08
+
 ### Added
 - DeArrow custom titles are now ignored by the extension.
 - Added support for channel descriptions & title restoration using YouTube Data API v3 (if a valid API key is provided in extension popup).
@@ -267,7 +269,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 *Note: This changelog was introduced in version 2.2.30. For earlier version history, please refer to the [GitHub releases](https://github.com/YouG-o/YouTube_No_Translation/releases).*
 
-[Unreleased]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.6.1...HEAD
+[Unreleased]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.7.0...HEAD
+[2.7.0]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.6.1...v2.7.0
 [2.6.1]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.6.0...v2.6.1
 [2.6.0]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.5.11...v2.6.0
 [2.5.11]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.5.1...v2.5.11

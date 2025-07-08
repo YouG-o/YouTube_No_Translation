@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - DeArrow custom titles are now ignored by the extension.
-- Added support for channel descriptions restoration using YouTube Data API v3 (if a valid API key is provided in extension popup).
+- Added support for channel descriptions & title restoration using YouTube Data API v3 (if a valid API key is provided in extension popup).
 
 ## [2.6.1] - 2025-07-06
 

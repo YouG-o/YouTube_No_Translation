@@ -7,10 +7,10 @@
  * This program is distributed without any warranty; see the license for details.
  */
 
-import { titlesLog, titlesErrorLog } from "../loggings";
+import { titlesLog, titlesErrorLog, coreLog } from "../loggings";
 import { currentSettings } from "../index";
 import { normalizeText } from "../utils/text";
-import { getChannelName, getChannelIdFromDom } from "../utils/utils";
+import { getChannelName, getChannelIdFromDom, getChannelIdFromAPI } from "../utils/utils";
 
 /**
  * Checks if the current channel name displayed on the page should be updated.
@@ -27,24 +27,47 @@ export function shouldUpdateChannelName(originalChannelName: string | null, curr
 }
 
 /**
- * Fetches the original channel name from the YouTube Data API using the channels endpoint.
+// ...existing code...
  * @param apiKey The YouTube Data API key.
  * @returns Promise resolving to the channel title string, or null if not found.
  */
-export async function fetchChannelName(apiKey: string): Promise<string | null> {
-    const channelId = getChannelIdFromDom();
-    if (!channelId) {
-        titlesErrorLog('Channel ID could not be found in the DOM.');
+export async function fetchChannelName(): Promise<string | null> {
+    const apiKey = currentSettings?.youtubeDataApi?.apiKey;
+    if (!apiKey) {
+        coreLog("API key is not set in current settings.");
         return null;
     }
-    const url = `https://www.googleapis.com/youtube/v3/channels?part=snippet&id=${channelId}&key=${apiKey}`;
+    let apiUrl = '';
+    const channelId = getChannelIdFromDom();
+
+    if (channelId) {
+        // If the channel ID is found in the DOM, build the URL to query by ID.
+        apiUrl = `https://www.googleapis.com/youtube/v3/channels?part=snippet&id=${channelId}&key=${apiKey}`;
+    } else {
+        // If not found, fall back to using the channel handle from the URL.
+        //titlesLog("Channel ID not found in DOM, falling back to channel handle.");
+        const channelHandle = getChannelName(window.location.href);
+        if (!channelHandle) {
+            titlesErrorLog("Channel handle could not be retrieved from URL.");
+            return null;
+        }
+        // Build the URL to query by handle, which gets the snippet directly.
+        apiUrl = `https://www.googleapis.com/youtube/v3/channels?part=snippet&forHandle=${encodeURIComponent(channelHandle)}&key=${apiKey}`;
+    }
+
     try {
-        const response = await fetch(url);
+        const response = await fetch(apiUrl);
+        if (!response.ok) {
+            titlesErrorLog(`API request failed with status: ${response.status}`);
+            return null;
+        }
         const data = await response.json();
         if (data.items && data.items.length > 0) {
+            // The channel title is in the 'snippet.title' field.
             const channelTitle = data.items[0].snippet.title;
             return channelTitle || null;
         }
+        titlesErrorLog("No items found in API response.");
         return null;
     } catch (error) {
         titlesErrorLog('Failed to fetch channel name:', error);
@@ -58,18 +81,13 @@ export async function fetchChannelName(apiKey: string): Promise<string | null> {
 export async function refreshMainChannelName(): Promise<void> {
     // Extract channel handle from current URL
     const channelHandle = getChannelName(window.location.href);
-    const apiKey = currentSettings?.youtubeDataApi?.apiKey;
     if (!channelHandle) {
         titlesErrorLog("Channel handle could not be extracted from URL.");
         return;
     }
-    if (!apiKey) {
-        titlesErrorLog("YouTube Data API key is missing.");
-        return;
-    }
 
     // Fetch the original channel name from the API
-    const originalChannelName = await fetchChannelName(apiKey);
+    const originalChannelName = await fetchChannelName();
 
     // Select the channel name element in the new YouTube layout
     const channelNameElement = document.querySelector('yt-dynamic-text-view-model h1.dynamic-text-view-model-wiz__h1 > span.yt-core-attributed-string') as HTMLElement | null;

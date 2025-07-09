@@ -15,19 +15,29 @@ import { normalizeText } from "../utils/text";
 
 
 /**
- * Fetches the full channel description from the YouTube Data API using the channel ID.
- * @param channelId The YouTube channel ID.
- * @param apiKey The YouTube Data API key.
+ * Fetches the full channel description from the YouTube Data API using the channel ID or handle.
+ * @param identifier Object containing either the channel ID or handle.
  * @returns Promise resolving to the channel description string, or null if not found.
  */
-async function getOriginalChannelDescription(channelId: string, apiKey: string): Promise<string | null> {
-    const url = `https://www.googleapis.com/youtube/v3/channels?part=snippet&id=${channelId}&key=${apiKey}`;
+async function getOriginalChannelDescription(identifier: { id?: string; handle?: string }): Promise<{ id: string; description: string } | null> {
+    const apiKey = currentSettings?.youtubeDataApi?.apiKey;
+    let url = '';
+    if (identifier.id) {
+        url = `https://www.googleapis.com/youtube/v3/channels?part=snippet&id=${identifier.id}&key=${apiKey}`;
+    } else if (identifier.handle) {
+        url = `https://www.googleapis.com/youtube/v3/channels?part=snippet&forHandle=${encodeURIComponent(identifier.handle)}&key=${apiKey}`;
+    } else {
+        return null;
+    }
+
     try {
         const response = await fetch(url);
         const data = await response.json();
         if (data.items && data.items.length > 0) {
-            const description = data.items[0].snippet.description;
-            return description || null;
+            const item = data.items[0];
+            const description = item.snippet.description;
+            const id = item.id;
+            return { id, description };
         }
         return null;
     } catch (error) {
@@ -113,14 +123,29 @@ export async function refreshChannelShortDescription(): Promise<void> {
         return;
     }
 
-    const channelId = await getChannelIdFromDom();
-    if (!channelId) {
-        descriptionErrorLog("Channel ID could not be retrieved from DOM.");
-        return;
+    let channelId = getChannelIdFromDom();
+    let originalDescriptionData: { id: string; description: string } | null = null;
+
+    if (channelId) {
+        // If channel ID is in the DOM, fetch description by ID.
+        originalDescriptionData = await getOriginalChannelDescription({ id: channelId });
+    } else {
+        // If not, fall back to fetching by handle. This is a single API call.
+        descriptionLog("Channel ID not found in DOM, falling back to channel handle.");
+        const channelHandle = getChannelName(window.location.href);
+        if (channelHandle) {
+            originalDescriptionData = await getOriginalChannelDescription({ handle: channelHandle });
+        } else {
+            descriptionErrorLog("Channel handle could not be retrieved from URL.");
+        }
     }
 
-    // Fetch the original full description from the API using the channel ID
-    const originalDescription = await getOriginalChannelDescription(channelId, apiKey);
+    if (!originalDescriptionData) {
+        descriptionErrorLog("Could not fetch original channel description from API.");
+        return;
+    }
+    
+    const { id: finalChannelId, description: originalDescription } = originalDescriptionData;
     const shortDescription = getShortChannelCurrentDescription();
 
     // Check if update is needed
@@ -136,7 +161,7 @@ export async function refreshChannelShortDescription(): Promise<void> {
             if (textSpan) {
                 textSpan.textContent = originalDescription || "";
                 // Mark that we updated the short description
-                textSpan.setAttribute('data-original-updated', channelId);
+                textSpan.setAttribute('data-original-updated', finalChannelId);
                 descriptionLog("Short channel description updated with original description.");
             }
         }

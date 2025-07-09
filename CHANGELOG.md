@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.7.1] - 2025-07-09
+
+### Feat
+- Use channels endpoint instead of search for channel info (1 unit vs 100, my bad...), add fallback to fetch channel description by handle when ID is missing in DOM (SPA navigation support)
+
 ## [2.7.0] - 2025-07-08
 
 ### Added

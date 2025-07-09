@@ -39,17 +39,22 @@ export function isToggleMessage(message: unknown): message is Message {
  * @returns Promise resolving to the channel ID string, or null if not found.
  */
 export async function getChannelIdFromAPI(channelName: string, apiKey: string): Promise<string | null> {
-    const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&type=channel&q=${encodeURIComponent(channelName)}&key=${apiKey}`;
+    // Use the 'channels' endpoint with 'forHandle' for a quota-efficient query (1 unit).
+    const url = `https://www.googleapis.com/youtube/v3/channels?part=snippet&forHandle=${encodeURIComponent(channelName)}&key=${apiKey}`;
     try {
         const response = await fetch(url);
+        if (!response.ok) {
+            return null;
+        }
         const data = await response.json();
+        // The response for a 'forHandle' query should contain exactly one item.
         if (data.items && data.items.length > 0) {
-            const channelId = data.items[0].snippet.channelId || data.items[0].id.channelId;
-            return channelId || null;
+            // The channel ID is in the 'id' field of the item.
+            return data.items[0].id || null;
         }
         return null;
     } catch (error) {
-        coreErrorLog('Failed to fetch channel ID:', error);
+        coreErrorLog('Failed to fetch channel ID from API:', error);
         return null;
     }
 }

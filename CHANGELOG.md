@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Feat
+- Added support of video descriptions on search page
+
 ## [2.7.1] - 2025-07-09
 
 ### Feat

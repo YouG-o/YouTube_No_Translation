@@ -87,7 +87,7 @@ export async function fetchSearchDescription(videoId: string): Promise<string | 
 
 export function updateSearchDescriptionElement(element: HTMLElement, description: string, videoId: string): void {
     cleanupSearchDescriptionElement(element);
-    
+
     descriptionLog(
         `Updated search description for video: %c${videoId}%c`,
         'color: #4ade80',
@@ -123,22 +123,36 @@ export function updateSearchDescriptionElement(element: HTMLElement, description
                 color: var(--yt-spec-text-secondary);
                 white-space: pre-line;
             }
+
+            /* Show original description for history page */
+            ytd-video-renderer #description-text[ynt-search] {
+                display: block !important;
+                color: var(--yt-spec-text-secondary);
+                white-space: pre-line;
+            }
         `;
         document.head.appendChild(style);
     }
 
-    const container = element.closest('.metadata-snippet-container, .metadata-snippet-container-one-line') as HTMLElement;
-    if (!container) return;
+    // Detect container for search page or history page
+    const container = element.closest('.metadata-snippet-container, .metadata-snippet-container-one-line') as HTMLElement | null;
 
     const lines = description.split('\n');
     const shortDescription = lines.slice(0, 2).join('\n');
-    const truncatedDescription = shortDescription.length > 100 ? 
+    const truncatedDescription = shortDescription.length > 100 ?
         shortDescription.substring(0, 100) + '...' : shortDescription;
 
-    container.setAttribute('data-original-description', truncatedDescription);
-    container.setAttribute('ynt-search', videoId);
-    element.setAttribute('ynt-search', videoId);
-    element.setAttribute('translate', 'no');
+    if (container) {
+        container.setAttribute('data-original-description', truncatedDescription);
+        container.setAttribute('ynt-search', videoId);
+        element.setAttribute('ynt-search', videoId);
+        element.setAttribute('translate', 'no');
+    } else if (element.id === 'description-text') {
+        // History page: directly update the text content
+        element.textContent = truncatedDescription;
+        element.setAttribute('ynt-search', videoId);
+        element.setAttribute('translate', 'no');
+    }
 
     const observer = new MutationObserver((mutations) => {
         mutations.forEach((mutation) => {
@@ -146,17 +160,22 @@ export function updateSearchDescriptionElement(element: HTMLElement, description
                 if (!element.hasAttribute('ynt-search')) {
                     element.setAttribute('ynt-search', videoId);
                 }
-                if (!container.hasAttribute('ynt-search')) {
+                if (container && !container.hasAttribute('ynt-search')) {
                     container.setAttribute('ynt-search', videoId);
                     container.setAttribute('data-original-description', truncatedDescription);
+                }
+                if (!container && element.id === 'description-text') {
+                    element.textContent = truncatedDescription;
                 }
             }
         });
     });
 
     observer.observe(element, { childList: true, characterData: true });
-    observer.observe(container, { childList: true, attributes: true });
-    
+    if (container) {
+        observer.observe(container, { childList: true, attributes: true });
+    }
+
     searchDescriptionsObserver.set(element, observer);
 }
 
@@ -179,7 +198,11 @@ export async function processSearchDescriptionElement(titleElement: HTMLElement,
         // Find the video element container to get description
         const videoElement = titleElement.closest('ytd-video-renderer') as HTMLElement;
         if (videoElement) {
-            const descriptionElement = videoElement.querySelector('.metadata-snippet-text') as HTMLElement;
+            let descriptionElement = videoElement.querySelector('.metadata-snippet-text') as HTMLElement | null;
+            if (!descriptionElement) {
+                // Fallback for history page
+                descriptionElement = videoElement.querySelector('#description-text') as HTMLElement | null;
+            }
             if (descriptionElement) {
                 // Check if description already processed
                 const isAlreadyProcessed = descriptionElement.hasAttribute('ynt-search') && 

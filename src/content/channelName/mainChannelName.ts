@@ -38,21 +38,21 @@ export async function fetchChannelName(): Promise<string | null> {
         return null;
     }
     let apiUrl = '';
-    const channelId = getChannelIdFromDom();
-
-    if (channelId) {
-        // If the channel ID is found in the DOM, build the URL to query by ID.
-        apiUrl = `https://www.googleapis.com/youtube/v3/channels?part=snippet&id=${channelId}&key=${apiKey}`;
+    const channelHandle = getChannelName(window.location.href);
+    
+    if (channelHandle) {
+        // If the channel name is found in the DOM, build the URL to query by ID.
+        apiUrl = `https://www.googleapis.com/youtube/v3/channels?part=snippet&forHandle=${encodeURIComponent(channelHandle)}&key=${apiKey}`;
     } else {
-        // If not found, fall back to using the channel handle from the URL.
-        //titlesLog("Channel ID not found in DOM, falling back to channel handle.");
-        const channelHandle = getChannelName(window.location.href);
-        if (!channelHandle) {
-            titlesErrorLog("Channel handle could not be retrieved from URL.");
+        // If not found, fall back to using the channel ID from the URL.
+        //titlesLog("Channel name not found in DOM, falling back to channel ID.");
+        const channelId = getChannelIdFromDom();
+        if (!channelId) {
+            titlesErrorLog("Channel ID could not be retrieved from DOM.");
             return null;
         }
-        // Build the URL to query by handle, which gets the snippet directly.
-        apiUrl = `https://www.googleapis.com/youtube/v3/channels?part=snippet&forHandle=${encodeURIComponent(channelHandle)}&key=${apiKey}`;
+        // Build the URL to query by ID, which gets the snippet directly.
+        apiUrl = `https://www.googleapis.com/youtube/v3/channels?part=snippet&id=${channelId}&key=${apiKey}`;
     }
 
     try {

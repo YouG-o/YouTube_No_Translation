@@ -22,10 +22,11 @@ import { normalizeText } from "../utils/text";
 async function getOriginalChannelDescription(identifier: { id?: string; handle?: string }): Promise<{ id: string; description: string } | null> {
     const apiKey = currentSettings?.youtubeDataApi?.apiKey;
     let url = '';
-    if (identifier.id) {
+    const channelHandle = getChannelName(window.location.href);
+    if (channelHandle) {
+        url = `https://www.googleapis.com/youtube/v3/channels?part=snippet&forHandle=${encodeURIComponent(channelHandle)}&key=${apiKey}`;
+    } else if (identifier.id) {
         url = `https://www.googleapis.com/youtube/v3/channels?part=snippet&id=${identifier.id}&key=${apiKey}`;
-    } else if (identifier.handle) {
-        url = `https://www.googleapis.com/youtube/v3/channels?part=snippet&forHandle=${encodeURIComponent(identifier.handle)}&key=${apiKey}`;
     } else {
         return null;
     }
@@ -104,11 +105,17 @@ function getFullChannelCurrentDescription(): string | null {
  * @returns True if the short description should be updated, false otherwise.
  */
 function shouldUpdateChannelDescription(originalDescription: string | null, shortDescription: string | null): boolean {
-    if (!originalDescription || !shortDescription) {
+    if (!originalDescription) {
+        descriptionLog("Original description is null, no update needed.");
         return false;
     }
-    // Compare if the short description is not a prefix of the original
-    return !originalDescription.startsWith(shortDescription);
+    if (normalizeText(originalDescription).startsWith(normalizeText(shortDescription))) {
+        descriptionLog("Channel's description already original, no update needed.");
+        return false;
+    } else {
+        //descriptionLog("Channel's description is translated, updating to original.");
+        return true;
+    }
 }
 
 
@@ -131,12 +138,12 @@ export async function refreshChannelShortDescription(): Promise<void> {
         originalDescriptionData = await getOriginalChannelDescription({ id: channelId });
     } else {
         // If not, fall back to fetching by handle. This is a single API call.
-        descriptionLog("Channel ID not found in DOM, falling back to channel handle.");
+        //descriptionLog("Channel ID not found in DOM, falling back to channel handle.");
         const channelHandle = getChannelName(window.location.href);
         if (channelHandle) {
             originalDescriptionData = await getOriginalChannelDescription({ handle: channelHandle });
         } else {
-            descriptionErrorLog("Channel handle could not be retrieved from URL.");
+            //descriptionErrorLog("Channel handle could not be retrieved from URL.");
         }
     }
 

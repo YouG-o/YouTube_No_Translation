@@ -770,11 +770,9 @@ export function setupUrlObserver() {
     */
 }
 
-function handleUrlChange() {
-    //coreLog(`[URL] Current pathname:`, window.location.pathname);
-    coreLog(`[URL] Full URL:`, window.location.href);
+function observersCleanup() {
+    coreLog('Cleaning up all observers');
     
-    // --- Clean up existing observers
     cleanupMainTitleContentObserver();
     cleanupIsEmptyObserver();
     cleanupPageTitleObserver();
@@ -798,6 +796,14 @@ function handleUrlChange() {
     cleanupEndScreenObserver();
 
     cleanupChannelDescriptionModalObserver();
+}
+
+function handleUrlChange() {
+    //coreLog(`[URL] Current pathname:`, window.location.pathname);
+    coreLog(`[URL] Full URL:`, window.location.href);
+    
+    // --- Clean up existing observers
+    observersCleanup();
 
     //coreLog('Observers cleaned up');
     

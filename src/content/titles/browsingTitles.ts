@@ -403,9 +403,16 @@ export async function refreshBrowsingVideos(): Promise<void> {
     }
     lastBrowsingTitlesRefresh = now;
 
-    //browseTitlesLog('Refreshing browsing titles');
-    const browsingTitles = document.querySelectorAll('#video-title') as NodeListOf<HTMLElement>;
-    //browsingTitlesLog('Found videos titles:', browsingTitles.length);
+    // Select classic video titles
+    const classicTitles = Array.from(document.querySelectorAll('#video-title')) as HTMLElement[];
+
+    // Select recommended video titles (new format)
+    const recommendedTitles = Array.from(
+        document.querySelectorAll('a.yt-lockup-metadata-view-model-wiz__title > span.yt-core-attributed-string')
+    ) as HTMLElement[];
+
+    // Merge both lists
+    const browsingTitles = [...classicTitles, ...recommendedTitles];
 
     for (const titleElement of browsingTitles) {
         //browsingTitlesLog('Processing video title:', titleElement.textContent);

@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fix
+- Recommended titles are now 'untranslated' again. (Added support for new HTML selector)
+
 ## [2.8.0] - 2025-07-10
 
 ### Fix

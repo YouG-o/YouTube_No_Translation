@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.8.1] - 2025-07-11
+
 ### Fix
 - Video player settings now correctly use the new settings object structure with 'enabled' property for audio and subtitles translation. (was causing subtitles to be enabled to selected language even if disabled...)
 - Recommended titles are now 'untranslated' again. (Added support for new HTML selector)
@@ -286,7 +288,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 *Note: This changelog was introduced in version 2.2.30. For earlier version history, please refer to the [GitHub releases](https://github.com/YouG-o/YouTube_No_Translation/releases).*
 
-[Unreleased]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.8.0...HEAD
+[Unreleased]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.8.1...HEAD
+[2.8.1]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.8.0...v2.8.1
 [2.8.0]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.7.1...v2.8.0
 [2.7.1]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.7.0...v2.7.1
 [2.7.0]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.6.1...v2.7.0

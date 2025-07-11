@@ -1,6 +1,6 @@
 {
   "name": "ynt",
-  "version": "2.8.0",
+  "version": "2.8.1",
   "description": "Stop YouTube's automatic translations! This extension keeps titles, descriptions and video audio in their original language.",
   "scripts": {
     "clean": "rm -rf dist && rm -f manifest.json",
@@ -23,9 +23,10 @@
     "watch:css": "tailwindcss -i ./src/styles/main.css -o ./dist/styles/main.css --watch",
     "copy:assets": "cp -r assets/icons dist/assets/",
     "copy:scripts": "mkdir -p dist/content/scripts && cp src/content/audio/audioScript.js dist/content/scripts/ && cp src/content/description/descriptionScript.js dist/content/scripts/ && cp src/content/subtitles/subtitlesScript.js dist/content/scripts/ && cp src/content/titles/mainTitleScript.js dist/content/scripts/ && cp src/content/channelName/channelNameScript.js dist/content/scripts/ && cp src/content/description/timestampScript.js dist/content/scripts/ && cp src/content/description/searchDescriptionScript.js dist/content/scripts/ && cp src/content/titles/browsingTitlesFallbackScript.js dist/content/scripts/ && cp src/content/scripts/createIsolatedPlayerScript.js dist/content/scripts/",
-    "pre:web-ext:firefox": "cp manifests/manifest.firefox.json manifest.json",
-    "pre:web-ext:chrome": "cp manifests/manifest.chrome.json manifest.json",
-    "pre:web-ext:safari": "cp manifests/manifest.safari.json manifest.json",
+    "inject-version-manifest": "node scripts/inject-version-manifest.js",
+    "pre:web-ext:firefox": "cp manifests/manifest.firefox.json manifest.json && node scripts/inject-version-manifest.js",
+    "pre:web-ext:chrome": "cp manifests/manifest.chrome.json manifest.json && node scripts/inject-version-manifest.js",
+    "pre:web-ext:safari": "cp manifests/manifest.safari.json manifest.json && node scripts/inject-version-manifest.js",
     "web-ext:firefox": "web-ext build --overwrite-dest -a web-ext-artifacts/firefox --filename=firefox-ynt-${npm_package_version}.zip",
     "web-ext:chrome": "web-ext build --overwrite-dest -a web-ext-artifacts/chrome --filename=chrome-ynt-${npm_package_version}.zip",
     "post:web-ext": "rm manifest.json",

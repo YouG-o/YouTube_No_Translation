@@ -19,8 +19,8 @@ import { handleSubtitlesTranslation } from "../subtitles/subtitlesIndex";
  * Handles audio, subtitles, and embed title translations
  */
 export function applyVideoPlayerSettings(): void {
-    currentSettings?.audioTranslation && handleAudioTranslation();
-    currentSettings?.subtitlesTranslation && handleSubtitlesTranslation();
+    currentSettings?.audioTranslation.enabled && handleAudioTranslation();
+    currentSettings?.subtitlesTranslation.enabled && handleSubtitlesTranslation();
     
     if (currentSettings?.titleTranslation) {
         setTimeout(() => {

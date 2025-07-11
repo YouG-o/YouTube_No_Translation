@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Fix
+- Video player settings now correctly use the new settings object structure with 'enabled' property for audio and subtitles translation. (was causing subtitles to be enabled to selected language even if disabled...)
 - Recommended titles are now 'untranslated' again. (Added support for new HTML selector)
 
 ## [2.8.0] - 2025-07-10

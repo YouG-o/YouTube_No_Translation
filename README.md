@@ -89,7 +89,7 @@ If you want to use the [DeArrow](https://github.com/ajayyy/DeArrow) extension al
 
   ```bash
   # Build for Chromium
-  npm run package:chrome
+  npm run package:chromium
   ```
 
   ```bash

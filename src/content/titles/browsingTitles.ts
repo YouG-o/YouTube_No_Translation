@@ -182,13 +182,17 @@ function shouldProcessBrowsingElement(titleElement: HTMLElement): ProcessingResu
         return { shouldProcess: false };
     }
 
-    // Check if this is a playlist/album container (not individual video)
-    // We skip it because it would apply wrong title (video title instead of album/playlist title)
+    // Check for playlist containers (legacy and new format)
     const isPlaylistContainer = titleElement.closest('ytd-rich-grid-media') !== null && 
-                                videoUrl.includes('&list=') && 
-                                !videoUrl.includes('&index=');
+                                     videoUrl.includes('&list=') && 
+                                     !videoUrl.includes('&index=');
 
-    if (isPlaylistContainer) {
+    // New format: check if parent link has 'list=' but not 'index='
+    const parentLink = titleElement.closest('a.yt-lockup-metadata-view-model-wiz__title');
+    const isPlaylistAlternativeContainer = parentLink && parentLink.getAttribute('href')?.includes('list=') && 
+                               !parentLink.getAttribute('href')?.includes('index=');
+
+    if (isPlaylistContainer || isPlaylistAlternativeContainer) {
         // Clean up any attributes the extension might have previously set incorrectly on this element
         titleElement.removeAttribute('ynt-fail');
         titleElement.removeAttribute('ynt-original');

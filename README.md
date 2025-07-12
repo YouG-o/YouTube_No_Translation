@@ -58,40 +58,10 @@ If you want to use the [DeArrow](https://github.com/ajayyy/DeArrow) extension al
 
 ###
 
-<div align="center">
-  
-  ## Support This Project
-
-</div>  
-
-This extension is completely free and open-source. If you find it valuable, you can support its development with a pay-what-you-want contribution!
-
-<br>
-
-<div align="center">
-
-  [![Support me on Ko-Fi](./assets/images/support_me_on_kofi.png)](https://ko-fi.com/yougo)
-    
-  <br>
-
-  [![Support with Cryptocurrency](https://img.shields.io/badge/Support-Cryptocurrency-8256D0?style=for-the-badge&logo=bitcoin&logoColor=white)](https://youtube-no-translation.vercel.app/?donate=crypto)
-
-</div>
-
-<br>
-
-You can also support this project by:
-
-- Starring this repository
-- Rating the extension on [Mozilla Add-ons](https://addons.mozilla.org/firefox/addon/youtube-no-translation/) or the [Chrome Web Store](https://chromewebstore.google.com/detail/youtube-no-translation/lmkeolibdeeglfglnncmfleojmakecjb)
-- Following me on [GitHub](https://github.com/YouG-o)
-
-###
-
 
 <div align="center">
   
-  ## Build it yourself
+  # Build it yourself
 
 </div>
 
@@ -149,6 +119,34 @@ You can also support this project by:
 
   
 </div>
+
+###
+
+<div align="center">
+  
+  # Support This Project
+
+</div>  
+
+This extension is completely free and open-source. If you find it valuable, you can support its development with a pay-what-you-want contribution!
+
+<br>
+
+<div align="center">
+
+  [![Support me on Ko-Fi](./assets/images/support_me_on_kofi.png)](https://ko-fi.com/yougo)
+    
+  [![Support with Cryptocurrency](https://img.shields.io/badge/Support-Cryptocurrency-8256D0?style=for-the-badge&logo=bitcoin&logoColor=white)](https://youtube-no-translation.vercel.app/?donate=crypto)
+
+</div>
+
+<br>
+
+You can also support this project by:
+
+- Starring this repository
+- Rating the extension on [Mozilla Add-ons](https://addons.mozilla.org/firefox/addon/youtube-no-translation/) or the [Chrome Web Store](https://chromewebstore.google.com/detail/youtube-no-translation/lmkeolibdeeglfglnncmfleojmakecjb)
+- Following me on [GitHub](https://github.com/YouG-o)
 
 ###
 

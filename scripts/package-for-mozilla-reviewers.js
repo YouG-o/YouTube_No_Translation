@@ -70,7 +70,12 @@ The built extension will be in \`web-ext-artifacts/firefox/\`.
 
 fs.writeFileSync(path.join(outDir, 'README.md'), readmeContent.trim() + '\n');
 
-// 4. Zip the folder (optionnel)
-execSync(`cd "${rootDir}" && zip -r reviewer-source.zip reviewer-source`);
+// Get version from package.json
+const pkg = JSON.parse(fs.readFileSync(path.join(rootDir, 'package.json'), 'utf8'));
+const version = pkg.version;
+
+// 4. Zip the folder with version in the name
+const zipName = `reviewer-source-v${version}.zip`;
+execSync(`cd "${rootDir}" && zip -r ${zipName} reviewer-source`);
 fs.rmSync(outDir, { recursive: true, force: true });
-console.log('✅ Reviewer source package created: reviewer-source.zip');
+console.log(`✅ Reviewer source package created: ${zipName}`);

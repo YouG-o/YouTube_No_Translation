@@ -443,42 +443,62 @@ let lastRecommendedRefresh = 0;
 let lastSearchRefresh = 0;
 let lastPlaylistRefresh = 0;
 
-const THROTTLE_DELAY = 1000; // minimum of X ms between refreshes between container mutations
+const THROTTLE_DELAY = 500;
 
-function pageVideosObserver() {
+async function pageVideosObserver() {
     cleanupPageVideosObserver();
 
-    // --- Observer for home page | Channel page
-    waitForElement('#contents.ytd-rich-grid-renderer').then((contents) => {
-        let pageName = null;
-        if (window.location.pathname === '/') {
-            pageName = 'Home';
-        } else if (window.location.pathname === '/feed/subscriptions') {
-            pageName = 'Subscriptions';
-        } else if (window.location.pathname.includes('/@')) {
-            pageName = 'Channel';
-        } else if (window.location.pathname === '/feed/trending') {
-            pageName = 'Trending';
-        }
-        browsingTitlesLog(`Setting up ${pageName} page videos observer`);
-        waitForFilledVideoTitles().then(() => {
-            refreshBrowsingVideos();
-            refreshShortsAlternativeFormat();
+    let pageName = null;
+    if (window.location.pathname === '/') {
+        pageName = 'Home';
+    } else if (window.location.pathname === '/feed/subscriptions') {
+        pageName = 'Subscriptions';
+    } else if (window.location.pathname.includes('/@')) {
+        pageName = 'Channel';
+    } else if (window.location.pathname === '/feed/trending') {
+        pageName = 'Trending';
+    }
+    coreLog(`Setting up ${pageName} page videos observer`);
+
+    // Wait for the rich grid renderer to be present
+    const grids = Array.from(document.querySelectorAll('#contents.ytd-rich-grid-renderer')) as HTMLElement[];
+
+    if (grids.length === 0) {
+        // Wait for the first grid to appear
+        await new Promise<void>(resolve => {
+            const observer = new MutationObserver(() => {
+                const found = document.querySelector('#contents.ytd-rich-grid-renderer');
+                if (found) {
+                    observer.disconnect();
+                    resolve();
+                }
+            });
+            observer.observe(document.body, { childList: true, subtree: true });
         });
-        homeObserver = new MutationObserver(() => {
+    }
+
+    // Re-select all grids after potential waiting
+    const allGrids = Array.from(document.querySelectorAll('#contents.ytd-rich-grid-renderer')) as HTMLElement[];
+
+    // Observe each grid
+    allGrids.forEach(grid => {
+        refreshBrowsingVideos();
+        refreshShortsAlternativeFormat();
+        const observer = new MutationObserver(() => {
             const now = Date.now();
             if (now - lastHomeRefresh >= THROTTLE_DELAY) {
-                browsingTitlesLog(`${pageName} page mutation detected`);
-                refreshBrowsingVideos();
-                refreshShortsAlternativeFormat();
+                coreLog(`${pageName} page mutation detected`);
+                setTimeout(() => {
+                    refreshBrowsingVideos();
+                    refreshShortsAlternativeFormat();
+                }, 100);
                 lastHomeRefresh = now;
             }
         });
 
-        homeObserver.observe(contents, {
+        observer.observe(grid, {
             childList: true
         });
-        //browsingTitlesLog('Home/Channel page observer setup completed');
     });
 };
 

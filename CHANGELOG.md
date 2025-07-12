@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fix
+- Observe all video grids on home/channel pages to handle SPA navigation and popstate: ensures mutations are detected even if multiple grids remain in the DOM after navigation (fixes missing title updates after back/forward navigation due to DOM reuse).
+
 ## [2.8.1] - 2025-07-11
 
 ### Fix

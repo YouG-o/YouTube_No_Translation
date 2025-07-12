@@ -7,12 +7,12 @@
  * This program is distributed without any warranty; see the license for details.
  */
 
-import { browsingTitlesLog, browsingTitlesErrorLog, titlesLog } from '../loggings';
+import { browsingTitlesLog, browsingTitlesErrorLog, titlesLog } from '../../utils/logger';
 import { ProcessingResult, ElementProcessingState, TitleFetchResult } from '../../types/types';
-import { ensureIsolatedPlayer, cleanupIsolatedPlayer } from '../utils/isolatedPlayer';
+import { ensureIsolatedPlayer, cleanupIsolatedPlayer } from '../../utils/isolatedPlayer';
 import { currentSettings } from '../index';
-import { normalizeText } from '../utils/text';
-import { extractVideoIdFromUrl } from '../utils/video';
+import { normalizeText } from '../../utils/text';
+import { extractVideoIdFromUrl } from '../../utils/video';
 
 import { shouldProcessSearchDescriptionElement, processSearchDescriptionElement } from '../description/searchDescriptions';
 import { titleCache } from './index';

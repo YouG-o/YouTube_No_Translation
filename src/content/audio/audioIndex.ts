@@ -8,7 +8,7 @@
  */
 
 import { ExtensionSettings } from "../../types/types";
-import { audioLog, audioErrorLog } from '../loggings';
+import { audioLog, audioErrorLog } from '../../utils/logger';
 
 
 async function syncAudioLanguagePreference() {

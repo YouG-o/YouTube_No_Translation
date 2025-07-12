@@ -7,9 +7,9 @@
  * This program is distributed without any warranty; see the license for details.
  */
 
-import { coreLog, titlesLog, audioLog, descriptionLog, subtitlesLog } from './loggings';
+import { coreLog, titlesLog, audioLog, descriptionLog, subtitlesLog } from '../utils/logger';
 import { ExtensionSettings } from '../types/types';
-import { isToggleMessage } from './utils/utils';
+import { isToggleMessage } from '../utils/utils';
 
 import { setupUrlObserver, setupVisibilityChangeListener, setupVideoPlayerListener, setupMainVideoObserver } from './observers';
 import { refreshBrowsingVideos } from './titles/browsingTitles';

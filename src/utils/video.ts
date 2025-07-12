@@ -7,7 +7,7 @@
  * This program is distributed without any warranty; see the license for details.
  */
 
-import { browsingTitlesErrorLog } from '../loggings';
+import { browsingTitlesErrorLog } from './logger';
 
 
 export function extractVideoIdFromUrl(videoUrl: string): string | null {

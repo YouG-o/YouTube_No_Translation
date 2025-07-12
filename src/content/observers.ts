@@ -10,11 +10,11 @@
 // TODO: Current observer implementation could be refactored for better efficiency / performances
 // Keeping current structure for stability, needs architectural review in future updates
 
-import { coreLog, descriptionLog, browsingTitlesLog, titlesErrorLog } from './loggings';
+import { coreLog, descriptionLog, browsingTitlesLog, titlesErrorLog } from '../utils/logger';
 import { currentSettings } from './index';
-import { normalizeText, calculateSimilarity } from './utils/text';
-import { applyVideoPlayerSettings } from './utils/videoSettings';
-import { waitForElement, waitForFilledVideoTitles } from './utils/dom';
+import { normalizeText, calculateSimilarity } from '../utils/text';
+import { applyVideoPlayerSettings } from '../utils/videoSettings';
+import { waitForElement, waitForFilledVideoTitles } from '../utils/dom';
 
 import { refreshMainTitle, refreshEmbedTitle, refreshMiniplayerTitle, cleanupMainTitleContentObserver ,cleanupIsEmptyObserver, cleanupPageTitleObserver, cleanupEmbedTitleContentObserver, cleanupMiniplayerTitleContentObserver } from './titles/mainTitle';
 import { refreshBrowsingVideos, cleanupAllBrowsingTitlesElementsObservers } from './titles/browsingTitles';

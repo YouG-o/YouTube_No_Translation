@@ -7,10 +7,10 @@
  * This program is distributed without any warranty; see the license for details.
  */
 
-import { titlesLog, titlesErrorLog, coreLog } from "../loggings";
+import { titlesLog, titlesErrorLog, coreLog } from "../../utils/logger";
+import { normalizeText } from "../../utils/text";
+import { getChannelName, getChannelIdFromDom, getChannelIdFromAPI } from "../../utils/utils";
 import { currentSettings } from "../index";
-import { normalizeText } from "../utils/text";
-import { getChannelName, getChannelIdFromDom, getChannelIdFromAPI } from "../utils/utils";
 
 /**
  * Checks if the current channel name displayed on the page should be updated.

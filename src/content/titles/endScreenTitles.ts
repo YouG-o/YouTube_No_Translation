@@ -1,9 +1,9 @@
-import { titlesLog, titlesErrorLog } from '../loggings';
+import { titlesLog, titlesErrorLog } from '../../utils/logger';
 import { ProcessingResult, ElementProcessingState, TitleFetchResult } from '../../types/types';
-import { ensureIsolatedPlayer, cleanupIsolatedPlayer } from '../utils/isolatedPlayer';
+import { ensureIsolatedPlayer, cleanupIsolatedPlayer } from '../../utils/isolatedPlayer';
 import { currentSettings } from '../index';
-import { normalizeText } from '../utils/text';
-import { extractVideoIdFromUrl } from '../utils/video';
+import { normalizeText } from '../../utils/text';
+import { extractVideoIdFromUrl } from '../../utils/video';
 import { fetchOriginalTitle, updateBrowsingTitleElement } from './browsingTitles';
 
 

@@ -7,7 +7,7 @@
  * This program is distributed without any warranty; see the license for details.
  */
 
-import { chaptersLog, chaptersErrorLog } from '../loggings';
+import { chaptersLog, chaptersErrorLog } from '../../utils/logger';
 import { Chapter } from '../../types/types';
 
 import { updateChapterButton } from './button';

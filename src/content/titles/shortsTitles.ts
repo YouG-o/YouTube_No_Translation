@@ -7,11 +7,11 @@
  * This program is distributed without any warranty; see the license for details.
  */
 
-import { browsingTitlesLog, browsingTitlesErrorLog, mainTitleLog, mainTitleErrorLog } from "../loggings";
+import { browsingTitlesLog, browsingTitlesErrorLog, mainTitleLog, mainTitleErrorLog } from "../../utils/logger";
 import { TitleDataEvent } from "../../types/types";
-import { waitForElement } from "../utils/dom";
-import { normalizeText } from "../utils/text";
-import { extractVideoIdFromUrl } from "../utils/video";
+import { waitForElement } from "../../utils/dom";
+import { normalizeText } from "../../utils/text";
+import { extractVideoIdFromUrl } from "../../utils/video";
 
 import { updateMainTitleElement, fetchMainTitle } from "./mainTitle";
 import { fetchOriginalTitle, lastBrowsingShortsRefresh, setLastBrowsingShortsRefresh, TITLES_THROTTLE } from "./browsingTitles";

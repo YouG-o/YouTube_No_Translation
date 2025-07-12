@@ -7,10 +7,10 @@
  * This program is distributed without any warranty; see the license for details.
  */
 
-import { mainTitleLog, mainTitleErrorLog } from "../loggings";
+import { mainTitleLog, mainTitleErrorLog } from "../../utils/logger";
 import { currentSettings } from "../index";
-import { normalizeText } from "../utils/text";
-import { waitForElement } from "../utils/dom";
+import { normalizeText } from "../../utils/text";
+import { waitForElement } from "../../utils/dom";
 import { TitleDataEvent } from "../../types/types";
 
 import { titleCache } from "./index";

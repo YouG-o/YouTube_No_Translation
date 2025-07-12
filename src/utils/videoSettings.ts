@@ -7,11 +7,11 @@
  * This program is distributed without any warranty; see the license for details.
  */
 
-import { currentSettings } from "../index";
+import { currentSettings } from "../content/index";
 
-import { handleAudioTranslation } from "../audio/audioIndex";
-import { refreshEmbedTitle } from "../titles/mainTitle";
-import { handleSubtitlesTranslation } from "../subtitles/subtitlesIndex";
+import { handleAudioTranslation } from "../content/audio/audioIndex";
+import { refreshEmbedTitle } from "../content/titles/mainTitle";
+import { handleSubtitlesTranslation } from "../content/subtitles/subtitlesIndex";
 
 
 /**

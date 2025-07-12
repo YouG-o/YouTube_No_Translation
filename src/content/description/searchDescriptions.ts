@@ -7,10 +7,10 @@
  * This program is distributed without any warranty; see the license for details.
  */
 
-import { descriptionLog, descriptionErrorLog } from '../loggings';
+import { descriptionLog, descriptionErrorLog } from '../../utils/logger';
 import { currentSettings } from '../index';
-import { ensureIsolatedPlayer } from '../utils/isolatedPlayer';
-import { isSearchResultsPage } from '../utils/navigation';
+import { ensureIsolatedPlayer } from '../../utils/isolatedPlayer';
+import { isSearchResultsPage } from '../../utils/navigation';
 
 
 let searchDescriptionsObserver = new Map<HTMLElement, MutationObserver>();

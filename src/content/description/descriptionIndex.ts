@@ -7,10 +7,9 @@
  * This program is distributed without any warranty; see the license for details.
 */
 
-import { descriptionLog, descriptionErrorLog } from '../loggings';
-import { waitForElement } from '../utils/dom';
-import { normalizeText } from '../utils/text';
-
+import { descriptionLog, descriptionErrorLog } from '../../utils/logger';
+import { waitForElement } from '../../utils/dom';
+import { normalizeText } from '../../utils/text';
 import { setupDescriptionContentObserver } from '../observers';
 import { initializeChaptersReplacement } from '../chapters/chaptersIndex';
 

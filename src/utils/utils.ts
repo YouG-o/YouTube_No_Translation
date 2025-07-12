@@ -7,8 +7,8 @@
  * This program is distributed without any warranty; see the license for details.
  */
 
-import { Message } from '../../types/types';
-import { coreErrorLog } from '../loggings';
+import { Message } from '../types/types';
+import { coreErrorLog } from './logger';
 
 
 export const MUTATION_THRESHOLD = 10;

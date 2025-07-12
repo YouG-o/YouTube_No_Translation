@@ -8,10 +8,10 @@
 */
 
 
-import { descriptionLog, descriptionErrorLog } from "../loggings";
-import { getChannelName, getChannelIdFromDom } from "../utils/utils";
+import { descriptionLog, descriptionErrorLog } from "../../utils/logger";
+import { getChannelName, getChannelIdFromDom } from "../../utils/utils";
+import { normalizeText } from "../../utils/text";
 import { currentSettings } from "../index";
-import { normalizeText } from "../utils/text";
 
 
 /**

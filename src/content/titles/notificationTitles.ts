@@ -7,9 +7,9 @@
  * This program is distributed without any warranty; see the license for details.
  */
 
-import { titlesLog, titlesErrorLog } from "../loggings";
-import { normalizeText } from "../utils/text";
-import { extractVideoIdFromUrl } from "../utils/video";
+import { titlesLog, titlesErrorLog } from "../../utils/logger";
+import { normalizeText } from "../../utils/text";
+import { extractVideoIdFromUrl } from "../../utils/video";
 
 import { fetchOriginalTitle } from "./browsingTitles";
 

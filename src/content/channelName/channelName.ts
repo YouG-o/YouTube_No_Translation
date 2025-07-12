@@ -7,8 +7,8 @@
  * This program is distributed without any warranty; see the license for details.
  */
 
-import { channelNameLog, channelNameErrorLog } from '../loggings';
-import { normalizeText } from '../utils/text';
+import { channelNameLog, channelNameErrorLog } from '../../utils/logger';
+import { normalizeText } from '../../utils/text';
 
 
 let channelNameContentObserver: MutationObserver | null = null;

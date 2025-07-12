@@ -7,7 +7,7 @@
  * This program is distributed without any warranty; see the license for details.
  */
 
-import { titlesLog, titlesErrorLog } from '../loggings';
+import { titlesLog, titlesErrorLog } from '../../utils/logger';
 
 
 // Optimized cache manager

@@ -7,8 +7,8 @@
  * This program is distributed without any warranty; see the license for details.
  */
 
-import { chaptersLog, chaptersErrorLog } from '../loggings';
-import { normalizeText } from '../utils/text';
+import { chaptersLog, chaptersErrorLog } from '../../utils/logger';
+import { normalizeText } from '../../utils/text';
 
 import { cachedChapters, findChapterByTime, timeStringToSeconds } from './chaptersIndex';
 

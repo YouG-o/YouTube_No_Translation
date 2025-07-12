@@ -7,7 +7,7 @@
  * This program is distributed without any warranty; see the license for details.
  */
 
-import { subtitlesLog, coreLog } from '../loggings';
+import { subtitlesLog, coreLog } from '../../utils/logger';
 import { ExtensionSettings } from '../../types/types';
 
 

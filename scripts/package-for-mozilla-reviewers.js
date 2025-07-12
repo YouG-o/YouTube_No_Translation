@@ -5,7 +5,6 @@ const { execSync } = require('child_process');
 const rootDir = path.resolve(__dirname, '..');
 const outDir = path.join(rootDir, 'reviewer-source');
 const filesToCopy = [
-  'assets',
   'manifests',
   'src',
   'scripts',
@@ -34,6 +33,14 @@ for (const item of filesToCopy) {
       fs.copyFileSync(srcPath, destPath);
     }
   }
+}
+
+// copy only assets/icons
+const iconsSrc = path.join(rootDir, 'assets/icons');
+const iconsDest = path.join(outDir, 'assets/icons');
+if (fs.existsSync(iconsSrc)) {
+  fs.mkdirSync(path.join(outDir, 'assets'), { recursive: true });
+  execSync(`cp -r "${iconsSrc}" "${iconsDest}"`);
 }
 
 // 3. Create README.md spécial reviewers

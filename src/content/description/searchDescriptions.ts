@@ -113,6 +113,43 @@ async function fetchSearchDescriptionDataApi(videoId: string): Promise<string | 
     return null;
 }
 
+async function fetchSearchDescriptionInnerTube(videoId: string): Promise<string | null> {
+    return new Promise<string | null>((resolve) => {
+        // NOTE ON SCRIPT INJECTION:
+        // This function injects a script into the page context to access YouTube's internal variables,
+        // such as window.yt.config_.INNERTUBE_CLIENT_VERSION, which are not accessible from content scripts.
+        // The injected script fetches the video description using the InnerTube API and dispatches the result
+        // via a CustomEvent ("ynt-search-description-inner-tube-data").
+
+        const handleDescription = (event: CustomEvent) => {
+            if (event.detail?.videoId === videoId) {
+                window.removeEventListener('ynt-search-description-inner-tube-data', handleDescription as EventListener);
+                // Log any error from the script
+                if (event.detail?.error) {
+                    descriptionErrorLog(`InnerTube script error for ${videoId}: ${event.detail.error}`);
+                }
+                resolve(event.detail?.description || null);
+            }
+        };
+
+        window.addEventListener('ynt-search-description-inner-tube-data', handleDescription as EventListener);
+
+        const script = document.createElement('script');
+        script.src = browser.runtime.getURL('dist/content/scripts/searchDescriptionInnerTube.js');
+        script.setAttribute('data-video-id', videoId);
+        document.documentElement.appendChild(script);
+
+        setTimeout(() => {
+            script.remove();
+        }, 100);
+        // Timeout in case of no response
+        setTimeout(() => {
+            window.removeEventListener('ynt-search-description-inner-tube-data', handleDescription as EventListener);
+            resolve(null);
+        }, 3000);
+    });
+}
+
 export function updateSearchDescriptionElement(element: HTMLElement, description: string, videoId: string): void {
     cleanupSearchDescriptionElement(element);
 
@@ -212,13 +249,7 @@ export function shouldProcessSearchDescriptionElement(isTranslated: boolean): bo
     if (!currentSettings) return false;
     return isSearchResultsPage() &&
         isTranslated &&
-        currentSettings.descriptionTranslation &&
-        //Check if either YouTube Data API is enabled with an API key,
-        //or if isolated player fallback for search results descriptions is enabled
-        (
-            (currentSettings.youtubeDataApi.enabled && currentSettings.youtubeDataApi.apiKey.length > 0) ||
-            currentSettings.youtubeIsolatedPlayerFallback.searchResultsDescriptions
-        );
+        currentSettings.descriptionTranslation
 }
 
 export async function processSearchDescriptionElement(titleElement: HTMLElement, videoId: string): Promise<void> {
@@ -242,6 +273,9 @@ export async function processSearchDescriptionElement(titleElement: HTMLElement,
                     try {
                         let originalDescription: string | null = null;
                         
+                        // Fetch description using InnerTube API first
+                        originalDescription = await fetchSearchDescriptionInnerTube(videoId);
+
                         // Try YouTube Data API v3 first if enabled and API key available
                         if (currentSettings?.youtubeDataApi?.enabled && currentSettings?.youtubeDataApi?.apiKey) {
                             originalDescription = await fetchSearchDescriptionDataApi(videoId);

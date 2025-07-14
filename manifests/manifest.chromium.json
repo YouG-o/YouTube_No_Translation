@@ -50,7 +50,8 @@
             "dist/content/scripts/timestampScript.js",
             "dist/content/scripts/searchDescriptionScript.js",
             "dist/content/scripts/browsingTitlesFallbackScript.js",
-            "dist/content/scripts/createIsolatedPlayerScript.js"
+            "dist/content/scripts/createIsolatedPlayerScript.js",
+            "dist/content/scripts/searchDescriptionInnerTube.js"
         ],
         "matches": [
           "*://*.youtube.com/*",

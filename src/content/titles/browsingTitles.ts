@@ -13,9 +13,8 @@ import { ensureIsolatedPlayer, cleanupIsolatedPlayer } from '../../utils/isolate
 import { currentSettings } from '../index';
 import { normalizeText } from '../../utils/text';
 import { extractVideoIdFromUrl } from '../../utils/video';
-
 import { shouldProcessSearchDescriptionElement, processSearchDescriptionElement } from '../description/searchDescriptions';
-import { titleCache } from './index';
+import { titleCache, fetchTitleInnerTube } from './index';
 
 
 // --- Global variables
@@ -281,10 +280,28 @@ function checkElementProcessingState(titleElement: HTMLElement, videoId: string)
 
 export async function fetchOriginalTitle(videoId: string, titleElement: HTMLElement, currentTitle: string): Promise<TitleFetchResult> {
     // Try oEmbed API first
-    const apiUrl = `https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${videoId}`;
-    let originalTitle = await titleCache.getOriginalTitle(apiUrl);
+    let originalTitle: string | null = null;   
     
-    // If oEmbed fails, try YouTube Data API v3 if enabled and API key available
+    if (!originalTitle) {
+        try {
+            const apiUrl = `https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${videoId}`;
+            originalTitle = await titleCache.getOriginalTitle(apiUrl);
+        } catch (error) {
+            browsingTitlesErrorLog(`oEmbed API error for ${videoId}:`, error);
+        }
+    }
+    
+    // Try InnerTube API if oEmbed fails
+    if (!originalTitle) {
+        //browsingTitlesLog(`Oembed api failed, fetching title from InnerTube API for ${videoId}`);
+        try {
+            originalTitle = await fetchTitleInnerTube(videoId) ?? '';
+        } catch (error) {
+            browsingTitlesErrorLog(`InnerTube API error for ${videoId}:`, error);
+        }
+    }
+
+    // If oEmbed & InnerTube fails, try YouTube Data API v3 if enabled and API key available
     if (!originalTitle && currentSettings?.youtubeDataApi?.enabled && currentSettings?.youtubeDataApi?.apiKey) {
         try {
             const youtubeApiUrl = `https://www.googleapis.com/youtube/v3/videos?id=${videoId}&key=${currentSettings.youtubeDataApi.apiKey}&part=snippet`;

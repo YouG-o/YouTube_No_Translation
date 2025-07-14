@@ -11,8 +11,8 @@
  * NOTE ON SCRIPT INJECTION:
  * This script must be injected into the page context to access YouTube's internal variables,
  * such as window.yt.config_.INNERTUBE_CLIENT_VERSION, which are not accessible from content scripts.
- * The script fetches the video description using the InnerTube API and dispatches the result
- * via a CustomEvent ("ynt-search-description-inner-tube-data").
+ * The script fetches the video title using the InnerTube API and dispatches the result
+ * via a CustomEvent ("ynt-browsing-title-inner-tube-data").
  */
 
 (() => {
@@ -20,8 +20,8 @@
     const videoId = scriptTag?.getAttribute('data-video-id');
 
     if (!videoId) {
-        window.dispatchEvent(new CustomEvent('ynt-search-description-inner-tube-data', {
-            detail: { videoId: null, description: null, error: 'No videoId provided' }
+        window.dispatchEvent(new CustomEvent('ynt-browsing-title-inner-tube-data', {
+            detail: { videoId: null, title: null, error: 'No videoId provided' }
         }));
         return;
     }
@@ -30,8 +30,8 @@
     // eslint-disable-next-line no-undef
     const clientVersion = window.yt?.config_?.INNERTUBE_CLIENT_VERSION;
     if (!clientVersion) {
-        window.dispatchEvent(new CustomEvent('ynt-search-description-inner-tube-data', {
-            detail: { videoId, description: null, error: 'INNERTUBE_CLIENT_VERSION not found' }
+        window.dispatchEvent(new CustomEvent('ynt-browsing-title-inner-tube-data', {
+            detail: { videoId, title: null, error: 'INNERTUBE_CLIENT_VERSION not found' }
         }));
         return;
     }
@@ -51,14 +51,14 @@
     })
     .then(response => response.ok ? response.json() : null)
     .then(data => {
-        const description = data?.videoDetails?.shortDescription || null;
-        window.dispatchEvent(new CustomEvent('ynt-search-description-inner-tube-data', {
-            detail: { videoId, description }
+        const title = data?.videoDetails?.title || null;
+        window.dispatchEvent(new CustomEvent('ynt-browsing-title-inner-tube-data', {
+            detail: { videoId, title }
         }));
     })
     .catch(error => {
-        window.dispatchEvent(new CustomEvent('ynt-search-description-inner-tube-data', {
-            detail: { videoId, description: null, error: error?.message || String(error) }
+        window.dispatchEvent(new CustomEvent('ynt-browsing-title-inner-tube-data', {
+            detail: { videoId, title: null, error: error?.message || String(error) }
         }));
     });
 })();

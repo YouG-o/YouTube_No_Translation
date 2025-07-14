@@ -83,3 +83,40 @@ export class TitleCache {
 }
 
 export const titleCache = new TitleCache();
+
+
+export async function fetchTitleInnerTube(videoId: string): Promise<string | null> {
+    return new Promise<string | null>((resolve) => {
+        // NOTE ON SCRIPT INJECTION:
+        // This function injects a script into the page context to access YouTube's internal variables,
+        // such as window.yt.config_.INNERTUBE_CLIENT_VERSION, which are not accessible from content scripts.
+        // The injected script fetches the video title using the InnerTube API and dispatches the result
+        // via a CustomEvent ("ynt-browsing-title-inner-tube-data").
+
+        const handleTitle = (event: CustomEvent) => {
+            if (event.detail?.videoId === videoId) {
+                window.removeEventListener('ynt-browsing-title-inner-tube-data', handleTitle as EventListener);
+                if (event.detail?.error) {
+                    titlesErrorLog(`InnerTube script error for ${videoId}: ${event.detail.error}`);
+                }
+                resolve(event.detail?.title || null);
+            }
+        };
+
+        window.addEventListener('ynt-browsing-title-inner-tube-data', handleTitle as EventListener);
+
+        const script = document.createElement('script');
+        script.src = browser.runtime.getURL('dist/content/scripts/TitlesInnerTube.js');
+        script.setAttribute('data-video-id', videoId);
+        document.documentElement.appendChild(script);
+
+        setTimeout(() => {
+            script.remove();
+        }, 100);
+
+        setTimeout(() => {
+            window.removeEventListener('ynt-browsing-title-inner-tube-data', handleTitle as EventListener);
+            resolve(null);
+        }, 3000);
+    });
+}

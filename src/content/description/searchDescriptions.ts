@@ -9,7 +9,6 @@
 
 import { descriptionLog, descriptionErrorLog } from '../../utils/logger';
 import { currentSettings } from '../index';
-import { ensureIsolatedPlayer } from '../../utils/isolatedPlayer';
 import { isSearchResultsPage } from '../../utils/navigation';
 
 
@@ -42,50 +41,6 @@ function extractVideoId(url: string): string | null {
     }
 }
 
-
-
-export async function fetchSearchDescriptionPlayerAPI(videoId: string): Promise<string | null> {
-    return new Promise<string | null>(async (resolve) => {
-        // Ensure isolated player exists before proceeding with specific ID for descriptions
-        const playerReady = await ensureIsolatedPlayer('ynt-player-descriptions');
-        if (!playerReady) {
-            descriptionErrorLog(`Failed to create isolated player for video: ${videoId}`);
-            resolve(null);
-            return;
-        }
-
-        const timeoutId = setTimeout(() => {
-            window.removeEventListener('ynt-search-description-data', handleDescription as EventListener);
-            resolve(null);
-        }, 3000);
-
-        const handleDescription = (event: CustomEvent) => {
-            if (event.detail?.videoId === videoId) {
-                clearTimeout(timeoutId);
-                window.removeEventListener('ynt-search-description-data', handleDescription as EventListener);
-                
-                // Log any error from the script
-                if (event.detail?.error) {
-                    descriptionErrorLog(`Search description script error for ${videoId}: ${event.detail.error}`);
-                }
-                
-                resolve(event.detail?.description || null);
-            }
-        };
-
-        window.addEventListener('ynt-search-description-data', handleDescription as EventListener);
-        
-        const script = document.createElement('script');
-        script.src = browser.runtime.getURL('dist/content/scripts/searchDescriptionScript.js');
-        script.setAttribute('data-video-id', videoId);
-        script.setAttribute('data-player-id', 'ynt-player-descriptions');
-        document.documentElement.appendChild(script);
-        
-        setTimeout(() => {
-            script.remove();
-        }, 100);
-    });
-}
 
 async function fetchSearchDescriptionDataApi(videoId: string): Promise<string | null> {
     if (currentSettings?.youtubeDataApi?.enabled && currentSettings?.youtubeDataApi?.apiKey) {
@@ -279,14 +234,6 @@ export async function processSearchDescriptionElement(titleElement: HTMLElement,
                         // Try YouTube Data API v3 first if enabled and API key available
                         if (currentSettings?.youtubeDataApi?.enabled && currentSettings?.youtubeDataApi?.apiKey) {
                             originalDescription = await fetchSearchDescriptionDataApi(videoId);
-                        }
-                        
-                        // If YouTube Data API failed or not enabled, use player API if 
-                        if (!originalDescription && currentSettings?.youtubeIsolatedPlayerFallback?.searchResultsDescriptions) {
-                            const playerReady = await ensureIsolatedPlayer('ynt-player-descriptions');
-                            if (playerReady) {
-                                originalDescription = await fetchSearchDescriptionPlayerAPI(videoId);
-                            }
                         }
                         
                         if (originalDescription) {

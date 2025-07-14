@@ -17,8 +17,6 @@ const descriptionToggle = document.getElementById('descriptionTranslation') as H
 const subtitlesToggle = document.getElementById('subtitlesTranslation') as HTMLInputElement;
 const subtitlesLanguageSelect = document.getElementById('subtitlesLanguage') as HTMLSelectElement;
 const extensionVersionElement = document.getElementById('extensionVersion') as HTMLSpanElement;
-const isolatedPlayerTitlesToggle = document.getElementById('isolatedPlayerTitles') as HTMLInputElement;
-const isolatedPlayerSearchDescriptionToggle = document.getElementById('isolatedPlayerSearchDescription') as HTMLInputElement;
 const youtubeDataApiToggle = document.getElementById('youtubeDataApiEnabled') as HTMLInputElement;
 const youtubeDataApiKeyInput = document.getElementById('youtubeDataApiKey') as HTMLInputElement;
 const youtubeApiKeyContainer = document.getElementById('youtubeApiKeyContainer') as HTMLDivElement;
@@ -68,10 +66,6 @@ document.addEventListener('DOMContentLoaded', async () => {
             subtitlesTranslation: {
                 enabled: false,
                 language: 'original',
-            },
-            youtubeIsolatedPlayerFallback: {
-                titles: false,
-                searchResultsDescriptions: false
             },
             youtubeDataApi: {
                 enabled: false,
@@ -128,11 +122,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         // Apply settings to UI elements
         titleToggle.checked = settings.titleTranslation;
-        isolatedPlayerTitlesToggle.checked = settings.youtubeIsolatedPlayerFallback.titles;
         audioToggle.checked = settings.audioTranslation.enabled;
         audioLanguageSelect.value = settings.audioTranslation.language;
         descriptionToggle.checked = settings.descriptionTranslation;
-        isolatedPlayerSearchDescriptionToggle.checked = settings.youtubeIsolatedPlayerFallback.searchResultsDescriptions;
         subtitlesToggle.checked = settings.subtitlesTranslation.enabled;
         subtitlesLanguageSelect.value = settings.subtitlesTranslation.language;
         youtubeDataApiToggle.checked = settings.youtubeDataApi.enabled;
@@ -197,35 +189,6 @@ if (advancedFeaturesToggle) {
     advancedFeaturesToggle.addEventListener('click', toggleAdvancedFeatures);
 }
 
-// Handle description search results toggle changes
-isolatedPlayerSearchDescriptionToggle.addEventListener('change', async () => {
-    const isEnabled = isolatedPlayerSearchDescriptionToggle.checked;
-    
-    try {
-        const data = await browser.storage.local.get('settings');
-        const settings = data.settings as ExtensionSettings;
-        
-        await browser.storage.local.set({
-            settings: {
-                ...settings,
-                youtubeIsolatedPlayerFallback: {
-                    ...settings.youtubeIsolatedPlayerFallback,
-                    searchResultsDescriptions: isEnabled
-                }
-            }
-        });
-
-        await browser.tabs.query({ active: true, currentWindow: true }).then((tabs) => {
-            browser.tabs.sendMessage(tabs[0].id!, {
-                action: 'toggleTranslation',
-                feature: 'isolatedPlayerDescriptionSearch',
-                isEnabled
-            } as Message);
-        });
-    } catch (error) {
-        console.error('Save error:', error);
-    }
-});
 
 // Handle title toggle changes
 titleToggle.addEventListener('change', async () => {
@@ -443,44 +406,6 @@ function adjustTooltipPositions() {
 // Initial adjustment
 adjustTooltipPositions();
 
-// Handle titles fallback API toggle changes
-isolatedPlayerTitlesToggle.addEventListener('change', async () => {
-    const isEnabled = isolatedPlayerTitlesToggle.checked;
-    
-    // Save state
-    try {
-        const data = await browser.storage.local.get('settings');
-        const settings = data.settings as ExtensionSettings;
-        
-        await browser.storage.local.set({
-            settings: {
-                ...settings,
-                youtubeIsolatedPlayerFallback: {
-                    ...settings.youtubeIsolatedPlayerFallback,
-                    titles: isEnabled
-                }
-            }
-        });
-        console.log('Titles fallback API state saved:', isEnabled);
-    } catch (error) {
-        console.error('Titles fallback API save error:', error);
-    }
-
-    // Update state
-    try {
-        const tabs = await browser.tabs.query({ active: true, currentWindow: true });
-        if (tabs[0]?.id) {
-            await browser.tabs.sendMessage(tabs[0].id, {
-                action: 'toggleTranslation',
-                feature: 'isolatedPlayerTitles',
-                isEnabled
-            } as Message);
-            console.log('Titles fallback API state updated');
-        }
-    } catch (error) {
-        console.error('Titles fallback API update error:', error);
-    }
-});
 
 // Handle YouTube Data API toggle changes
 youtubeDataApiToggle.addEventListener('change', async () => {

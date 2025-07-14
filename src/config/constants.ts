@@ -22,10 +22,6 @@ export const DEFAULT_SETTINGS: ExtensionSettings = {
         enabled: false,
         language: 'original',
     },
-    youtubeIsolatedPlayerFallback: {
-        titles: false,
-        searchResultsDescriptions: false,
-    },
     youtubeDataApi: {
         enabled: false,
         apiKey: ''

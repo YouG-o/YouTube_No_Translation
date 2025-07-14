@@ -2,17 +2,10 @@
 
 ## Usage in the Extension
 
-The extension primarily uses YouTube's oEmbed API to fetch the original titles and descriptions of videos. This method is simple and does not require any API key, but it has some limitations:
-- Age-restricted videos are not accessible via oEmbed.
-- Some videos that block embedding cannot be retrieved either.
-
-This only affects a very small percentage of videos, but it can be annoying if you encounter one of these cases.
-
-To work around these limitations, the extension offers a fallback mode using the official YouTube Data API v3.
 With this API, you can:
-- Retrieve original titles even for restricted or non-embeddable videos.
-- Retrieve original video descriptions, which means on the search page, translated descriptions will no longer appear if you enable the YouTube Data API option with a valid key and the description option is enabled.
 - Retrieve original channel name & description on (@) channel page.
+- Use it as a reliable fallback for titles & descriptions
+- Coming soon : Get all original titles & descriptions in the page in one api request.
 
 **Note: Using the YouTube Data API requires you to obtain your own API key.**
 
@@ -22,7 +15,7 @@ Go to the official Google documentation:
 https://developers.google.com/youtube/v3/getting-started  
 Everything is explained step by step to create a project and generate an API key.
 
-**Note: By default, the API has a limit of 10,000 requests per day (the extension only use methods that need 1 unit/request), which is more than enough for most users. But, just in case, the extension only uses it as a fallback for titles, to avoid reaching the quota too quickly.**
+**Note: By default, the API has a limit of 10,000 units (requests) per day (the extension only use methods that need 1 unit/request), which is more than enough for most users. But, just in case, the extension only uses it as a fallback for titles, to avoid reaching the quota too quickly.**
 
 ## How to use the key in the extension
 

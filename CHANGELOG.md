@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Feat
+- Added InnerTube as a fallback method to fetch video titles, and as main method to featch video descriptions on search & history page.
+
 ## [2.8.3] - 2025-07-12
 
 ### Fix

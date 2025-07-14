@@ -9,7 +9,6 @@
 
 import { descriptionLog, descriptionErrorLog } from '../../utils/logger';
 import { currentSettings } from '../index';
-import { ensureIsolatedPlayer } from '../../utils/isolatedPlayer';
 import { isSearchResultsPage } from '../../utils/navigation';
 
 
@@ -42,46 +41,67 @@ function extractVideoId(url: string): string | null {
     }
 }
 
-export async function fetchSearchDescription(videoId: string): Promise<string | null> {
-    return new Promise<string | null>(async (resolve) => {
-        // Ensure isolated player exists before proceeding with specific ID for descriptions
-        const playerReady = await ensureIsolatedPlayer('ynt-player-descriptions');
-        if (!playerReady) {
-            descriptionErrorLog(`Failed to create isolated player for video: ${videoId}`);
-            resolve(null);
-            return;
-        }
 
-        const timeoutId = setTimeout(() => {
-            window.removeEventListener('ynt-search-description-data', handleDescription as EventListener);
-            resolve(null);
-        }, 3000);
+async function fetchSearchDescriptionDataApi(videoId: string): Promise<string | null> {
+    if (currentSettings?.youtubeDataApi?.enabled && currentSettings?.youtubeDataApi?.apiKey) {
+        try {
+            const youtubeApiUrl = `https://www.googleapis.com/youtube/v3/videos?id=${videoId}&key=${currentSettings.youtubeDataApi.apiKey}&part=snippet`;
+            const response = await fetch(youtubeApiUrl);
+
+            if (response.ok) {
+                const data = await response.json();
+                if (data.items && data.items.length > 0) {
+                    return data.items[0].snippet.description;
+                }
+            } else {
+                descriptionErrorLog(
+                    `YouTube Data API v3 failed for description ${videoId}: ${response.status} ${response.statusText}`
+                );
+            }
+        } catch (apiError) {
+            descriptionErrorLog(
+                `YouTube Data API v3 error for description ${videoId}:`,
+                apiError
+            );
+        }
+    }
+    return null;
+}
+
+async function fetchSearchDescriptionInnerTube(videoId: string): Promise<string | null> {
+    return new Promise<string | null>((resolve) => {
+        // NOTE ON SCRIPT INJECTION:
+        // This function injects a script into the page context to access YouTube's internal variables,
+        // such as window.yt.config_.INNERTUBE_CLIENT_VERSION, which are not accessible from content scripts.
+        // The injected script fetches the video description using the InnerTube API and dispatches the result
+        // via a CustomEvent ("ynt-search-description-inner-tube-data").
 
         const handleDescription = (event: CustomEvent) => {
             if (event.detail?.videoId === videoId) {
-                clearTimeout(timeoutId);
-                window.removeEventListener('ynt-search-description-data', handleDescription as EventListener);
-                
+                window.removeEventListener('ynt-search-description-inner-tube-data', handleDescription as EventListener);
                 // Log any error from the script
                 if (event.detail?.error) {
-                    descriptionErrorLog(`Search description script error for ${videoId}: ${event.detail.error}`);
+                    descriptionErrorLog(`InnerTube script error for ${videoId}: ${event.detail.error}`);
                 }
-                
                 resolve(event.detail?.description || null);
             }
         };
 
-        window.addEventListener('ynt-search-description-data', handleDescription as EventListener);
-        
+        window.addEventListener('ynt-search-description-inner-tube-data', handleDescription as EventListener);
+
         const script = document.createElement('script');
-        script.src = browser.runtime.getURL('dist/content/scripts/searchDescriptionScript.js');
+        script.src = browser.runtime.getURL('dist/content/scripts/searchDescriptionInnerTube.js');
         script.setAttribute('data-video-id', videoId);
-        script.setAttribute('data-player-id', 'ynt-player-descriptions');
         document.documentElement.appendChild(script);
-        
+
         setTimeout(() => {
             script.remove();
         }, 100);
+        // Timeout in case of no response
+        setTimeout(() => {
+            window.removeEventListener('ynt-search-description-inner-tube-data', handleDescription as EventListener);
+            resolve(null);
+        }, 3000);
     });
 }
 
@@ -184,13 +204,7 @@ export function shouldProcessSearchDescriptionElement(isTranslated: boolean): bo
     if (!currentSettings) return false;
     return isSearchResultsPage() &&
         isTranslated &&
-        currentSettings.descriptionTranslation &&
-        //Check if either YouTube Data API is enabled with an API key,
-        //or if isolated player fallback for search results descriptions is enabled
-        (
-            (currentSettings.youtubeDataApi.enabled && currentSettings.youtubeDataApi.apiKey.length > 0) ||
-            currentSettings.youtubeIsolatedPlayerFallback.searchResultsDescriptions
-        );
+        currentSettings.descriptionTranslation
 }
 
 export async function processSearchDescriptionElement(titleElement: HTMLElement, videoId: string): Promise<void> {
@@ -214,31 +228,12 @@ export async function processSearchDescriptionElement(titleElement: HTMLElement,
                     try {
                         let originalDescription: string | null = null;
                         
+                        // Fetch description using InnerTube API first
+                        originalDescription = await fetchSearchDescriptionInnerTube(videoId);
+
                         // Try YouTube Data API v3 first if enabled and API key available
                         if (currentSettings?.youtubeDataApi?.enabled && currentSettings?.youtubeDataApi?.apiKey) {
-                            try {
-                                const youtubeApiUrl = `https://www.googleapis.com/youtube/v3/videos?id=${videoId}&key=${currentSettings.youtubeDataApi.apiKey}&part=snippet`;
-                                const response = await fetch(youtubeApiUrl);
-                                
-                                if (response.ok) {
-                                    const data = await response.json();
-                                    if (data.items && data.items.length > 0) {
-                                        originalDescription = data.items[0].snippet.description;
-                                    }
-                                } else {
-                                    descriptionErrorLog(`YouTube Data API v3 failed for description ${videoId}: ${response.status} ${response.statusText}`);
-                                }
-                            } catch (apiError) {
-                                descriptionErrorLog(`YouTube Data API v3 error for description ${videoId}:`, apiError);
-                            }
-                        }
-                        
-                        // If YouTube Data API failed or not enabled, use player API if 
-                        if (!originalDescription && currentSettings?.youtubeIsolatedPlayerFallback?.searchResultsDescriptions) {
-                            const playerReady = await ensureIsolatedPlayer('ynt-player-descriptions');
-                            if (playerReady) {
-                                originalDescription = await fetchSearchDescription(videoId);
-                            }
+                            originalDescription = await fetchSearchDescriptionDataApi(videoId);
                         }
                         
                         if (originalDescription) {

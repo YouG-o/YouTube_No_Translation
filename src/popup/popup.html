@@ -37,7 +37,7 @@
                                     <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
                                 </svg>
                                 <span class="absolute z-20 bottom-full left-0 ml-[-20px] mb-2 w-[220px] px-3 py-2 text-xs text-white bg-gray-900/95 rounded-md shadow-lg whitespace-normal opacity-0 pointer-events-none invisible group-hover:opacity-100 group-hover:visible transition-opacity">
-                                    Display original titles: main video title, channel title, recommended videos, search results, etc...
+                                    Display original titles: Main video and browsing titles, notifications, channels (on main video page).
                                 </span>
                             </div>
                         </div>
@@ -177,7 +177,7 @@
                                             <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
                                         </svg>
                                         <span class="absolute z-20 bottom-full left-0 ml-[-20px] mb-2 w-[220px] px-3 py-2 text-xs text-white bg-gray-900/95 rounded-md shadow-lg whitespace-normal opacity-0 pointer-events-none invisible group-hover:opacity-100 group-hover:visible transition-opacity">
-                                            Use YouTube Data API v3 to get descriptions on search results page, fallback for video titles... Very reliable but requires your own API key. Your key is stored locally, only you can access it.
+                                            Use YouTube Data API v3 to get original channel name & description and a fallback if other methods fails. Very reliable but requires your own API key. Your key is stored locally, only you can access it.
                                         </span>
                                     </div>
                                 </div>
@@ -190,54 +190,6 @@
                                 <input type="password" id="youtubeDataApiKey" placeholder="Enter your API key..." class="w-full bg-gray-800 text-white text-xs rounded px-2 py-1 border border-gray-600 focus:ring-blue-500 focus:border-blue-500">
                                 <div class="mt-1 text-xs text-gray-400">
                                     <a href="https://developers.google.com/youtube/v3/getting-started" title="https://developers.google.com/youtube/v3/getting-started" target="_blank" rel="noopener noreferrer" class="text-blue-400 hover:text-blue-300">Get your free API key here</a>
-                                </div>
-                            </div>
-                        </div>
-                        <!-- Player API features -->
-                        <div class="p-2 rounded border-2 border-orange-400 bg-orange-900/20 space-y-2">
-                            <div class="flex items-center gap-2 mb-1">
-                                <span class="text-xs text-orange-200">These features use an experimental method based on the YouTube Player API. May be slower or less reliable. But does not need API key.</span>
-                            </div>
-                            <!-- Player API Fallback for Titles -->
-                            <div>
-                                <div class="flex items-center justify-between">
-                                    <div class="flex items-center gap-2">
-                                        <h3 class="text-xs font-medium text-gray-300">Fallback when titles are not replaced</h3>
-                                        <span class="text-xs text-orange-300 bg-orange-900/30 px-2 py-1 rounded">BETA</span>
-                                        <div class="relative group tooltip">
-                                            <svg class="w-3 h-3 text-gray-400 cursor-help group hover:text-gray-300" viewBox="0 0 24 24" fill="currentColor">
-                                                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
-                                            </svg>
-                                            <span class="absolute z-20 bottom-full left-0 ml-[-20px] mb-2 w-[220px] px-3 py-2 text-xs text-white bg-gray-900/95 rounded-md shadow-lg whitespace-normal opacity-0 pointer-events-none invisible group-hover:opacity-100 group-hover:visible transition-opacity">
-                                                Use YouTube Player API as fallback when oEmbed fails to replace titles. May be slower but can retrieve more (all) titles. This is a BETA feature and may not work as expected.
-                                            </span>
-                                        </div>
-                                    </div>
-                                    <label class="relative inline-flex items-center cursor-pointer">
-                                        <input type="checkbox" class="sr-only peer" id="isolatedPlayerTitles">
-                                        <div class="w-9 h-5 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-blue-600"></div>
-                                    </label>
-                                </div>
-                            </div>
-                            <!-- Search Results Descriptions -->
-                            <div>
-                                <div class="flex items-center justify-between">
-                                    <div class="flex items-center gap-2">
-                                        <h3 class="text-xs font-medium text-gray-300">Original descriptions in search results</h3>
-                                        <span class="text-xs text-orange-300 bg-orange-900/30 px-2 py-1 rounded">BETA</span>
-                                        <div class="relative group tooltip">
-                                            <svg class="w-3 h-3 text-gray-400 cursor-help group hover:text-gray-300" viewBox="0 0 24 24" fill="currentColor">
-                                                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
-                                            </svg>
-                                            <span class="absolute z-20 bottom-full left-0 ml-[-20px] mb-2 w-[220px] px-3 py-2 text-xs text-white bg-gray-900/95 rounded-md shadow-lg whitespace-normal opacity-0 pointer-events-none invisible group-hover:opacity-100 group-hover:visible transition-opacity">
-                                                NEED TITLES AND DESCRIPTION FEATURES ACTIVATED. Replace descriptions in search results with original versions. Use the player API. This is a BETA feature and may not work as expected.
-                                            </span>
-                                        </div>
-                                    </div>
-                                    <label class="relative inline-flex items-center cursor-pointer">
-                                        <input type="checkbox" class="sr-only peer" id="isolatedPlayerSearchDescription">
-                                        <div class="w-9 h-5 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-blue-600"></div>
-                                    </label>
                                 </div>
                             </div>
                         </div>

@@ -12,8 +12,7 @@ import { currentSettings } from "../index";
 import { normalizeText } from "../../utils/text";
 import { waitForElement } from "../../utils/dom";
 import { TitleDataEvent } from "../../types/types";
-
-import { titleCache } from "./index";
+import { titleCache, fetchTitleInnerTube } from "./index";
 
 
 let mainTitleContentObserver: MutationObserver | null = null;
@@ -442,6 +441,16 @@ export async function fetchMainTitle(videoId: string, fallbackToPageTitle: boole
         mainTitleLog('Falling back to oembed API');
         const oembedUrl = isShorts ? `https://www.youtube.com/oembed?url=https://www.youtube.com/shorts/${videoId}` : `https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${videoId}`;
         originalTitle = await titleCache.getOriginalTitle(oembedUrl);
+    }
+
+    // Try InnerTube API if oEmbed fails
+    if (!originalTitle) {
+        //mainTitleErrorLog(`Oembed api failed, fetching title from InnerTube API for ${videoId}`);
+        try {
+            originalTitle = await fetchTitleInnerTube(videoId) ?? '';
+        } catch (error) {
+            mainTitleErrorLog(`InnerTube API error for ${videoId}:`, error);
+        }
     }
 
     // Third try: YouTube Data API v3 if enabled

@@ -44,10 +44,6 @@ export interface ExtensionSettings {
         enabled: boolean;
         language: string;
     };
-    youtubeIsolatedPlayerFallback: {
-        titles: boolean;
-        searchResultsDescriptions: boolean;
-    };
     youtubeDataApi: {
         enabled: boolean;
         apiKey: string;

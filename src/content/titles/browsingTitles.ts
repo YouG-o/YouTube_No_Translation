@@ -9,13 +9,11 @@
 
 import { browsingTitlesLog, browsingTitlesErrorLog, titlesLog } from '../../utils/logger';
 import { ProcessingResult, ElementProcessingState, TitleFetchResult } from '../../types/types';
-import { ensureIsolatedPlayer, cleanupIsolatedPlayer } from '../../utils/isolatedPlayer';
 import { currentSettings } from '../index';
 import { normalizeText } from '../../utils/text';
 import { extractVideoIdFromUrl } from '../../utils/video';
-
 import { shouldProcessSearchDescriptionElement, processSearchDescriptionElement } from '../description/searchDescriptions';
-import { titleCache } from './index';
+import { titleCache, fetchTitleInnerTube } from './index';
 
 
 // --- Global variables
@@ -111,62 +109,6 @@ export function updateBrowsingTitleElement(element: HTMLElement, title: string, 
 
     browsingTitlesObserver.set(element, observer);
     titleCache.setElement(element, title);
-}
-
-// Add function to handle fallback title retrieval
-export async function getBrowsingTitleFallback(videoId: string): Promise<string | null> {
-    return new Promise((resolve) => {
-        // Prevent duplicate requests
-        if (browsingTitlesFallbackQueue.has(videoId)) {
-            resolve(null);
-            return;
-        }
-
-        // Ensure isolated player exists before proceeding with specific ID for titles
-        if (!ensureIsolatedPlayer('ynt-player-titles')) {
-            resolve(null);
-            return;
-        }
-        
-        browsingTitlesFallbackQueue.add(videoId);
-        
-        const cleanup = () => {
-            browsingTitlesFallbackQueue.delete(videoId);
-            window.removeEventListener('ynt-browsing-title-fallback-data', onTitleReceived as EventListener);
-        };
-
-        const onTitleReceived = (event: Event) => {
-            const customEvent = event as CustomEvent;
-            const { videoId: receivedVideoId, title, error } = customEvent.detail;
-            
-            if (receivedVideoId === videoId) {
-                cleanup();
-                if (error) {
-                    resolve(null);
-                } else {
-                    resolve(title);
-                }
-            }
-        };
-
-        window.addEventListener('ynt-browsing-title-fallback-data', onTitleReceived as EventListener);
-        
-        const script = document.createElement('script');
-        script.src = browser.runtime.getURL('dist/content/scripts/browsingTitlesFallbackScript.js');
-        script.setAttribute('data-video-id', videoId);
-        script.setAttribute('data-player-id', 'ynt-player-titles');
-        document.documentElement.appendChild(script);
-        
-        setTimeout(() => {
-            script.remove();
-        }, 100);
-
-        // Timeout cleanup
-        setTimeout(() => {
-            cleanup();
-            resolve(null);
-        }, 3000);
-    });
 }
 
 
@@ -281,10 +223,28 @@ function checkElementProcessingState(titleElement: HTMLElement, videoId: string)
 
 export async function fetchOriginalTitle(videoId: string, titleElement: HTMLElement, currentTitle: string): Promise<TitleFetchResult> {
     // Try oEmbed API first
-    const apiUrl = `https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${videoId}`;
-    let originalTitle = await titleCache.getOriginalTitle(apiUrl);
+    let originalTitle: string | null = null;   
     
-    // If oEmbed fails, try YouTube Data API v3 if enabled and API key available
+    if (!originalTitle) {
+        try {
+            const apiUrl = `https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${videoId}`;
+            originalTitle = await titleCache.getOriginalTitle(apiUrl);
+        } catch (error) {
+            browsingTitlesErrorLog(`oEmbed API error for ${videoId}:`, error);
+        }
+    }
+    
+    // Try InnerTube API if oEmbed fails
+    if (!originalTitle) {
+        //browsingTitlesLog(`Oembed api failed, fetching title from InnerTube API for ${videoId}`);
+        try {
+            originalTitle = await fetchTitleInnerTube(videoId) ?? '';
+        } catch (error) {
+            browsingTitlesErrorLog(`InnerTube API error for ${videoId}:`, error);
+        }
+    }
+
+    // If oEmbed & InnerTube fails, try YouTube Data API v3 if enabled and API key available
     if (!originalTitle && currentSettings?.youtubeDataApi?.enabled && currentSettings?.youtubeDataApi?.apiKey) {
         try {
             const youtubeApiUrl = `https://www.googleapis.com/youtube/v3/videos?id=${videoId}&key=${currentSettings.youtubeDataApi.apiKey}&part=snippet`;
@@ -303,51 +263,7 @@ export async function fetchOriginalTitle(videoId: string, titleElement: HTMLElem
         }
     }
     
-    // If oEmbed (and YouTube Data API if activated) failed, try player API fallback ONLY if BETA option is enabled
-    if (!originalTitle && currentSettings?.youtubeIsolatedPlayerFallback?.titles) {
-        const fallbackTitle = await getBrowsingTitleFallback(videoId);
-        if (fallbackTitle) {
-            originalTitle = fallbackTitle;
-        }
-        
-        // Add sequential delay only when using player API fallback
-        await new Promise(resolve => setTimeout(resolve, 600));
-    }
-    
-    // Handle failure cases
-    if (!originalTitle && currentSettings?.youtubeIsolatedPlayerFallback?.titles) {
-        // Check if this was already a retry attempt
-        if (titleElement.hasAttribute('ynt-fail-retry')) {
-            // Second failure - mark as permanent fail
-            browsingTitlesErrorLog(`Both oEmbed and fallback failed for ${videoId} after retry, keeping current title: ${normalizeText(currentTitle)}`);
-            titleElement.removeAttribute('ynt-fail-retry');
-            titleElement.setAttribute('ynt-fail', videoId);
-            const parentTitle = titleElement.parentElement?.getAttribute('title');
-
-            if (!currentTitle) {
-                if (parentTitle) {
-                    titleElement.textContent = parentTitle;
-                    if (normalizeText(titleElement.getAttribute('title')) !== normalizeText(parentTitle)) {
-                        titleElement.setAttribute('title', parentTitle);
-                    }
-                    browsingTitlesErrorLog(
-                        `No title found for %c${videoId}%c and no title element, restoring title: %c${normalizeText(parentTitle)}%c`,
-                        'color: #4ade80',
-                        'color: #F44336',
-                        'color: white',
-                        'color: #F44336'
-                    );
-                }
-            } else if (normalizeText(titleElement.getAttribute('title')) !== normalizeText(currentTitle)) {
-                titleElement.setAttribute('title', currentTitle);
-            }
-            return { originalTitle: null, shouldSkip: true, shouldMarkAsOriginal: false, shouldMarkAsFailed: true };
-        } else {
-            // First failure - allow retry
-            titleElement.setAttribute('ynt-fail-retry', videoId);
-            return { originalTitle: null, shouldSkip: true, shouldMarkAsOriginal: false, shouldMarkAsFailed: false };
-        }
-    } else if (!originalTitle) {
+    if (!originalTitle) {
         // If we still don't have a title, mark as failed
         titleElement.setAttribute('ynt-fail', videoId);
         const parentTitle = titleElement.parentElement?.getAttribute('title');
@@ -473,10 +389,4 @@ export async function refreshBrowsingVideos(): Promise<void> {
             processingVideos.delete(videoId);
         }
     }
-
-    // Clean up isolated players after processing all videos
-    setTimeout(() => {
-        cleanupIsolatedPlayer('ynt-player-titles');
-        cleanupIsolatedPlayer('ynt-player-descriptions');
-    }, 1000);
 }

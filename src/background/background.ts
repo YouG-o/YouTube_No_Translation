@@ -41,18 +41,14 @@ async function migrateSettings() {
             needsUpdate = true;
         }
 
-        // Check if the new fallback object is missing but old properties exist
-        if (!settings.youtubeIsolatedPlayerFallback && (settings.titlesFallbackApi !== undefined || settings.descriptionSearchResults !== undefined)) {
-            console.log('[YNT-Debug] Migrating fallback settings to youtubeIsolatedPlayerFallback object');
-            settings.youtubeIsolatedPlayerFallback = {
-                titles: !!settings.titlesFallbackApi,
-                searchResultsDescriptions: !!settings.descriptionSearchResults
-            };
-            needsUpdate = true;
-        }
-
         // Clean up any remaining old properties that might exist
-        const oldPropertiesToRemove = ['audioLanguage', 'subtitlesLanguage', 'titlesFallbackApi', 'descriptionSearchResults'];
+        const oldPropertiesToRemove = [
+            'audioLanguage',
+            'subtitlesLanguage',
+            'titlesFallbackApi',
+            'descriptionSearchResults',
+            'youtubeIsolatedPlayerFallback'
+        ];
         oldPropertiesToRemove.forEach(prop => {
             if (settings[prop] !== undefined) {
                 console.log(`[YNT-Debug] Removing old property: ${prop}`);

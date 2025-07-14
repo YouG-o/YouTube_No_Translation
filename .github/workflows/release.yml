@@ -28,8 +28,8 @@ jobs:
     - name: Build Firefox extension
       run: npm run package:firefox
       
-    - name: Build Chrome extension
-      run: npm run package:chrome
+    - name: Build Chromium extension
+      run: npm run package:chromium
       
     - name: Get package version
       id: package_version
@@ -45,12 +45,12 @@ jobs:
         asset_name: firefox-ynt-${{ steps.package_version.outputs.PACKAGE_VERSION }}.zip
         asset_content_type: application/zip
         
-    - name: Upload Chrome extension to release
+    - name: Upload chromium extension to release
       uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ github.event.release.upload_url }}
-        asset_path: ./web-ext-artifacts/chrome/chrome-ynt-${{ steps.package_version.outputs.PACKAGE_VERSION }}.zip
-        asset_name: chrome-ynt-${{ steps.package_version.outputs.PACKAGE_VERSION }}.zip
+        asset_path: ./web-ext-artifacts/chromium/chromium-ynt-${{ steps.package_version.outputs.PACKAGE_VERSION }}.zip
+        asset_name: chromium-ynt-${{ steps.package_version.outputs.PACKAGE_VERSION }}.zip
         asset_content_type: application/zip

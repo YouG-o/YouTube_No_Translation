@@ -42,7 +42,9 @@ function extractVideoId(url: string): string | null {
     }
 }
 
-export async function fetchSearchDescription(videoId: string): Promise<string | null> {
+
+
+export async function fetchSearchDescriptionPlayerAPI(videoId: string): Promise<string | null> {
     return new Promise<string | null>(async (resolve) => {
         // Ensure isolated player exists before proceeding with specific ID for descriptions
         const playerReady = await ensureIsolatedPlayer('ynt-player-descriptions');
@@ -83,6 +85,32 @@ export async function fetchSearchDescription(videoId: string): Promise<string | 
             script.remove();
         }, 100);
     });
+}
+
+async function fetchSearchDescriptionDataApi(videoId: string): Promise<string | null> {
+    if (currentSettings?.youtubeDataApi?.enabled && currentSettings?.youtubeDataApi?.apiKey) {
+        try {
+            const youtubeApiUrl = `https://www.googleapis.com/youtube/v3/videos?id=${videoId}&key=${currentSettings.youtubeDataApi.apiKey}&part=snippet`;
+            const response = await fetch(youtubeApiUrl);
+
+            if (response.ok) {
+                const data = await response.json();
+                if (data.items && data.items.length > 0) {
+                    return data.items[0].snippet.description;
+                }
+            } else {
+                descriptionErrorLog(
+                    `YouTube Data API v3 failed for description ${videoId}: ${response.status} ${response.statusText}`
+                );
+            }
+        } catch (apiError) {
+            descriptionErrorLog(
+                `YouTube Data API v3 error for description ${videoId}:`,
+                apiError
+            );
+        }
+    }
+    return null;
 }
 
 export function updateSearchDescriptionElement(element: HTMLElement, description: string, videoId: string): void {
@@ -216,28 +244,14 @@ export async function processSearchDescriptionElement(titleElement: HTMLElement,
                         
                         // Try YouTube Data API v3 first if enabled and API key available
                         if (currentSettings?.youtubeDataApi?.enabled && currentSettings?.youtubeDataApi?.apiKey) {
-                            try {
-                                const youtubeApiUrl = `https://www.googleapis.com/youtube/v3/videos?id=${videoId}&key=${currentSettings.youtubeDataApi.apiKey}&part=snippet`;
-                                const response = await fetch(youtubeApiUrl);
-                                
-                                if (response.ok) {
-                                    const data = await response.json();
-                                    if (data.items && data.items.length > 0) {
-                                        originalDescription = data.items[0].snippet.description;
-                                    }
-                                } else {
-                                    descriptionErrorLog(`YouTube Data API v3 failed for description ${videoId}: ${response.status} ${response.statusText}`);
-                                }
-                            } catch (apiError) {
-                                descriptionErrorLog(`YouTube Data API v3 error for description ${videoId}:`, apiError);
-                            }
+                            originalDescription = await fetchSearchDescriptionDataApi(videoId);
                         }
                         
                         // If YouTube Data API failed or not enabled, use player API if 
                         if (!originalDescription && currentSettings?.youtubeIsolatedPlayerFallback?.searchResultsDescriptions) {
                             const playerReady = await ensureIsolatedPlayer('ynt-player-descriptions');
                             if (playerReady) {
-                                originalDescription = await fetchSearchDescription(videoId);
+                                originalDescription = await fetchSearchDescriptionPlayerAPI(videoId);
                             }
                         }
                         

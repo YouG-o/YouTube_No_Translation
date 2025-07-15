@@ -406,43 +406,37 @@ export async function refreshBrowsingVideos(): Promise<void> {
     const translatedTitleElements: HTMLElement[] = [];
     const translatedVideoIds: string[] = [];
 
-    // Process each video
-    for (const { titleElement, videoId, videoUrl, currentTitle } of videosToProcess) {
-        let isTranslated = false;
-        
-        // Mark this video as being processed
-        processingVideos.add(videoId);
-        try {
-            const titleFetchResult = await fetchOriginalTitle(videoId, titleElement, currentTitle, preferenceFetchedTitles);
-            if (titleFetchResult.shouldSkip) {
-                continue;
-            }
-
-            const originalTitle = titleFetchResult.originalTitle;
-            if (!originalTitle) {
-                continue;
-            }
-
+    // Process each video in parallel
+    await Promise.all(
+        videosToProcess.map(async ({ titleElement, videoId, videoUrl, currentTitle }) => {
+            let isTranslated = false;
+            processingVideos.add(videoId);
             try {
-                updateBrowsingTitleElement(titleElement, originalTitle, videoId);
-                isTranslated = true;
-                
-                // Collect for batch description processing
-                if (shouldProcessSearchDescriptionElement(isTranslated)) {
-                    translatedTitleElements.push(titleElement);
-                    translatedVideoIds.push(videoId);
+                const titleFetchResult = await fetchOriginalTitle(videoId, titleElement, currentTitle, preferenceFetchedTitles);
+                if (titleFetchResult.shouldSkip) {
+                    return;
                 }
-            } catch (error) {
-                browsingTitlesErrorLog(`Failed to update recommended title:`, error);
+                const originalTitle = titleFetchResult.originalTitle;
+                if (!originalTitle) {
+                    return;
+                }
+                try {
+                    updateBrowsingTitleElement(titleElement, originalTitle, videoId);
+                    isTranslated = true;
+                    if (shouldProcessSearchDescriptionElement(isTranslated)) {
+                        translatedTitleElements.push(titleElement);
+                        translatedVideoIds.push(videoId);
+                    }
+                } catch (error) {
+                    browsingTitlesErrorLog(`Failed to update recommended title:`, error);
+                }
+            } finally {
+                processingVideos.delete(videoId);
             }
+        })
+    );
 
-        } finally {
-            // Always remove the video from processing set when done
-            processingVideos.delete(videoId);
-        }
-    }
-
-    // Batch process descriptions for all translated titles
+// Batch process descriptions for all translated titles
     if (translatedTitleElements.length > 0) {
         await batchProcessSearchDescriptions(translatedTitleElements, translatedVideoIds);
     }

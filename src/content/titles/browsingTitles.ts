@@ -12,7 +12,7 @@ import { ProcessingResult, ElementProcessingState, TitleFetchResult } from '../.
 import { currentSettings } from '../index';
 import { normalizeText } from '../../utils/text';
 import { extractVideoIdFromUrl } from '../../utils/video';
-import { shouldProcessSearchDescriptionElement, processSearchDescriptionElement } from '../description/searchDescriptions';
+import { shouldProcessSearchDescriptionElement, batchProcessSearchDescriptions } from '../description/searchDescriptions';
 import { titleCache, fetchTitleInnerTube } from './index';
 
 
@@ -402,6 +402,10 @@ export async function refreshBrowsingVideos(): Promise<void> {
         browsingTitlesLog(`Batch fetched ${preferenceFetchedTitles.size} titles from YouTube Data API v3`);
     }
 
+    // Collect translated titles for batch description processing
+    const translatedTitleElements: HTMLElement[] = [];
+    const translatedVideoIds: string[] = [];
+
     // Process each video
     for (const { titleElement, videoId, videoUrl, currentTitle } of videosToProcess) {
         let isTranslated = false;
@@ -422,18 +426,24 @@ export async function refreshBrowsingVideos(): Promise<void> {
             try {
                 updateBrowsingTitleElement(titleElement, originalTitle, videoId);
                 isTranslated = true;
+                
+                // Collect for batch description processing
+                if (shouldProcessSearchDescriptionElement(isTranslated)) {
+                    translatedTitleElements.push(titleElement);
+                    translatedVideoIds.push(videoId);
+                }
             } catch (error) {
                 browsingTitlesErrorLog(`Failed to update recommended title:`, error);
-            }
-
-            // Process search descriptions if on search page and feature enabled
-            if (shouldProcessSearchDescriptionElement(isTranslated)) {
-                processSearchDescriptionElement(titleElement, videoId);
             }
 
         } finally {
             // Always remove the video from processing set when done
             processingVideos.delete(videoId);
         }
+    }
+
+    // Batch process descriptions for all translated titles
+    if (translatedTitleElements.length > 0) {
+        await batchProcessSearchDescriptions(translatedTitleElements, translatedVideoIds);
     }
 }

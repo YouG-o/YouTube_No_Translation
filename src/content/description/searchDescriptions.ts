@@ -207,9 +207,99 @@ export function shouldProcessSearchDescriptionElement(isTranslated: boolean): bo
         currentSettings.descriptionTranslation
 }
 
-export async function processSearchDescriptionElement(titleElement: HTMLElement, videoId: string): Promise<void> {
-    try {
-        // Find the video element container to get description
+// New function to batch fetch descriptions from YouTube Data API v3
+async function batchFetchDescriptionsFromYouTubeDataApi(videoIds: string[]): Promise<Map<string, string>> {
+    const descriptionMap = new Map<string, string>();
+    
+    if (!currentSettings?.youtubeDataApi?.enabled || !currentSettings?.youtubeDataApi?.apiKey) {
+        return descriptionMap;
+    }
+
+    // Process in batches of 50 (YouTube Data API v3 limit)
+    const batchSize = 50;
+    for (let i = 0; i < videoIds.length; i += batchSize) {
+        const batch = videoIds.slice(i, i + batchSize);
+        const idsParam = batch.join(',');
+        
+        try {
+            const youtubeApiUrl = `https://www.googleapis.com/youtube/v3/videos?id=${idsParam}&key=${currentSettings.youtubeDataApi.apiKey}&part=snippet`;
+            const response = await fetch(youtubeApiUrl);
+            
+            if (response.ok) {
+                const data = await response.json();
+                if (data.items) {
+                    data.items.forEach((item: any) => {
+                        if (item.snippet?.description) {
+                            descriptionMap.set(item.id, item.snippet.description);
+                        }
+                    });
+                }
+            } else {
+                descriptionErrorLog(`YouTube Data API v3 batch failed for descriptions: ${response.status} ${response.statusText}`);
+            }
+        } catch (apiError) {
+            descriptionErrorLog(`YouTube Data API v3 batch error for descriptions:`, apiError);
+        }
+    }
+    
+    return descriptionMap;
+}
+
+// Modified function to accept pre-fetched descriptions
+async function fetchOriginalDescription(
+    videoId: string,
+    preferenceFetchedDescriptions?: Map<string, string>
+): Promise<string | null> {
+    let originalDescription: string | null = null;
+    
+    // Check pre-fetched descriptions first (from YouTube Data API v3 batch)
+    if (preferenceFetchedDescriptions?.has(videoId)) {
+        const batchDescription = preferenceFetchedDescriptions.get(videoId);
+        if (batchDescription && batchDescription.trim()) {
+            originalDescription = batchDescription;
+        }
+    }
+    
+    // Try InnerTube API if not found in pre-fetched
+    if (!originalDescription) {
+        try {
+            originalDescription = await fetchSearchDescriptionInnerTube(videoId);
+        } catch (error) {
+            descriptionErrorLog(`InnerTube API error for description ${videoId}:`, error);
+        }
+    }
+    
+    // Individual YouTube Data API v3 call as fallback (only if batching wasn't used)
+    if (!originalDescription && !preferenceFetchedDescriptions && currentSettings?.youtubeDataApi?.enabled && currentSettings?.youtubeDataApi?.apiKey) {
+        try {
+            originalDescription = await fetchSearchDescriptionDataApi(videoId);
+        } catch (error) {
+            descriptionErrorLog(`YouTube Data API v3 individual error for description ${videoId}:`, error);
+        }
+    }
+    
+    return originalDescription;
+}
+
+// New function to collect and batch process descriptions
+export async function batchProcessSearchDescriptions(titleElements: HTMLElement[], videoIds: string[]): Promise<void> {
+    if (!currentSettings?.descriptionTranslation || !isSearchResultsPage()) {
+        return;
+    }
+
+    // Collect video elements that need description processing
+    const descriptionsToProcess: Array<{ 
+        descriptionElement: HTMLElement; 
+        videoId: string; 
+        titleElement: HTMLElement;
+    }> = [];
+
+    for (let i = 0; i < titleElements.length; i++) {
+        const titleElement = titleElements[i];
+        const videoId = videoIds[i];
+        
+        if (!titleElement || !videoId) continue;
+
         const videoElement = titleElement.closest('ytd-video-renderer') as HTMLElement;
         if (videoElement) {
             let descriptionElement = videoElement.querySelector('.metadata-snippet-text') as HTMLElement | null;
@@ -217,6 +307,7 @@ export async function processSearchDescriptionElement(titleElement: HTMLElement,
                 // Fallback for history page
                 descriptionElement = videoElement.querySelector('#description-text') as HTMLElement | null;
             }
+            
             if (descriptionElement) {
                 // Check if description already processed
                 const isAlreadyProcessed = descriptionElement.hasAttribute('ynt-search') && 
@@ -225,30 +316,43 @@ export async function processSearchDescriptionElement(titleElement: HTMLElement,
                                   descriptionElement.getAttribute('ynt-search-fail') === videoId;
                 
                 if (!isAlreadyProcessed && !hasFailed) {
-                    try {
-                        let originalDescription: string | null = null;
-                        
-                        // Fetch description using InnerTube API first
-                        originalDescription = await fetchSearchDescriptionInnerTube(videoId);
-
-                        // Try YouTube Data API v3 first if enabled and API key available
-                        if (currentSettings?.youtubeDataApi?.enabled && currentSettings?.youtubeDataApi?.apiKey) {
-                            originalDescription = await fetchSearchDescriptionDataApi(videoId);
-                        }
-                        
-                        if (originalDescription) {
-                            updateSearchDescriptionElement(descriptionElement, originalDescription, videoId);
-                        } else {
-                            descriptionElement.setAttribute('ynt-search-fail', videoId);
-                        }
-                    } catch (descError) {
-                        descriptionErrorLog(`Failed to update search description for ${videoId}:`, descError);
-                        descriptionElement.setAttribute('ynt-search-fail', videoId);
-                    }
+                    descriptionsToProcess.push({ descriptionElement, videoId, titleElement });
                 }
             }
         }
-    } catch (error) {
-        descriptionErrorLog(`Failed to process description for ${videoId}:`, error);
     }
+
+    if (descriptionsToProcess.length === 0) {
+        return;
+    }
+
+    // Batch fetch descriptions from YouTube Data API v3 if enabled
+    let preferenceFetchedDescriptions: Map<string, string> | undefined;
+    if (currentSettings?.youtubeDataApi?.enabled && currentSettings?.youtubeDataApi?.apiKey) {
+        const descriptionVideoIds = descriptionsToProcess.map(d => d.videoId);
+        preferenceFetchedDescriptions = await batchFetchDescriptionsFromYouTubeDataApi(descriptionVideoIds);
+        descriptionLog(`Batch fetched ${preferenceFetchedDescriptions.size} descriptions from YouTube Data API v3`);
+    }
+
+    // Process each description
+    for (const { descriptionElement, videoId, titleElement } of descriptionsToProcess) {
+        try {
+            const originalDescription = await fetchOriginalDescription(videoId, preferenceFetchedDescriptions);
+            
+            if (originalDescription) {
+                updateSearchDescriptionElement(descriptionElement, originalDescription, videoId);
+            } else {
+                descriptionElement.setAttribute('ynt-search-fail', videoId);
+            }
+        } catch (descError) {
+            descriptionErrorLog(`Failed to update search description for ${videoId}:`, descError);
+            descriptionElement.setAttribute('ynt-search-fail', videoId);
+        }
+    }
+}
+
+// Keep the original function for backward compatibility but simplify it
+export async function processSearchDescriptionElement(titleElement: HTMLElement, videoId: string): Promise<void> {
+    // For individual processing, use the new batch function with single elements
+    await batchProcessSearchDescriptions([titleElement], [videoId]);
 }

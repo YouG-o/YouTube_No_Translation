@@ -12,6 +12,7 @@ import { ProcessingResult, ElementProcessingState, TitleFetchResult } from '../.
 import { currentSettings } from '../index';
 import { normalizeText } from '../../utils/text';
 import { extractVideoIdFromUrl } from '../../utils/video';
+import { isYouTubeDataAPIEnabled } from '../../utils/utils';
 import { shouldProcessSearchDescriptionElement, batchProcessSearchDescriptions } from '../description/searchDescriptions';
 import { titleCache, fetchTitleInnerTube } from './index';
 
@@ -224,8 +225,8 @@ function checkElementProcessingState(titleElement: HTMLElement, videoId: string)
 // New function to batch fetch titles from YouTube Data API v3
 async function batchFetchTitlesFromYouTubeDataApi(videoIds: string[]): Promise<Map<string, string>> {
     const titleMap = new Map<string, string>();
-    
-    if (!currentSettings?.youtubeDataApi?.enabled || !currentSettings?.youtubeDataApi?.apiKey) {
+
+    if (!isYouTubeDataAPIEnabled(currentSettings)) {
         return titleMap;
     }
 
@@ -236,7 +237,7 @@ async function batchFetchTitlesFromYouTubeDataApi(videoIds: string[]): Promise<M
         const idsParam = batch.join(',');
         
         try {
-            const youtubeApiUrl = `https://www.googleapis.com/youtube/v3/videos?id=${idsParam}&key=${currentSettings.youtubeDataApi.apiKey}&part=snippet`;
+            const youtubeApiUrl = `https://www.googleapis.com/youtube/v3/videos?id=${idsParam}&key=${currentSettings?.youtubeDataApi.apiKey}&part=snippet`;
             const response = await fetch(youtubeApiUrl);
             
             if (response.ok) {
@@ -396,7 +397,7 @@ export async function refreshBrowsingVideos(): Promise<void> {
 
     // Batch fetch titles from YouTube Data API v3 if enabled
     let preferenceFetchedTitles: Map<string, string> | undefined;
-    if (currentSettings?.youtubeDataApi?.enabled && currentSettings?.youtubeDataApi?.apiKey && videosToProcess.length > 0) {
+    if (isYouTubeDataAPIEnabled(currentSettings) && videosToProcess.length > 0) {
         const videoIds = videosToProcess.map(v => v.videoId);
         preferenceFetchedTitles = await batchFetchTitlesFromYouTubeDataApi(videoIds);
         browsingTitlesLog(`Batch fetched ${preferenceFetchedTitles.size} titles from YouTube Data API v3`);

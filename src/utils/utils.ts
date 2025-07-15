@@ -102,3 +102,18 @@ export function getChannelName(url: string): string | null {
     }
     return null;
 }
+
+/**
+ * Checks if the YouTube Data API feature is enabled and the API key is valid (length > 10).
+ * @param settings The settings object containing youtubeDataApi config.
+ * @returns True if enabled and apiKey is valid, false otherwise.
+ */
+export function isYouTubeDataAPIEnabled(settings: { youtubeDataApi?: { enabled?: boolean; apiKey?: string } } | null | undefined): boolean {
+    return !!(
+        settings &&
+        settings.youtubeDataApi &&
+        settings.youtubeDataApi.enabled &&
+        typeof settings.youtubeDataApi.apiKey === 'string' &&
+        settings.youtubeDataApi.apiKey.length > 10
+    );
+}

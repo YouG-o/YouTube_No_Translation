@@ -10,6 +10,7 @@
 import { descriptionLog, descriptionErrorLog } from '../../utils/logger';
 import { currentSettings } from '../index';
 import { isSearchResultsPage } from '../../utils/navigation';
+import { isYouTubeDataAPIEnabled } from '../../utils/utils'; // Ajout de l'import
 
 
 let searchDescriptionsObserver = new Map<HTMLElement, MutationObserver>();
@@ -43,9 +44,9 @@ function extractVideoId(url: string): string | null {
 
 
 async function fetchSearchDescriptionDataApi(videoId: string): Promise<string | null> {
-    if (currentSettings?.youtubeDataApi?.enabled && currentSettings?.youtubeDataApi?.apiKey) {
+    if (isYouTubeDataAPIEnabled(currentSettings)) { // Utilisation de la fonction utilitaire
         try {
-            const youtubeApiUrl = `https://www.googleapis.com/youtube/v3/videos?id=${videoId}&key=${currentSettings.youtubeDataApi.apiKey}&part=snippet`;
+            const youtubeApiUrl = `https://www.googleapis.com/youtube/v3/videos?id=${videoId}&key=${currentSettings?.youtubeDataApi.apiKey}&part=snippet`;
             const response = await fetch(youtubeApiUrl);
 
             if (response.ok) {
@@ -211,7 +212,7 @@ export function shouldProcessSearchDescriptionElement(isTranslated: boolean): bo
 async function batchFetchDescriptionsFromYouTubeDataApi(videoIds: string[]): Promise<Map<string, string>> {
     const descriptionMap = new Map<string, string>();
     
-    if (!currentSettings?.youtubeDataApi?.enabled || !currentSettings?.youtubeDataApi?.apiKey) {
+    if (!isYouTubeDataAPIEnabled(currentSettings)) { // Utilisation de la fonction utilitaire
         return descriptionMap;
     }
 
@@ -222,7 +223,7 @@ async function batchFetchDescriptionsFromYouTubeDataApi(videoIds: string[]): Pro
         const idsParam = batch.join(',');
         
         try {
-            const youtubeApiUrl = `https://www.googleapis.com/youtube/v3/videos?id=${idsParam}&key=${currentSettings.youtubeDataApi.apiKey}&part=snippet`;
+            const youtubeApiUrl = `https://www.googleapis.com/youtube/v3/videos?id=${idsParam}&key=${currentSettings?.youtubeDataApi.apiKey}&part=snippet`;
             const response = await fetch(youtubeApiUrl);
             
             if (response.ok) {
@@ -266,15 +267,6 @@ async function fetchOriginalDescription(
             originalDescription = await fetchSearchDescriptionInnerTube(videoId);
         } catch (error) {
             descriptionErrorLog(`InnerTube API error for description ${videoId}:`, error);
-        }
-    }
-    
-    // Individual YouTube Data API v3 call as fallback (only if batching wasn't used)
-    if (!originalDescription && !preferenceFetchedDescriptions && currentSettings?.youtubeDataApi?.enabled && currentSettings?.youtubeDataApi?.apiKey) {
-        try {
-            originalDescription = await fetchSearchDescriptionDataApi(videoId);
-        } catch (error) {
-            descriptionErrorLog(`YouTube Data API v3 individual error for description ${videoId}:`, error);
         }
     }
     
@@ -328,7 +320,7 @@ export async function batchProcessSearchDescriptions(titleElements: HTMLElement[
 
     // Batch fetch descriptions from YouTube Data API v3 if enabled
     let preferenceFetchedDescriptions: Map<string, string> | undefined;
-    if (currentSettings?.youtubeDataApi?.enabled && currentSettings?.youtubeDataApi?.apiKey) {
+    if (isYouTubeDataAPIEnabled(currentSettings)) { // Utilisation de la fonction utilitaire
         const descriptionVideoIds = descriptionsToProcess.map(d => d.videoId);
         preferenceFetchedDescriptions = await batchFetchDescriptionsFromYouTubeDataApi(descriptionVideoIds);
         descriptionLog(`Batch fetched ${preferenceFetchedDescriptions.size} descriptions from YouTube Data API v3`);

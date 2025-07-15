@@ -12,7 +12,8 @@ import { ProcessingResult, ElementProcessingState, TitleFetchResult } from '../.
 import { currentSettings } from '../index';
 import { normalizeText } from '../../utils/text';
 import { extractVideoIdFromUrl } from '../../utils/video';
-import { shouldProcessSearchDescriptionElement, processSearchDescriptionElement } from '../description/searchDescriptions';
+import { isYouTubeDataAPIEnabled } from '../../utils/utils';
+import { shouldProcessSearchDescriptionElement, batchProcessSearchDescriptions } from '../description/searchDescriptions';
 import { titleCache, fetchTitleInnerTube } from './index';
 
 
@@ -221,10 +222,59 @@ function checkElementProcessingState(titleElement: HTMLElement, videoId: string)
 }
 
 
-export async function fetchOriginalTitle(videoId: string, titleElement: HTMLElement, currentTitle: string): Promise<TitleFetchResult> {
-    // Try oEmbed API first
-    let originalTitle: string | null = null;   
+// New function to batch fetch titles from YouTube Data API v3
+async function batchFetchTitlesFromYouTubeDataApi(videoIds: string[]): Promise<Map<string, string>> {
+    const titleMap = new Map<string, string>();
+
+    if (!isYouTubeDataAPIEnabled(currentSettings)) {
+        return titleMap;
+    }
+
+    // Process in batches of 50 (YouTube Data API v3 limit)
+    const batchSize = 50;
+    for (let i = 0; i < videoIds.length; i += batchSize) {
+        const batch = videoIds.slice(i, i + batchSize);
+        const idsParam = batch.join(',');
+        
+        try {
+            const youtubeApiUrl = `https://www.googleapis.com/youtube/v3/videos?id=${idsParam}&key=${currentSettings?.youtubeDataApi.apiKey}&part=snippet`;
+            const response = await fetch(youtubeApiUrl);
+            
+            if (response.ok) {
+                const data = await response.json();
+                if (data.items) {
+                    data.items.forEach((item: any) => {
+                        if (item.snippet?.title) {
+                            titleMap.set(item.id, item.snippet.title);
+                        }
+                    });
+                }
+            } else {
+                browsingTitlesErrorLog(`YouTube Data API v3 batch failed: ${response.status} ${response.statusText}`);
+            }
+        } catch (apiError) {
+            browsingTitlesErrorLog(`YouTube Data API v3 batch error:`, apiError);
+        }
+    }
     
+    return titleMap;
+}
+
+// Modified function with new signature to accept pre-fetched titles
+export async function fetchOriginalTitle(
+    videoId: string, 
+    titleElement: HTMLElement, 
+    currentTitle: string,
+    preferenceFetchedTitles?: Map<string, string>
+): Promise<TitleFetchResult> {
+    let originalTitle: string | null = null;
+    
+    // Check pre-fetched titles first (from YouTube Data API v3 batch)
+    if (preferenceFetchedTitles?.has(videoId)) {
+        originalTitle = preferenceFetchedTitles.get(videoId) || null;
+    }
+    
+    // Try oEmbed API if not found in pre-fetched
     if (!originalTitle) {
         try {
             const apiUrl = `https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${videoId}`;
@@ -236,30 +286,10 @@ export async function fetchOriginalTitle(videoId: string, titleElement: HTMLElem
     
     // Try InnerTube API if oEmbed fails
     if (!originalTitle) {
-        //browsingTitlesLog(`Oembed api failed, fetching title from InnerTube API for ${videoId}`);
         try {
             originalTitle = await fetchTitleInnerTube(videoId) ?? '';
         } catch (error) {
             browsingTitlesErrorLog(`InnerTube API error for ${videoId}:`, error);
-        }
-    }
-
-    // If oEmbed & InnerTube fails, try YouTube Data API v3 if enabled and API key available
-    if (!originalTitle && currentSettings?.youtubeDataApi?.enabled && currentSettings?.youtubeDataApi?.apiKey) {
-        try {
-            const youtubeApiUrl = `https://www.googleapis.com/youtube/v3/videos?id=${videoId}&key=${currentSettings.youtubeDataApi.apiKey}&part=snippet`;
-            const response = await fetch(youtubeApiUrl);
-            
-            if (response.ok) {
-                const data = await response.json();
-                if (data.items && data.items.length > 0) {
-                    originalTitle = data.items[0].snippet.title;
-                }
-            } else {
-                browsingTitlesErrorLog(`YouTube Data API v3 failed for ${videoId}: ${response.status} ${response.statusText}`);
-            }
-        } catch (apiError) {
-            browsingTitlesErrorLog(`YouTube Data API v3 error for ${videoId}:`, apiError);
         }
     }
     
@@ -315,7 +345,6 @@ export async function fetchOriginalTitle(videoId: string, titleElement: HTMLElem
     return { originalTitle, shouldSkip: false, shouldMarkAsOriginal: false, shouldMarkAsFailed: false };
 }
 
-
 export async function refreshBrowsingVideos(): Promise<void> {
     const now = Date.now();
     if (now - lastBrowsingTitlesRefresh < TITLES_THROTTLE) {
@@ -334,59 +363,82 @@ export async function refreshBrowsingVideos(): Promise<void> {
     // Merge both lists
     const browsingTitles = [...classicTitles, ...recommendedTitles];
 
+    // Collect all video IDs that need processing
+    const videosToProcess: Array<{ titleElement: HTMLElement; videoId: string; videoUrl: string; currentTitle: string }> = [];
+    
     for (const titleElement of browsingTitles) {
-        //browsingTitlesLog('Processing video title:', titleElement.textContent);
-        
         const processingResult = shouldProcessBrowsingElement(titleElement);
         if (!processingResult.shouldProcess || !processingResult.videoId) {
             continue;
         }
         
         const { videoId, videoUrl } = processingResult;
-        let isTranslated = false;
         
-        // Mark this video as being processed
-        processingVideos.add(videoId);
-        try {
-            const currentTitle = titleElement.textContent || '';
-
-            const processingState = checkElementProcessingState(titleElement, videoId);
-            if (processingState.shouldSkip) {
-                continue;
-            }
-            if (processingState.shouldClean) {
-                titleElement.removeAttribute('ynt');
-                titleElement.removeAttribute('ynt-fail');
-                titleElement.removeAttribute('ynt-fail-retry');
-                titleElement.removeAttribute('ynt-original');
-            }
-            
-            const titleFetchResult = await fetchOriginalTitle(videoId, titleElement, currentTitle);
-            if (titleFetchResult.shouldSkip) {
-                continue;
-            }
-
-            const originalTitle = titleFetchResult.originalTitle;
-            if (!originalTitle) {
-                //browsingTitlesErrorLog('Failed to get original title :', videoId, currentTitle);
-                continue;
-            }
-
-            try {
-                updateBrowsingTitleElement(titleElement, originalTitle, videoId);
-                isTranslated = true;
-            } catch (error) {
-                browsingTitlesErrorLog(`Failed to update recommended title:`, error);
-            }
-
-            // Process search descriptions if on search page and feature enabled
-            if (shouldProcessSearchDescriptionElement(isTranslated)) {
-                await processSearchDescriptionElement(titleElement, videoId);
-            }
-
-        } finally {
-            // Always remove the video from processing set when done
-            processingVideos.delete(videoId);
+        // Skip if this video is currently being processed
+        if (processingVideos.has(videoId)) {
+            continue;
         }
+        
+        const currentTitle = titleElement.textContent || '';
+        
+        const processingState = checkElementProcessingState(titleElement, videoId);
+        if (processingState.shouldSkip) {
+            continue;
+        }
+        if (processingState.shouldClean) {
+            titleElement.removeAttribute('ynt');
+            titleElement.removeAttribute('ynt-fail');
+            titleElement.removeAttribute('ynt-fail-retry');
+            titleElement.removeAttribute('ynt-original');
+        }
+        
+        videosToProcess.push({ titleElement, videoId, videoUrl: videoUrl as string, currentTitle });
+    }
+
+    // Batch fetch titles from YouTube Data API v3 if enabled
+    let preferenceFetchedTitles: Map<string, string> | undefined;
+    if (isYouTubeDataAPIEnabled(currentSettings) && videosToProcess.length > 0) {
+        const videoIds = videosToProcess.map(v => v.videoId);
+        preferenceFetchedTitles = await batchFetchTitlesFromYouTubeDataApi(videoIds);
+        browsingTitlesLog(`Batch fetched ${preferenceFetchedTitles.size} titles from YouTube Data API v3`);
+    }
+
+    // Collect translated titles for batch description processing
+    const translatedTitleElements: HTMLElement[] = [];
+    const translatedVideoIds: string[] = [];
+
+    // Process each video in parallel
+    await Promise.all(
+        videosToProcess.map(async ({ titleElement, videoId, videoUrl, currentTitle }) => {
+            let isTranslated = false;
+            processingVideos.add(videoId);
+            try {
+                const titleFetchResult = await fetchOriginalTitle(videoId, titleElement, currentTitle, preferenceFetchedTitles);
+                if (titleFetchResult.shouldSkip) {
+                    return;
+                }
+                const originalTitle = titleFetchResult.originalTitle;
+                if (!originalTitle) {
+                    return;
+                }
+                try {
+                    updateBrowsingTitleElement(titleElement, originalTitle, videoId);
+                    isTranslated = true;
+                    if (shouldProcessSearchDescriptionElement(isTranslated)) {
+                        translatedTitleElements.push(titleElement);
+                        translatedVideoIds.push(videoId);
+                    }
+                } catch (error) {
+                    browsingTitlesErrorLog(`Failed to update recommended title:`, error);
+                }
+            } finally {
+                processingVideos.delete(videoId);
+            }
+        })
+    );
+
+// Batch process descriptions for all translated titles
+    if (translatedTitleElements.length > 0) {
+        await batchProcessSearchDescriptions(translatedTitleElements, translatedVideoIds);
     }
 }

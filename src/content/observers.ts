@@ -27,6 +27,7 @@ import { cleanupAllSearchDescriptionsObservers } from './description/searchDescr
 import { refreshEndScreenTitles, setupEndScreenObserver, cleanupEndScreenObserver } from './titles/endScreenTitles';
 import { refreshChannelShortDescription, cleanupChannelDescriptionModalObserver } from './description/channelDescription';
 import { refreshMainChannelName } from './channelName/mainChannelName';
+import { isYouTubeDataAPIEnabled } from '../utils/utils';
 
 
 // MAIN OBSERVERS -----------------------------------------------------------
@@ -856,7 +857,7 @@ function handleUrlChange() {
         coreLog(`[URL] Detected channel page`);
         if (currentSettings?.titleTranslation) {
             pageVideosObserver();
-            if (currentSettings?.youtubeDataApi.enabled && currentSettings?.youtubeDataApi.apiKey) {
+            if (isYouTubeDataAPIEnabled(currentSettings)) {
                 // Wait for the channel name element to be present before calling refreshMainChannelName
                 waitForElement('yt-dynamic-text-view-model h1.dynamic-text-view-model-wiz__h1 > span.yt-core-attributed-string')
                     .then(() => {
@@ -867,7 +868,7 @@ function handleUrlChange() {
                     });
             }
         }
-        if (currentSettings?.descriptionTranslation && currentSettings?.youtubeDataApi.enabled && currentSettings?.youtubeDataApi.apiKey) {
+        if (currentSettings?.descriptionTranslation && isYouTubeDataAPIEnabled(currentSettings)) {
             // Refresh channel short description
             waitForElement('yt-description-preview-view-model').then(() => {
                 refreshChannelShortDescription();

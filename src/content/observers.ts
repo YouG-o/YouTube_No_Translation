@@ -19,15 +19,17 @@ import { waitForElement, waitForFilledVideoTitles } from '../utils/dom';
 import { refreshMainTitle, refreshEmbedTitle, refreshMiniplayerTitle, cleanupMainTitleContentObserver ,cleanupIsEmptyObserver, cleanupPageTitleObserver, cleanupEmbedTitleContentObserver, cleanupMiniplayerTitleContentObserver } from './titles/mainTitle';
 import { refreshBrowsingVideos, cleanupAllBrowsingTitlesElementsObservers } from './titles/browsingTitles';
 import { descriptionCache, compareDescription, refreshDescription, updateDescriptionElement, fetchOriginalDescription } from './description/descriptionIndex';
-import { refreshChannelName, cleanupChannelNameContentObserver } from './channelName/channelName';
+import { refreshChannelName, cleanupChannelNameContentObserver } from './channel/channelName';
 import { refreshShortsAlternativeFormat, checkShortsId } from './titles/shortsTitles';
 import { setupNotificationTitlesObserver, cleanupNotificationTitlesObserver } from './titles/notificationTitles';
 import { cleanupChaptersObserver } from './chapters/chaptersIndex';
 import { cleanupAllSearchDescriptionsObservers } from './description/searchDescriptions';
 import { refreshEndScreenTitles, setupEndScreenObserver, cleanupEndScreenObserver } from './titles/endScreenTitles';
-import { refreshChannelShortDescription, cleanupChannelDescriptionModalObserver } from './description/channelDescription';
-import { refreshMainChannelName } from './channelName/mainChannelName';
-import { patchChannelRendererBlocks } from './channelName/ChannelRendererPatch';
+import { refreshChannelShortDescription, cleanupChannelDescriptionModalObserver } from './channel/channelDescription';
+import { refreshMainChannelName } from './channel/mainChannelName';
+import { patchChannelRendererBlocks } from './channel/ChannelRendererPatch';
+import { refreshChannelPlayer } from './channel/channelPlayer';
+import { processChannelVideoDescriptions } from './channel/ChannelVideoDescriptions';
 
 // MAIN OBSERVERS -----------------------------------------------------------
 let videoPlayerListener: ((e: Event) => void) | null = null;
@@ -854,6 +856,13 @@ function handleUrlChange() {
     if (isChannelPage) {
         // --- Handle all new channel page types (videos, featured, shorts, etc.)
         coreLog(`[URL] Detected channel page`);
+
+        if (currentSettings?.titleTranslation || currentSettings?.descriptionTranslation) {
+            waitForElement('#c4-player').then(() => {
+                refreshChannelPlayer();
+            });
+        }
+        
         if (currentSettings?.titleTranslation) {
             pageVideosObserver();
             // Wait for the channel name element to be present before calling refreshMainChannelName
@@ -866,6 +875,9 @@ function handleUrlChange() {
                 });
         }
         if (currentSettings?.descriptionTranslation) {
+            waitForElement('ytd-video-renderer').then(() => {
+                processChannelVideoDescriptions();
+            });
             // Refresh channel short description
             waitForElement('yt-description-preview-view-model').then(() => {
                 refreshChannelShortDescription();

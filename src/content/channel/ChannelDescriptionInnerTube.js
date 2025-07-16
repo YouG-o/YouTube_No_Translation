@@ -12,6 +12,12 @@
  * such as window.yt.config_.INNERTUBE_CLIENT_VERSION, which are not accessible from content scripts.
  * The script fetches the original channel description using the InnerTube API and dispatches the result
  * via a CustomEvent ("ynt-get-channel-description-inner-tube").
+*
+ * NOTE ON LANGUAGE PARAMETER (hl):
+ * By default, if no 'hl' is specified in the InnerTube API request, YouTube uses the user's interface language on /browse requests.
+ * If a translation exists for that language, the API will return the translated channel name.
+ * To maximize the chance of retrieving the original channel name (not a translation), we explicitly set 'hl' to "lo" (Lao),
+ * a language extremely unlikely to be used for channel translations. Waiting for a better way to handle this.
  */
 (function () {
     var scriptTag = document.currentScript;
@@ -40,7 +46,8 @@
         context: {
             client: {
                 clientName: "WEB",
-                clientVersion: clientVersion
+                clientVersion: clientVersion,
+                hl: "lo" // Lao, extremely unlikely to be translated
             }
         },
         browseId: channelId

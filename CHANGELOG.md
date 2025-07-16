@@ -8,8 +8,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Feat
-- Channel name & description is now fetched from InnerTube if Data API is not enabled.
+- Channel name & description is now fetched from InnerTube if Data API is not enabled. (HL must be specified or YT pick the one from settings, meaning still translated. So I added Lao to HL, chances for meeting a translation with this language are almost 0)
 - Channel name & description (Channel handle block) is now handled on search page.
+- Video Title & Description of player's video on channel page is now handled
+- Some channels have video list with descriptions, they are handled now.
 
 ### Changes
 - Changed default subtitles language to "Always Disabled".

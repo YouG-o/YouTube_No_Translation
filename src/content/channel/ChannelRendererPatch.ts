@@ -1,5 +1,5 @@
 import { fetchChannelNameDataAPI, fetchChannelNameInnerTube, shouldUpdateChannelName } from "./mainChannelName";
-import { getOriginalChannelDescriptionDataAPI, getOriginalChannelDescriptionInnerTube } from "../description/channelDescription";
+import { getOriginalChannelDescriptionDataAPI, getOriginalChannelDescriptionInnerTube } from "./channelDescription";
 import { isYouTubeDataAPIEnabled, getChannelIdFromInnerTube } from "../../utils/utils";
 import { currentSettings } from "../index";
 import { coreErrorLog } from "../../utils/logger";

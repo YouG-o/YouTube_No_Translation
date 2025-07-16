@@ -35,15 +35,28 @@
         body: JSON.stringify({
             context: { client: { clientName: 'WEB', clientVersion } },
             query: '@' + handle,
+            /**
+             * 'params' is a base64-encoded protobuf filter.
+             * 'EgIQAg==' means "filter=channels" (only return channels in search results).
+             */
             params: 'EgIQAg=='
         })
     })
     .then(res => res.ok ? res.json() : null)
     .then(data => {
         const items = data?.contents?.twoColumnSearchResultsRenderer?.primaryContents?.sectionListRenderer?.contents;
-        const firstChannel = items?.flatMap(c => c.itemSectionRenderer?.contents || [])
-            .find(el => el.channelRenderer);
-        const channelId = firstChannel?.channelRenderer?.channelId || null;
+        const channels = items?.flatMap(c => c.itemSectionRenderer?.contents || [])
+            .filter(el => el.channelRenderer)
+            .map(el => el.channelRenderer) || [];
+
+        // Try to find an exact handle match (case-insensitive, with or without @)
+        const normalizedHandle = handle.replace(/^@/, '').toLowerCase();
+        const exactMatch = channels.find(ch => {
+            const url = ch.navigationEndpoint?.browseEndpoint?.canonicalBaseUrl || '';
+            return url.toLowerCase() === `/@${normalizedHandle}`;
+        });
+
+        const channelId = exactMatch?.channelId || channels[0]?.channelId || null;
 
         window.dispatchEvent(new CustomEvent('ynt-get-channel-id-inner-tube', {
             detail: { channelId }

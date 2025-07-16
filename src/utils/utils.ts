@@ -73,18 +73,6 @@ export function getChannelIdFromDom(): string | null {
             channelId = match[1];
         }
     }
-
-    // Try to get channelId from ytInitialData as a fallback
-    if (!channelId && (window as any).ytInitialData) {
-        try {
-            const str = JSON.stringify((window as any).ytInitialData);
-            const match = str.match(/"channelId":"([a-zA-Z0-9_-]+)"/);
-            if (match) {
-                channelId = match[1];
-            }
-        } catch (e) {}
-    }
-
     return channelId || null;
 }
 

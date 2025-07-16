@@ -866,7 +866,7 @@ function handleUrlChange() {
                     titlesErrorLog("Timeout waiting for channel name element:", err);
                 });
         }
-        if (currentSettings?.descriptionTranslation && isYouTubeDataAPIEnabled(currentSettings)) {
+        if (currentSettings?.descriptionTranslation) {
             // Refresh channel short description
             waitForElement('yt-description-preview-view-model').then(() => {
                 refreshChannelShortDescription();

@@ -9,7 +9,7 @@
 
 import { titlesLog, titlesErrorLog, coreLog } from "../../utils/logger";
 import { normalizeText } from "../../utils/text";
-import { getChannelName, getChannelIdFromInnerTube, isYouTubeDataAPIEnabled } from "../../utils/utils";
+import { getChannelName, getChannelIdFromInnerTube, getChannelIdFromDom, isYouTubeDataAPIEnabled } from "../../utils/utils";
 import { currentSettings } from "../index";
 
 /**
@@ -39,7 +39,6 @@ export async function fetchChannelNameInnerTube(): Promise<string | null> {
         return null;
     }
 
-    // Get the channelId (UCID) using the Data API
     const channelId = await getChannelIdFromInnerTube();
     if (!channelId) {
         titlesErrorLog("Could not retrieve channelId from API.");

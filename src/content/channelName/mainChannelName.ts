@@ -31,18 +31,21 @@ export function shouldUpdateChannelName(originalChannelName: string | null, curr
  * Fetches the original channel name using the InnerTube API by injecting a script into the page context.
  * @returns Promise resolving to the original channel name string, or null if not found or on error.
  */
-export async function fetchChannelNameInnerTube(handle: string): Promise<string | null> {
+export async function fetchChannelNameInnerTube(handle: string, id?: string | null): Promise<string | null> {
     const channelHandle = handle;
+    let channelId = id;
 
     if (!channelHandle) {
         titlesErrorLog("Channel handle is missing.");
         return null;
     }
 
-    const channelId = await getChannelIdFromInnerTube(channelHandle);
-    if (!channelId) {
-        titlesErrorLog("Could not retrieve channelId from API.");
-        return null;
+    if (!channelId){
+        channelId = await getChannelIdFromInnerTube(channelHandle);
+        if (!channelId) {
+            titlesErrorLog("Could not retrieve channelId from API.");
+            return null;
+        }
     }
 
     return new Promise((resolve) => {

@@ -9,7 +9,7 @@
 
 import { titlesLog, titlesErrorLog, coreLog } from "../../utils/logger";
 import { normalizeText } from "../../utils/text";
-import { getChannelName, getChannelIdFromDom, getChannelIdFromAPI } from "../../utils/utils";
+import { getChannelName, getChannelIdFromInnerTube, isYouTubeDataAPIEnabled } from "../../utils/utils";
 import { currentSettings } from "../index";
 
 /**
@@ -26,12 +26,58 @@ export function shouldUpdateChannelName(originalChannelName: string | null, curr
     return normalizeText(originalChannelName) !== normalizeText(currentChannelName);
 }
 
+
+/**
+ * Fetches the original channel name using the InnerTube API by injecting a script into the page context.
+ * @returns Promise resolving to the original channel name string, or null if not found or on error.
+ */
+export async function fetchChannelNameInnerTube(): Promise<string | null> {
+    const channelHandle = getChannelName(window.location.href);
+
+    if (!channelHandle) {
+        titlesErrorLog("Channel handle is missing.");
+        return null;
+    }
+
+    // Get the channelId (UCID) using the Data API
+    const channelId = await getChannelIdFromInnerTube();
+    if (!channelId) {
+        titlesErrorLog("Could not retrieve channelId from API.");
+        return null;
+    }
+
+    return new Promise((resolve) => {
+        function handleResult(event: Event) {
+            const detail = (event as CustomEvent).detail;
+            window.removeEventListener('ynt-get-channel-name-inner-tube', handleResult);
+            script.remove();
+            resolve(detail?.channelName ?? null);
+        }
+
+        window.addEventListener('ynt-get-channel-name-inner-tube', handleResult);
+
+        const script = document.createElement('script');
+        script.src = browser.runtime.getURL('dist/content/scripts/ChannelNameInnerTubeScript.js');
+        script.async = true;
+        script.setAttribute('data-channel-id', channelId);
+        document.documentElement.appendChild(script);
+
+        // Timeout in case of no response
+        setTimeout(() => {
+            window.removeEventListener('ynt-get-channel-name-inner-tube', handleResult);
+            script.remove();
+            resolve(null);
+        }, 3000);
+    });
+}
+
+
 /**
 // ...existing code...
  * @param apiKey The YouTube Data API key.
  * @returns Promise resolving to the channel title string, or null if not found.
  */
-export async function fetchChannelName(): Promise<string | null> {
+export async function fetchChannelNameDataAPI(): Promise<string | null> {
     const apiKey = currentSettings?.youtubeDataApi?.apiKey;
     if (!apiKey) {
         coreLog("API key is not set in current settings.");
@@ -44,15 +90,8 @@ export async function fetchChannelName(): Promise<string | null> {
         // If the channel name is found in the DOM, build the URL to query by ID.
         apiUrl = `https://www.googleapis.com/youtube/v3/channels?part=snippet&forHandle=${encodeURIComponent(channelHandle)}&key=${apiKey}`;
     } else {
-        // If not found, fall back to using the channel ID from the URL.
-        //titlesLog("Channel name not found in DOM, falling back to channel ID.");
-        const channelId = getChannelIdFromDom();
-        if (!channelId) {
-            titlesErrorLog("Channel ID could not be retrieved from DOM.");
-            return null;
-        }
-        // Build the URL to query by ID, which gets the snippet directly.
-        apiUrl = `https://www.googleapis.com/youtube/v3/channels?part=snippet&id=${channelId}&key=${apiKey}`;
+        titlesErrorLog("Channel handle is missing.");
+        return null;
     }
 
     try {
@@ -87,7 +126,13 @@ export async function refreshMainChannelName(): Promise<void> {
     }
 
     // Fetch the original channel name from the API
-    const originalChannelName = await fetchChannelName();
+    let originalChannelName = null;
+
+    if (isYouTubeDataAPIEnabled(currentSettings)) {
+        originalChannelName = await fetchChannelNameDataAPI();
+    } else {
+        originalChannelName = await fetchChannelNameInnerTube();
+    }
 
     // Select the channel name element in the new YouTube layout
     const channelNameElement = document.querySelector('yt-dynamic-text-view-model h1.dynamic-text-view-model-wiz__h1 > span.yt-core-attributed-string') as HTMLElement | null;

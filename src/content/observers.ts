@@ -857,16 +857,14 @@ function handleUrlChange() {
         coreLog(`[URL] Detected channel page`);
         if (currentSettings?.titleTranslation) {
             pageVideosObserver();
-            if (isYouTubeDataAPIEnabled(currentSettings)) {
-                // Wait for the channel name element to be present before calling refreshMainChannelName
-                waitForElement('yt-dynamic-text-view-model h1.dynamic-text-view-model-wiz__h1 > span.yt-core-attributed-string')
-                    .then(() => {
-                        refreshMainChannelName();
-                    })
-                    .catch((err) => {
-                        titlesErrorLog("Timeout waiting for channel name element:", err);
-                    });
-            }
+            // Wait for the channel name element to be present before calling refreshMainChannelName
+            waitForElement('yt-dynamic-text-view-model h1.dynamic-text-view-model-wiz__h1 > span.yt-core-attributed-string')
+                .then(() => {
+                    refreshMainChannelName();
+                })
+                .catch((err) => {
+                    titlesErrorLog("Timeout waiting for channel name element:", err);
+                });
         }
         if (currentSettings?.descriptionTranslation && isYouTubeDataAPIEnabled(currentSettings)) {
             // Refresh channel short description

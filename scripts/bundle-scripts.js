@@ -7,17 +7,17 @@ const srcDir = path.join(__dirname, '../src/content');
 const outDir = path.join(__dirname, '../dist/content/scripts');
 
 const scripts = [
+  'scripts/getChannelIdScript.js',
+  'titles/mainTitleScript.js',
+  'titles/TitlesInnerTube.js',
   'audio/audioScript.js',
   'description/descriptionScript.js',
-  'subtitles/subtitlesScript.js',
-  'titles/mainTitleScript.js',
-  'channelName/channelNameScript.js',
   'description/timestampScript.js',
   'description/searchDescriptionInnerTube.js',
-  'titles/TitlesInnerTube.js',
-  'scripts/getChannelIdScript.js',
-  'channelName/ChannelNameInnerTubeScript.js',
-  'description/ChannelDescriptionInnerTube.js'
+  'subtitles/subtitlesScript.js',
+  'channel/channelNameScript.js',
+  'channel/ChannelNameInnerTubeScript.js',
+  'channel/ChannelDescriptionInnerTube.js'
 ];
 
 if (!fs.existsSync(outDir)) {

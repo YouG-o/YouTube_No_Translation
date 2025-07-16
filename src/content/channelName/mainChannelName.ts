@@ -9,7 +9,7 @@
 
 import { titlesLog, titlesErrorLog, coreLog } from "../../utils/logger";
 import { normalizeText } from "../../utils/text";
-import { getChannelName, getChannelIdFromInnerTube, getChannelIdFromDom, isYouTubeDataAPIEnabled } from "../../utils/utils";
+import { getChannelHandle, getChannelIdFromInnerTube, getChannelIdFromDom, isYouTubeDataAPIEnabled } from "../../utils/utils";
 import { currentSettings } from "../index";
 
 /**
@@ -31,15 +31,15 @@ export function shouldUpdateChannelName(originalChannelName: string | null, curr
  * Fetches the original channel name using the InnerTube API by injecting a script into the page context.
  * @returns Promise resolving to the original channel name string, or null if not found or on error.
  */
-export async function fetchChannelNameInnerTube(): Promise<string | null> {
-    const channelHandle = getChannelName(window.location.href);
+export async function fetchChannelNameInnerTube(handle: string): Promise<string | null> {
+    const channelHandle = handle;
 
     if (!channelHandle) {
         titlesErrorLog("Channel handle is missing.");
         return null;
     }
 
-    const channelId = await getChannelIdFromInnerTube();
+    const channelId = await getChannelIdFromInnerTube(channelHandle);
     if (!channelId) {
         titlesErrorLog("Could not retrieve channelId from API.");
         return null;
@@ -76,14 +76,14 @@ export async function fetchChannelNameInnerTube(): Promise<string | null> {
  * @param apiKey The YouTube Data API key.
  * @returns Promise resolving to the channel title string, or null if not found.
  */
-export async function fetchChannelNameDataAPI(): Promise<string | null> {
+export async function fetchChannelNameDataAPI(handle: string): Promise<string | null> {
     const apiKey = currentSettings?.youtubeDataApi?.apiKey;
     if (!apiKey) {
         coreLog("API key is not set in current settings.");
         return null;
     }
     let apiUrl = '';
-    const channelHandle = getChannelName(window.location.href);
+    const channelHandle = handle;
     
     if (channelHandle) {
         // If the channel name is found in the DOM, build the URL to query by ID.
@@ -118,7 +118,7 @@ export async function fetchChannelNameDataAPI(): Promise<string | null> {
  */
 export async function refreshMainChannelName(): Promise<void> {
     // Extract channel handle from current URL
-    const channelHandle = getChannelName(window.location.href);
+    const channelHandle = getChannelHandle(window.location.href);
     if (!channelHandle) {
         titlesErrorLog("Channel handle could not be extracted from URL.");
         return;
@@ -128,9 +128,9 @@ export async function refreshMainChannelName(): Promise<void> {
     let originalChannelName = null;
 
     if (isYouTubeDataAPIEnabled(currentSettings)) {
-        originalChannelName = await fetchChannelNameDataAPI();
+        originalChannelName = await fetchChannelNameDataAPI(channelHandle);
     } else {
-        originalChannelName = await fetchChannelNameInnerTube();
+        originalChannelName = await fetchChannelNameInnerTube(channelHandle);
     }
 
     // Select the channel name element in the new YouTube layout

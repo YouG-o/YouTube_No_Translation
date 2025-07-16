@@ -49,7 +49,7 @@
 - **Descriptions**: Prevent automatic translation of videos descriptions
 - **Subtitles**: Set your preferred subtitle language, if unavailable, subtitles are disabled (auto generated ones are ignored)
 
-You can enable YouTube Data API v3 option (requires your own API key) to get [extra features](./docs/YT_DATA_API.md). <br>
+You can enable YouTube Data API v3 (requires your own API key) for the most reliable and fastest way to fetch original data. [Learn more](./docs/YT_DATA_API.md).<br>
 
 
 If you want to use the [DeArrow](https://github.com/ajayyy/DeArrow) extension alongside this one  [PLEASE CHECK THIS](./docs/DEARROW_SUPPORT.md) to avoid any conflicts.

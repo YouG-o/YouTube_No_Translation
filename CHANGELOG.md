@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Feat
 - Channel name & description is now fetched from InnerTube if Data API is not enabled.
+- Channel name & description (Channel handle block) is now handled on search page.
 
 ### Changes
 - Changed default subtitles language to "Always Disabled".

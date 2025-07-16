@@ -81,7 +81,12 @@ export function getChannelIdFromDom(): string | null {
  * Fetches the channelId (UCID) using the InnerTube API by injecting a script into the page context.
  * @returns Promise resolving to the channelId string, or null if not found or on error.
  */
-export async function getChannelIdFromInnerTube(): Promise<string | null> {
+export async function getChannelIdFromInnerTube(handle: string): Promise<string | null> {
+    const channelHandle = handle;
+    if (!channelHandle) {
+        coreErrorLog("Channel handle is missing.");
+        return null;
+    }
     return new Promise((resolve) => {
         const handleResult = (event: Event) => {
             const detail = (event as CustomEvent).detail;
@@ -95,6 +100,7 @@ export async function getChannelIdFromInnerTube(): Promise<string | null> {
         const script = document.createElement('script');
         script.src = browser.runtime.getURL('dist/content/scripts/getChannelIdScript.js');
         script.async = true;
+        script.setAttribute('data-channel-handle', channelHandle);
         document.documentElement.appendChild(script);
 
         // Timeout in case of no response
@@ -114,7 +120,7 @@ export async function getChannelIdFromInnerTube(): Promise<string | null> {
  * @param url The YouTube channel URL.
  * @returns The channel handle as a string, or null if not found.
  */
-export function getChannelName(url: string): string | null {
+export function getChannelHandle(url: string): string | null {
     const match = url.match(/youtube\.com\/@([^\/?#]+)/i);
     if (match && match[1]) {
         return match[1];

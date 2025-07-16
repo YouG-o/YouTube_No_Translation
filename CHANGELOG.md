@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.10.0] - 2025-07-16
+
 ### Feat
 - Channel name & description is now fetched from InnerTube if Data API is not enabled. (HL must be specified or YT pick the one from settings, meaning still translated. So I added Lao to HL, chances for meeting a translation with this language are almost 0)
 - Channel name & description (Channel handle block) is now handled on search page.
@@ -319,7 +321,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 *Note: This changelog was introduced in version 2.2.30. For earlier version history, please refer to the [GitHub releases](https://github.com/YouG-o/YouTube_No_Translation/releases).*
 
-[Unreleased]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.9.0...HEAD
+[Unreleased]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.10.0...HEAD
+[2.10.0]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.9.0...v2.10.0
 [2.9.0]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.8.3...v2.9.0
 [2.8.3]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.8.2...v2.8.3
 [2.8.2]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.8.1...v2.8.2

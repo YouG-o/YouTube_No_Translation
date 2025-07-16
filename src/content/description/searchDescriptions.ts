@@ -247,7 +247,7 @@ async function batchFetchDescriptionsFromYouTubeDataApi(videoIds: string[]): Pro
 }
 
 // Modified function to accept pre-fetched descriptions
-async function fetchOriginalDescription(
+export async function fetchOriginalDescription(
     videoId: string,
     preferenceFetchedDescriptions?: Map<string, string>
 ): Promise<string | null> {

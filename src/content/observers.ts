@@ -29,6 +29,7 @@ import { refreshChannelShortDescription, cleanupChannelDescriptionModalObserverÂ
 import { refreshMainChannelName } from './channel/mainChannelName';
 import { patchChannelRendererBlocks } from './channel/ChannelRendererPatch';
 import { refreshChannelPlayer } from './channel/channelPlayer';
+import { processChannelVideoDescriptions } from './channel/ChannelVideoDescriptions';
 
 // MAIN OBSERVERS -----------------------------------------------------------
 let videoPlayerListener: ((e: Event) => void) | null = null;
@@ -874,6 +875,9 @@ function handleUrlChange() {
                 });
         }
         if (currentSettings?.descriptionTranslation) {
+            waitForElement('ytd-video-renderer').then(() => {
+                processChannelVideoDescriptions();
+            });
             // Refresh channel short description
             waitForElement('yt-description-preview-view-model').then(() => {
                 refreshChannelShortDescription();

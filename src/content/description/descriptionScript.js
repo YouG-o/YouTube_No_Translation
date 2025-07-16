@@ -21,7 +21,6 @@
     const LOG_COLOR = '#2196F3'; // Blue
     const ERROR_COLOR = '#F44336';  // Red
 
-    // Simplified logger functions
     function log(message, ...args) {
         console.log(
             `%c${LOG_PREFIX}${LOG_CONTEXT} ${message}`,
@@ -33,34 +32,53 @@
     function errorLog(message, ...args) {
         console.log(
             `%c${LOG_PREFIX}${LOG_CONTEXT} %c${message}`,
-            `color: ${LOG_COLOR}`,  // Keep context color for prefix
-            `color: ${ERROR_COLOR}`,  // Red color for error message
+            `color: ${LOG_COLOR}`,
+            `color: ${ERROR_COLOR}`,
             ...args
         );
     }
 
-    // Get player and video response
-    const player = document.getElementById('movie_player');
+    function getTargetPlayerId() {
+        if (window.location.pathname.startsWith('/shorts')) return 'shorts-player';
+        if (window.location.pathname.startsWith('/@')) return 'c4-player';
+        return 'movie_player';
+    }
+
+    function fetchDescriptionWithRetry(player, maxAttempts = 10, delayMs = 300) {
+        let attempt = 0;
+
+        function tryFetch() {
+            const response = player.getPlayerResponse();
+            const description = response?.videoDetails?.shortDescription;
+
+            if (description) {
+                window.dispatchEvent(new CustomEvent('ynt-description-data', {
+                    detail: { description }
+                }));
+            } else if (attempt < maxAttempts) {
+                attempt++;
+                setTimeout(tryFetch, delayMs);
+            } else {
+                errorLog('No description found in player response after retries');
+                window.dispatchEvent(new CustomEvent('ynt-description-data', {
+                    detail: { description: null }
+                }));
+            }
+        }
+
+        tryFetch();
+    }
+
+    const targetId = getTargetPlayerId();
+    const player = document.getElementById(targetId);
+
     if (!player) {
-        errorLog('Player not found');
-        window.dispatchEvent(new CustomEvent('ynt-description-data', {
-            detail: { description: null }
+        log('Player not found');
+        window.dispatchEvent(new CustomEvent('ynt-title-data', {
+            detail: { title: null }
         }));
         return;
     }
 
-    const response = player.getPlayerResponse();
-    const description = response?.videoDetails?.shortDescription;
-    
-    if (description) {
-        //log('Found description from player response');
-        window.dispatchEvent(new CustomEvent('ynt-description-data', {
-            detail: { description }
-        }));
-    } else {
-        errorLog('No description found in player response');
-        window.dispatchEvent(new CustomEvent('ynt-description-data', {
-            detail: { description: null }
-        }));
-    }
+    fetchDescriptionWithRetry(player);
 })();

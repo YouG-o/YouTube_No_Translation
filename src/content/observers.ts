@@ -28,6 +28,7 @@ import { refreshEndScreenTitles, setupEndScreenObserver, cleanupEndScreenObserve
 import { refreshChannelShortDescription, cleanupChannelDescriptionModalObserver } from './channel/channelDescription';
 import { refreshMainChannelName } from './channel/mainChannelName';
 import { patchChannelRendererBlocks } from './channel/ChannelRendererPatch';
+import { refreshChannelPlayer } from './channel/channelPlayer';
 
 // MAIN OBSERVERS -----------------------------------------------------------
 let videoPlayerListener: ((e: Event) => void) | null = null;
@@ -854,6 +855,13 @@ function handleUrlChange() {
     if (isChannelPage) {
         // --- Handle all new channel page types (videos, featured, shorts, etc.)
         coreLog(`[URL] Detected channel page`);
+
+        if (currentSettings?.titleTranslation || currentSettings?.descriptionTranslation) {
+            waitForElement('#c4-player').then(() => {
+                refreshChannelPlayer();
+            });
+        }
+        
         if (currentSettings?.titleTranslation) {
             pageVideosObserver();
             // Wait for the channel name element to be present before calling refreshMainChannelName

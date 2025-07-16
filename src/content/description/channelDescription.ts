@@ -9,7 +9,7 @@
 
 
 import { descriptionLog, descriptionErrorLog } from "../../utils/logger";
-import { getChannelName, getChannelIdFromDom, getChannelIdFromInnerTube, isYouTubeDataAPIEnabled } from "../../utils/utils";
+import { getChannelHandle, getChannelIdFromDom, getChannelIdFromInnerTube, isYouTubeDataAPIEnabled } from "../../utils/utils";
 import { normalizeText } from "../../utils/text";
 import { currentSettings } from "../index";
 
@@ -51,7 +51,7 @@ export async function getOriginalChannelDescriptionInnerTube(channelId: string):
  * @param identifier Object containing either the channel ID or handle.
  * @returns Promise resolving to the channel description string, or null if not found.
  */
-async function getOriginalChannelDescriptionDataAPI(identifier: { id?: string; handle?: string }): Promise<{ id: string; description: string } | null> {
+export async function getOriginalChannelDescriptionDataAPI(identifier: { id?: string; handle?: string }): Promise<{ id: string; description: string } | null> {
     const apiKey = currentSettings?.youtubeDataApi?.apiKey;
     let url = '';
     
@@ -160,7 +160,8 @@ export async function refreshChannelShortDescription(): Promise<void> {
     //ChannelID is null waiting for a reliable way to get it from the DOM
     let channelId = null;
     let originalDescriptionData: { id: string; description: string } | null = null;
-    
+    const channelHandle = getChannelHandle(window.location.href);
+
     // Try Data API only if enabled
     if (isYouTubeDataAPIEnabled(currentSettings)) {
         const apiKey = currentSettings?.youtubeDataApi?.apiKey;
@@ -171,15 +172,15 @@ export async function refreshChannelShortDescription(): Promise<void> {
         if (channelId) {
             originalDescriptionData = await getOriginalChannelDescriptionDataAPI({ id: channelId });
         } else {
-            const channelHandle = getChannelName(window.location.href);
             if (channelHandle) {
                 originalDescriptionData = await getOriginalChannelDescriptionDataAPI({ handle: channelHandle });
-            } else {
-                channelId = await getChannelIdFromInnerTube();
-                if (channelId) {
-                    originalDescriptionData = await getOriginalChannelDescriptionDataAPI({ id: channelId });
+                if (!originalDescriptionData) {
+                    channelId = await getChannelIdFromInnerTube(channelHandle);
+                    if (channelId) {
+                        originalDescriptionData = await getOriginalChannelDescriptionDataAPI({ id: channelId });
+                    }
                 }
-            }
+            } 
         }
     }
 
@@ -191,8 +192,8 @@ export async function refreshChannelShortDescription(): Promise<void> {
         finalChannelId = originalDescriptionData.id;
         originalDescription = originalDescriptionData.description;
     } else {
-        if (!channelId) {
-            channelId = await getChannelIdFromInnerTube();
+        if (!channelId && channelHandle) {
+            channelId = await getChannelIdFromInnerTube(channelHandle);
         }
         if (!channelId) {
             descriptionErrorLog("Channel ID could not be retrieved from InnerTube.");

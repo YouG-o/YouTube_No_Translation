@@ -16,15 +16,15 @@
  */
 
 (() => {
-    // Extract handle from URL
-    const match = location.href.match(/\/@([^\/?#]+)/);
-    if (!match) {
+    // Get handle from script attribute
+    const scriptTag = document.currentScript;
+    const handle = scriptTag && scriptTag.getAttribute('data-channel-handle');
+    if (!handle) {
         window.dispatchEvent(new CustomEvent('ynt-get-channel-id-inner-tube', {
-            detail: { channelId: null, error: 'No handle found in URL' }
+            detail: { channelId: null, error: 'No channel handle provided' }
         }));
         return;
     }
-    const handle = '@' + match[1];
 
     // Get client version from YouTube config
     const clientVersion = window?.yt?.config_?.INNERTUBE_CLIENT_VERSION || '2.20250527.00.00';
@@ -34,7 +34,7 @@
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
             context: { client: { clientName: 'WEB', clientVersion } },
-            query: handle,
+            query: '@' + handle,
             params: 'EgIQAg=='
         })
     })

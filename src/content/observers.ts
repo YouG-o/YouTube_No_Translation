@@ -27,8 +27,7 @@ import { cleanupAllSearchDescriptionsObservers } from './description/searchDescr
 import { refreshEndScreenTitles, setupEndScreenObserver, cleanupEndScreenObserver } from './titles/endScreenTitles';
 import { refreshChannelShortDescription, cleanupChannelDescriptionModalObserver } from './description/channelDescription';
 import { refreshMainChannelName } from './channelName/mainChannelName';
-import { isYouTubeDataAPIEnabled } from '../utils/utils';
-
+import { patchChannelRendererBlocks } from './channelName/ChannelRendererPatch';
 
 // MAIN OBSERVERS -----------------------------------------------------------
 let videoPlayerListener: ((e: Event) => void) | null = null;
@@ -888,6 +887,7 @@ function handleUrlChange() {
                 searchResultsObserver();
                 refreshBrowsingVideos();
                 refreshShortsAlternativeFormat();
+                patchChannelRendererBlocks();
             } 
 
             break;

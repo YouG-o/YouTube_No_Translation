@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changes
+- Changed default subtitles language to "Always Disabled".
+
+
 ### Refactored
 - process individual title fetches in parallel instead of sequential for refreshBrowsingVideos
 - If YouTube Data API feature is enabled, a batch request is made for titles & search descriptions for less network traffic and resquests consumption

@@ -20,7 +20,7 @@ export const DEFAULT_SETTINGS: ExtensionSettings = {
     descriptionTranslation: true,
     subtitlesTranslation: {
         enabled: false,
-        language: 'original',
+        language: 'disabled',
     },
     youtubeDataApi: {
         enabled: false,

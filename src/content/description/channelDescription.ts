@@ -9,9 +9,41 @@
 
 
 import { descriptionLog, descriptionErrorLog } from "../../utils/logger";
-import { getChannelName, getChannelIdFromDom } from "../../utils/utils";
+import { getChannelName, getChannelIdFromDom, getChannelIdFromInnerTube, isYouTubeDataAPIEnabled } from "../../utils/utils";
 import { normalizeText } from "../../utils/text";
 import { currentSettings } from "../index";
+
+
+/**
+ * Fetches the original channel description using the InnerTube API by injecting a script into the page context.
+ * @returns Promise resolving to the original channel description string, or null if not found or on error.
+ */
+export async function getOriginalChannelDescriptionInnerTube(channelId: string): Promise<string | null> {
+
+    return new Promise((resolve) => {
+        function handleResult(event: Event) {
+            const detail = (event as CustomEvent).detail;
+            window.removeEventListener('ynt-get-channel-description-inner-tube', handleResult);
+            script.remove();
+            resolve(detail?.channelDescription ?? null);
+        }
+
+        window.addEventListener('ynt-get-channel-description-inner-tube', handleResult);
+
+        const script = document.createElement('script');
+        script.src = browser.runtime.getURL('dist/content/scripts/ChannelDescriptionInnerTube.js');
+        script.async = true;
+        script.setAttribute('data-channel-id', channelId);
+        document.documentElement.appendChild(script);
+
+        // Timeout in case of no response
+        setTimeout(() => {
+            window.removeEventListener('ynt-get-channel-description-inner-tube', handleResult);
+            script.remove();
+            resolve(null);
+        }, 3000);
+    });
+}
 
 
 /**
@@ -19,15 +51,17 @@ import { currentSettings } from "../index";
  * @param identifier Object containing either the channel ID or handle.
  * @returns Promise resolving to the channel description string, or null if not found.
  */
-async function getOriginalChannelDescription(identifier: { id?: string; handle?: string }): Promise<{ id: string; description: string } | null> {
+async function getOriginalChannelDescriptionDataAPI(identifier: { id?: string; handle?: string }): Promise<{ id: string; description: string } | null> {
     const apiKey = currentSettings?.youtubeDataApi?.apiKey;
     let url = '';
-    const channelHandle = getChannelName(window.location.href);
-    if (channelHandle) {
-        url = `https://www.googleapis.com/youtube/v3/channels?part=snippet&forHandle=${encodeURIComponent(channelHandle)}&key=${apiKey}`;
+    
+    // Use provided identifier first, fallback to URL handle
+    if (identifier.handle) {
+        url = `https://www.googleapis.com/youtube/v3/channels?part=snippet&forHandle=${encodeURIComponent(identifier.handle)}&key=${apiKey}`;
     } else if (identifier.id) {
         url = `https://www.googleapis.com/youtube/v3/channels?part=snippet&id=${identifier.id}&key=${apiKey}`;
     } else {
+        descriptionErrorLog("No channel ID or handle provided for YouTube Data API request.");
         return null;
     }
 
@@ -123,36 +157,55 @@ function shouldUpdateChannelDescription(originalDescription: string | null, shor
  * Refreshes the short channel description on the YouTube channel page with the original description from the YouTube Data API if needed.
  */
 export async function refreshChannelShortDescription(): Promise<void> {
-    // Get the API key from current settings
-    const apiKey = currentSettings?.youtubeDataApi?.apiKey;
-    if (!apiKey) {
-        descriptionErrorLog("YouTube Data API key is missing.");
-        return;
-    }
-
-    let channelId = getChannelIdFromDom();
+    //ChannelID is null waiting for a reliable way to get it from the DOM
+    let channelId = null;
     let originalDescriptionData: { id: string; description: string } | null = null;
-
-    if (channelId) {
-        // If channel ID is in the DOM, fetch description by ID.
-        originalDescriptionData = await getOriginalChannelDescription({ id: channelId });
-    } else {
-        // If not, fall back to fetching by handle. This is a single API call.
-        //descriptionLog("Channel ID not found in DOM, falling back to channel handle.");
-        const channelHandle = getChannelName(window.location.href);
-        if (channelHandle) {
-            originalDescriptionData = await getOriginalChannelDescription({ handle: channelHandle });
+    
+    // Try Data API only if enabled
+    if (isYouTubeDataAPIEnabled(currentSettings)) {
+        const apiKey = currentSettings?.youtubeDataApi?.apiKey;
+        if (!apiKey) {
+            descriptionErrorLog("YouTube Data API key is missing.");
+            return;
+        }
+        if (channelId) {
+            originalDescriptionData = await getOriginalChannelDescriptionDataAPI({ id: channelId });
         } else {
-            //descriptionErrorLog("Channel handle could not be retrieved from URL.");
+            const channelHandle = getChannelName(window.location.href);
+            if (channelHandle) {
+                originalDescriptionData = await getOriginalChannelDescriptionDataAPI({ handle: channelHandle });
+            } else {
+                channelId = await getChannelIdFromInnerTube();
+                if (channelId) {
+                    originalDescriptionData = await getOriginalChannelDescriptionDataAPI({ id: channelId });
+                }
+            }
         }
     }
 
-    if (!originalDescriptionData) {
-        descriptionErrorLog("Could not fetch original channel description from API.");
-        return;
+    let finalChannelId: string | null = null;
+    let originalDescription: string | null = null;
+
+    // Use Data API result if available, otherwise use InnerTube (default method if no Data API)
+    if (originalDescriptionData?.description) {
+        finalChannelId = originalDescriptionData.id;
+        originalDescription = originalDescriptionData.description;
+    } else {
+        if (!channelId) {
+            channelId = await getChannelIdFromInnerTube();
+        }
+        if (!channelId) {
+            descriptionErrorLog("Channel ID could not be retrieved from InnerTube.");
+            return;
+        }
+        originalDescription = await getOriginalChannelDescriptionInnerTube(channelId);
+        if (!originalDescription) {
+            descriptionErrorLog("Could not fetch original channel description from InnerTube.");
+            return;
+        }
+        finalChannelId = channelId;
     }
-    
-    const { id: finalChannelId, description: originalDescription } = originalDescriptionData;
+
     const shortDescription = getShortChannelCurrentDescription();
 
     // Check if update is needed

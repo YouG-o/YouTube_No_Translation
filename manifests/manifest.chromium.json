@@ -49,7 +49,10 @@
             "dist/content/scripts/channelNameScript.js",
             "dist/content/scripts/timestampScript.js",
             "dist/content/scripts/searchDescriptionInnerTube.js",
-            "dist/content/scripts/TitlesInnerTube.js"
+            "dist/content/scripts/TitlesInnerTube.js",
+            "dist/content/scripts/getChannelIdScript.js",
+            "dist/content/scripts/ChannelNameInnerTubeScript.js",
+            "dist/content/scripts/ChannelDescriptionInnerTube.js"
         ],
         "matches": [
           "*://*.youtube.com/*",

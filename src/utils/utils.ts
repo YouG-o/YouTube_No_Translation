@@ -73,20 +73,39 @@ export function getChannelIdFromDom(): string | null {
             channelId = match[1];
         }
     }
-
-    // Try to get channelId from ytInitialData as a fallback
-    if (!channelId && (window as any).ytInitialData) {
-        try {
-            const str = JSON.stringify((window as any).ytInitialData);
-            const match = str.match(/"channelId":"([a-zA-Z0-9_-]+)"/);
-            if (match) {
-                channelId = match[1];
-            }
-        } catch (e) {}
-    }
-
     return channelId || null;
 }
+
+
+/**
+ * Fetches the channelId (UCID) using the InnerTube API by injecting a script into the page context.
+ * @returns Promise resolving to the channelId string, or null if not found or on error.
+ */
+export async function getChannelIdFromInnerTube(): Promise<string | null> {
+    return new Promise((resolve) => {
+        const handleResult = (event: Event) => {
+            const detail = (event as CustomEvent).detail;
+            window.removeEventListener('ynt-get-channel-id-inner-tube', handleResult);
+            script.remove();
+            resolve(detail?.channelId ?? null);
+        };
+
+        window.addEventListener('ynt-get-channel-id-inner-tube', handleResult);
+
+        const script = document.createElement('script');
+        script.src = browser.runtime.getURL('dist/content/scripts/getChannelIdScript.js');
+        script.async = true;
+        document.documentElement.appendChild(script);
+
+        // Timeout in case of no response
+        setTimeout(() => {
+            window.removeEventListener('ynt-get-channel-id-inner-tube', handleResult);
+            script.remove();
+            resolve(null);
+        }, 3000);
+    });
+}
+
 
 /**
  * Extracts the channel handle from a YouTube channel URL of the form

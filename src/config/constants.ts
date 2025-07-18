@@ -25,6 +25,9 @@ export const DEFAULT_SETTINGS: ExtensionSettings = {
     youtubeDataApi: {
         enabled: false,
         apiKey: ''
+    },
+    responseInterceptor: {
+        enabled: false
     }
 };
 

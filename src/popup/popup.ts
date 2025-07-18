@@ -25,6 +25,8 @@ const youtubeApiKeyContainer = document.getElementById('youtubeApiKeyContainer')
 const advancedFeaturesToggle = document.getElementById('advancedFeaturesToggle') as HTMLDivElement;
 const advancedFeaturesContent = document.getElementById('advancedFeaturesContent') as HTMLDivElement;
 const advancedFeaturesArrow = document.getElementById('advancedFeaturesArrow');
+const responseInterceptorToggle = document.getElementById('responseInterceptor') as HTMLInputElement;
+
 
 // Function to display the extension version
 function displayExtensionVersion() {
@@ -70,6 +72,9 @@ document.addEventListener('DOMContentLoaded', async () => {
             youtubeDataApi: {
                 enabled: false,
                 apiKey: ''
+            },
+            responseInterceptor: {
+                enabled: false
             }
         };
 
@@ -129,6 +134,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         subtitlesLanguageSelect.value = settings.subtitlesTranslation.language;
         youtubeDataApiToggle.checked = settings.youtubeDataApi.enabled;
         youtubeDataApiKeyInput.value = settings.youtubeDataApi.apiKey;
+        responseInterceptorToggle.checked = settings.responseInterceptor.enabled;
+
         
         // Show/hide API key input based on toggle state
         if (youtubeDataApiToggle.checked && youtubeApiKeyContainer && youtubeApiKeyContainer.style.display !== undefined) {
@@ -460,5 +467,25 @@ youtubeDataApiKeyInput.addEventListener('input', async () => {
         console.log('YouTube Data API key saved');
     } catch (error) {
         console.error('YouTube Data API key save error:', error);
+    }
+});
+
+// Handle response interceptor toggle changesœ
+responseInterceptorToggle.addEventListener('change', async () => {
+    const isEnabled = responseInterceptorToggle.checked;
+    try {
+        const data = await browser.storage.local.get('settings');
+        const settings = data.settings as ExtensionSettings;
+        await browser.storage.local.set({
+            settings: {
+                ...settings,
+                responseInterceptor: {
+                    enabled: isEnabled
+                }
+            }
+        });
+        console.log('Response Interceptor state saved:', isEnabled);
+    } catch (error) {
+        console.error('Response Interceptor save error:', error);
     }
 });

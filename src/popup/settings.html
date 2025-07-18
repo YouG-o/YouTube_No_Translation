@@ -195,10 +195,6 @@
                                     <div class="relative group tooltip">
                                         <svg class="w-3 h-3 text-blue-300 cursor-help group hover:text-blue-200" viewBox="0 0 24 24" fill="currentColor">
                                             <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
-                                        </svg>
-                                        <span class="absolute z-20 bottom-full left-0 ml-[-20px] mb-2 w-[220px] px-3 py-2 text-xs text-white bg-gray-900/95 rounded-md shadow-lg whitespace-normal opacity-0 pointer-events-none invisible group-hover:opacity-100 group-hover:visible transition-opacity">
-                                            Use YouTube Data API v3 to get original channel name & description and a fallback if other methods fails. Very reliable but requires your own API key. Your key is stored locally, only you can access it.
-                                        </span>
                                     </div>
                                 </div>
                                 <label class="relative inline-flex items-center cursor-pointer">
@@ -211,6 +207,27 @@
                                 <div class="mt-1 text-xs text-gray-400">
                                     <a href="https://developers.google.com/youtube/v3/getting-started" title="https://developers.google.com/youtube/v3/getting-started" target="_blank" rel="noopener noreferrer" class="text-blue-400 hover:text-blue-300">Get your free API key here</a>
                                 </div>
+                            </div>
+                        </div>
+                        <!-- YouTube Request Interceptor -->
+                        <div class="p-3 rounded-lg border border-gray-600 hover:bg-gray-600 transition-colors">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center gap-2">
+                                    <h2 class="text-sm font-medium text-orange-400">YouTube Request Interceptor</h2>
+                                    <span class="text-xs text-orange-300 bg-orange-900/30 px-2 py-1 rounded">BETA</span>
+                                    <div class="relative group tooltip">
+                                        <svg class="w-3 h-3 text-gray-400 cursor-help group hover:text-gray-300" viewBox="0 0 24 24" fill="currentColor">
+                                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
+                                        </svg>
+                                        <span class="absolute z-20 bottom-full left-0 ml-[-20px] mb-2 w-[220px] px-3 py-2 text-xs text-white bg-gray-900/95 rounded-md shadow-lg whitespace-normal opacity-0 pointer-events-none invisible group-hover:opacity-100 group-hover:visible transition-opacity">
+                                            Restores original YouTube titles and descriptions by intercepting API responses before they are displayed. Still in BETA for now.
+                                        </span>
+                                    </div>
+                                </div>
+                                <label class="relative inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" class="sr-only peer" id="responseInterceptor">
+                                    <div class="w-9 h-5 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-orange-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-orange-600"></div>
+                                </label>
                             </div>
                         </div>
                     </div>

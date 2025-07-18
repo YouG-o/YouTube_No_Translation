@@ -48,6 +48,9 @@ export interface ExtensionSettings {
         enabled: boolean;
         apiKey: string;
     };
+    responseInterceptor: {
+        enabled: boolean;
+    };
 }
 
 export interface YouTubePlayerResponse {

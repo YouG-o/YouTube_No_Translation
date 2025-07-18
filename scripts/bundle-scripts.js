@@ -27,7 +27,10 @@ if (!fs.existsSync(outDir)) {
 Promise.all(
   scripts.map(async (relPath) => {
     const src = path.join(srcDir, relPath);
-    const out = path.join(outDir, path.basename(relPath));
+    const out = path.join(
+      outDir,
+      path.basename(relPath).replace(/\.ts$/, '.js')
+    );
     await esbuild.build({
       entryPoints: [src],
       bundle: true,

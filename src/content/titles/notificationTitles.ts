@@ -74,7 +74,7 @@ async function refreshNotificationTitles(): Promise<void> {
                 `Updated pop-up title from : %c${normalizeText(currentTitle)}%c to : %c${normalizeText(originalTitle)}%c (video id : %c${videoId}%c)`,
                 'color: grey',
                 'color: #fca5a5',
-                'color: white',
+                'color: white; background: rgba(0,0,0,0.5); padding:2px 4px; border-radius:3px;',
                 'color: #fca5a5',
                 'color: #4ade80',
                 'color: #fca5a5'

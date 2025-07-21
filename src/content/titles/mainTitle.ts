@@ -71,7 +71,7 @@ export function updateMainTitleElement(element: HTMLElement, title: string, vide
         `Updated main title from : %c${normalizeText(element.textContent)}%c to : %c${normalizeText(title)}%c (video id : %c${videoId}%c)`,
         'color: grey',    
         'color: #fcd34d',      
-        'color: white',    
+        'color: white; background: rgba(0,0,0,0.5); padding:2px 4px; border-radius:3px;',    
         'color: #fcd34d',      
         'color: #4ade80',  
         'color: #fcd34d'       
@@ -131,7 +131,7 @@ function updatePageTitle(mainTitle: string): void {
         `Updated page title from : %c${normalizeText(document.title)}%c to : %c${normalizeText(expectedTitle)}`,
         'color: grey',    
         'color: #fcd34d',      
-        'color: white'
+        'color: white; background: rgba(0,0,0,0.5); padding:2px 4px; border-radius:3px;'
     );
     document.title = expectedTitle;
     
@@ -159,7 +159,7 @@ function updateEmbedTitleElement(element: HTMLElement, title: string, videoId: s
         `Updated embed title from : %c${normalizeText(element.textContent)}%c to : %c${normalizeText(title)}%c (video id : %c${videoId}%c)`,
         'color: grey',    
         'color: #fcd34d',      
-        'color: white',    
+        'color: white; background: rgba(0,0,0,0.5); padding:2px 4px; border-radius:3px;',    
         'color: #fcd34d',      
         'color: #4ade80',  
         'color: #fcd34d'       
@@ -196,7 +196,7 @@ function updateMiniplayerTitleElement(element: HTMLElement, title: string, video
         `Updated miniplayer title from : %c${normalizeText(element.textContent)}%c to : %c${normalizeText(title)}%c (video id : %c${videoId}%c)`,
         'color: grey',    
         'color: #fcd34d',      
-        'color: white',    
+        'color: white; background: rgba(0,0,0,0.5); padding:2px 4px; border-radius:3px;',    
         'color: #fcd34d',      
         'color: #4ade80',  
         'color: #fcd34d'       

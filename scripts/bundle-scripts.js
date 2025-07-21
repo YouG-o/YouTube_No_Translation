@@ -1,4 +1,3 @@
-
 const esbuild = require('esbuild');
 const fs = require('fs');
 const path = require('path');
@@ -25,9 +24,17 @@ if (!fs.existsSync(outDir)) {
 }
 
 Promise.all(
-  scripts.map(async (relPath) => {
+  scripts.map(async (entry) => {
+    let relPath, outFile;
+    if (typeof entry === 'string') {
+      relPath = entry;
+      outFile = path.basename(relPath).replace(/\.ts$/, '.js');
+    } else {
+      relPath = entry.src;
+      outFile = entry.outName || path.basename(relPath).replace(/\.ts$/, '.js');
+    }
     const src = path.join(srcDir, relPath);
-    const out = path.join(outDir, path.basename(relPath));
+    const out = path.join(outDir, outFile);
     await esbuild.build({
       entryPoints: [src],
       bundle: true,

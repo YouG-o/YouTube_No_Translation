@@ -435,7 +435,8 @@ function cleanupTimestampClickObserver(): void {
 
 
 // BROWSING TITLES OBSERVER -----------------------------------------------------------
-let homeObserver: MutationObserver | null = null;
+let pageGridObservers: MutationObserver[] = [];
+let pageGridParentObserver: MutationObserver | null = null;
 let recommendedObserver: MutationObserver | null = null;
 let searchObserver: MutationObserver | null = null;
 let playlistObserver: MutationObserver | null = null;
@@ -450,7 +451,7 @@ const THROTTLE_DELAY = 500;
 async function pageVideosObserver() {
     cleanupPageVideosObserver();
 
-    let pageName = null;
+    let pageName: string = '';
     if (window.location.pathname === '/') {
         pageName = 'Home';
     } else if (window.location.pathname === '/feed/subscriptions') {
@@ -459,6 +460,8 @@ async function pageVideosObserver() {
         pageName = 'Channel';
     } else if (window.location.pathname === '/feed/trending') {
         pageName = 'Trending';
+    } else {
+        pageName = 'Unknown';
     }
     coreLog(`Setting up ${pageName} page videos observer`);
 
@@ -479,30 +482,42 @@ async function pageVideosObserver() {
         });
     }
 
-    // Re-select all grids after potential waiting
     const allGrids = Array.from(document.querySelectorAll('#contents.ytd-rich-grid-renderer')) as HTMLElement[];
-
-    // Observe each grid
     allGrids.forEach(grid => {
         refreshBrowsingVideos();
         refreshShortsAlternativeFormat();
-        const observer = new MutationObserver(() => {
-            const now = Date.now();
-            if (now - lastHomeRefresh >= THROTTLE_DELAY) {
-                coreLog(`${pageName} page mutation detected`);
-                setTimeout(() => {
-                    refreshBrowsingVideos();
-                    refreshShortsAlternativeFormat();
-                }, 100);
-                lastHomeRefresh = now;
-            }
-        });
-
+        const observer = new MutationObserver(() => handleGridMutation(pageName));
         observer.observe(grid, {
-            childList: true
+            childList: true,
+            attributes: true,
+            characterData: true
         });
+        pageGridObservers.push(observer);
     });
-};
+
+    // Add parent grid observer (useful on Home page when clicking on filters)
+    if (pageName === 'Home') {
+        const gridParent = document.querySelector('#primary > ytd-rich-grid-renderer') as HTMLElement | null;
+        if (gridParent) {
+            pageGridParentObserver = new MutationObserver(() => handleGridMutation(pageName));
+            pageGridParentObserver.observe(gridParent, {
+                attributes: true
+            });
+        }
+    }
+}
+
+function handleGridMutation(pageName: string) {
+    const now = Date.now();
+    if (now - lastHomeRefresh >= THROTTLE_DELAY) {
+        coreLog(`${pageName} page mutation detected`);
+        setTimeout(() => {
+            refreshBrowsingVideos();
+            refreshShortsAlternativeFormat();
+        }, 100);
+        lastHomeRefresh = now;
+    }
+}
 
 function recommendedVideosObserver() {
     cleanupRecommendedVideosObserver();
@@ -669,8 +684,10 @@ function cleanupAllBrowsingTitlesObservers() {
 };
 
 function cleanupPageVideosObserver() {
-    homeObserver?.disconnect();
-    homeObserver = null;
+    pageGridObservers.forEach(observer => observer.disconnect());
+    pageGridObservers = [];
+    pageGridParentObserver?.disconnect();
+    pageGridParentObserver = null;
     lastHomeRefresh = 0;
 }
 

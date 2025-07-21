@@ -38,8 +38,6 @@ assignees: 'YouG-o'
 - [ ] Audio language preference
 - [ ] Subtitles language preference
 - [ ] YouTube Data API v3
-- [ ] BETA: Fallback for Browsing Titles (player API)
-- [ ] BETA: Search Results Description Replacement (player API)
 
 ## Screenshots (Optional)
 <!-- If applicable, add screenshots to help explain your problem -->

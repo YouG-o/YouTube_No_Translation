@@ -9,8 +9,8 @@
     </head>
     
     <body class="w-[300px] bg-gray-700">
-        <div class="p-4">
-            <!-- Header -->
+        <div class="p-4 relative">
+
             <header class="pb-4 border-b border-gray-600">
                 <h1 class="text-lg font-medium text-white flex items-center gap-2">
                     <a href="https://youtube-no-translation.vercel.app/" target="_blank" rel="noopener noreferrer" class="flex items-center gap-2 hover:opacity-90 transition-opacity">
@@ -25,7 +25,8 @@
                     </a>
                 </div>
             </header>
-        <main class="py-4">
+
+        <main class="py-4 pb-[70px]">
             <div class="space-y-4">
                 <!-- Original Titles Feature -->
                 <div class="p-3 rounded-lg border border-gray-600 hover:bg-gray-600 transition-colors">
@@ -155,18 +156,18 @@
                         </select>
                     </div>
                 </div>
-                <!-- Advanced Features Section -->
+                <!-- Extra Settings Section -->
                 <div class="p-3 rounded-lg border border-orange-500 bg-gray-800/50">
-                    <div class="flex items-center justify-between cursor-pointer" id="advancedFeaturesToggle">
+                    <div class="flex items-center justify-between cursor-pointer" id="extraSettingsToggle">
                         <div class="flex items-center gap-2">
-                            <h2 class="text-sm font-medium text-orange-400">Advanced Settings</h2>
+                            <h2 class="text-sm font-medium text-orange-400">Extra Settings</h2>
                         </div>
-                        <svg id="advancedFeaturesArrow" class="w-4 h-4 text-orange-400 transform transition-transform duration-200" viewBox="0 0 24 24" fill="currentColor">
+                        <svg id="extraSettingsArrow" class="w-4 h-4 text-orange-400 transform transition-transform duration-200" viewBox="0 0 24 24" fill="currentColor">
                             <path d="M7 10l5 5 5-5H7z"/>
                         </svg>
                     </div>
-                    
-                    <div id="advancedFeaturesContent" class="mt-3 space-y-3 hidden">
+
+                    <div id="extraSettingsContent" class="mt-3 space-y-3 hidden">
                         <!-- YouTube Data API v3 -->
                         <div class="p-2 rounded border border-blue-500 bg-blue-900/30 mb-2">
                             <div class="flex items-center justify-between">
@@ -197,13 +198,14 @@
                 </div>
             </div>
         </main>
-        <footer class="flex flex-col gap-4 pt-4 border-t border-gray-600">
+
+        <footer class="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[300px] flex flex-col gap-2 pt-2 pb-2 bg-gray-700 border-t border-gray-600 z-50">
             <div class="flex justify-center">
                 <a href="https://ko-fi.com/yougo" target="_blank" rel="noopener noreferrer">
-                    <img src="../assets/icons/ko-fi.png" alt="Support me on Ko-fi" title="Support me on Ko-fi" class="max-h-10">
+                    <img src="../assets/icons/ko-fi.png" alt="Support me on Ko-fi" title="Support me on Ko-fi" class="max-h-8">
                 </a>
             </div>
-            <div class="flex items-center justify-between">
+            <div class="flex items-center justify-between px-2">
                 <p class="text-xs text-gray-400">v<span id="extensionVersion"></span></p>
                 <a href="https://github.com/YouG-o/YouTube_No_Translation/issues" 
                     target="_blank" 
@@ -216,6 +218,7 @@
                 </a>
             </div>
         </footer>
+
     </div>
     <script src="../browser-polyfill.js"></script>
     <script src="popup.js" type="module"></script>

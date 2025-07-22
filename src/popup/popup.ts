@@ -22,10 +22,10 @@ const youtubeDataApiToggle = document.getElementById('youtubeDataApiEnabled') as
 const youtubeDataApiKeyInput = document.getElementById('youtubeDataApiKey') as HTMLInputElement;
 const youtubeApiKeyContainer = document.getElementById('youtubeApiKeyContainer') as HTMLDivElement;
 
-// Advanced features collapsible section - only exists in popup
-const advancedFeaturesToggle = document.getElementById('advancedFeaturesToggle') as HTMLDivElement;
-const advancedFeaturesContent = document.getElementById('advancedFeaturesContent') as HTMLDivElement;
-const advancedFeaturesArrow = document.getElementById('advancedFeaturesArrow');
+// Extra settings collapsible section - only exists in popup
+const extraSettingsToggle = document.getElementById('extraSettingsToggle') as HTMLDivElement;
+const extraSettingsContent = document.getElementById('extraSettingsContent') as HTMLDivElement;
+const extraSettingsArrow = document.getElementById('extraSettingsArrow');
 
 // Function to display the extension version
 function displayExtensionVersion() {
@@ -35,18 +35,18 @@ function displayExtensionVersion() {
     }
 }
 
-// Function to toggle advanced features section
-function toggleAdvancedFeatures() {
-    if (!advancedFeaturesContent || !advancedFeaturesArrow) return;
-    
-    const isHidden = advancedFeaturesContent.classList.contains('hidden');
+// Function to toggle extra settings section
+function toggleExtraSettings() {
+    if (!extraSettingsContent || !extraSettingsArrow) return;
+
+    const isHidden = extraSettingsContent.classList.contains('hidden');
     if (isHidden) {
-        advancedFeaturesContent.classList.remove('hidden');
-        advancedFeaturesArrow.style.transform = 'rotate(180deg)';
+        extraSettingsContent.classList.remove('hidden');
+        extraSettingsArrow.style.transform = 'rotate(180deg)';
         adjustTooltipPositions();
     } else {
-        advancedFeaturesContent.classList.add('hidden');
-        advancedFeaturesArrow.style.transform = 'rotate(0deg)';
+        extraSettingsContent.classList.add('hidden');
+        extraSettingsArrow.style.transform = 'rotate(0deg)';
     }
 }
 
@@ -170,9 +170,9 @@ if (isWelcome) {
     }
 }
 
-// Handle advanced features toggle click - only if element exists
-if (advancedFeaturesToggle) {
-    advancedFeaturesToggle.addEventListener('click', toggleAdvancedFeatures);
+// Handle extra settings toggle click - only if element exists
+if (extraSettingsToggle) {
+    extraSettingsToggle.addEventListener('click', toggleExtraSettings);
 }
 
 

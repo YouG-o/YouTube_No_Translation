@@ -6,28 +6,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="../styles/main.css">
     <title>YouTube No Translation!</title>
-    <style>
-        /* Additional styles for the welcome page for better centering and readability */
-        body {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-            background-color: #374151; /* bg-gray-700 */
-            padding: 2rem; /* Add some padding around the content */
-        }
-        .welcome-container {
-            width: 100%;
-            max-width: 600px; /* Adjust max-width as needed, wider than popup */
-            background-color: #374151; /* bg-gray-700, same as body or a different shade if preferred */
-        }
-    </style>
 </head>
 
-<body>
-    <div class="welcome-container">
-        <!-- Header -->
+<body class="flex flex-col items-center justify-center min-h-screen bg-gray-700 p-8">
+    <div class="welcome-container w-full max-w-[600px] bg-gray-700">
+
         <header class="pb-4 border-b border-gray-600">
             <h1 class="text-2xl font-semibold text-white flex items-center gap-2 mb-2" id="pageTitle">
                 <img src="../assets/icons/icon.png" alt="Logo" class="w-8 h-8">
@@ -36,9 +19,6 @@
             <div id="welcomeMessage" class="hidden">
                 <p class="text-md text-gray-300 mb-1">
                     Thanks for installing! Here you can configure how the extension behaves.
-                </p>
-                <p class="text-sm text-gray-400">
-                    These settings will help you keep YouTube content in its original form.
                 </p>
             </div>
             <div class="mt-3 text-xs text-gray-400 flex items-center gap-1">
@@ -49,7 +29,7 @@
             </div>
         </header>
 
-        <main class="py-4">
+        <main class="py-4 pb-[110px]">
             <div class="space-y-4">
                 <!-- Original Titles Feature -->
                 <div class="p-3 rounded-lg border border-gray-600 hover:bg-gray-600 transition-colors">
@@ -179,14 +159,18 @@
                         </select>
                     </div>
                 </div>
-                
-                <!-- Advanced Settings Section -->
+                <!-- Extra Settings Section -->
                 <div class="p-3 rounded-lg border border-orange-500 bg-gray-800/50">
-                    <div class="flex items-center gap-2 mb-3">
-                        <h2 class="text-sm font-medium text-orange-400">Advanced Settings</h2>
+                    <div class="flex items-center justify-between cursor-pointer" id="extraSettingsToggle">
+                        <div class="flex items-center gap-2">
+                            <h2 class="text-sm font-medium text-orange-400">Extra Settings</h2>
+                        </div>
+                        <svg id="extraSettingsArrow" class="w-4 h-4 text-orange-400 transform transition-transform duration-200" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M7 10l5 5 5-5H7z"/>
+                        </svg>
                     </div>
-                    
-                    <div class="space-y-3">
+
+                    <div id="extraSettingsContent" class="mt-3 space-y-3 hidden">
                         <!-- YouTube Data API v3 -->
                         <div class="p-2 rounded border border-blue-500 bg-blue-900/30 mb-2">
                             <div class="flex items-center justify-between">
@@ -217,9 +201,12 @@
                 </div>
             </div>
         </main>
-
-        <footer class="flex flex-col gap-4 pt-4 mt-4 border-t border-gray-600">
-            <div class="flex justify-center">
+        <footer class="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[600px] flex flex-col gap-4 pt-4 pb-4 bg-gray-700 border-t border-gray-600 z-50">
+            <div class="flex flex-col items-center">
+                <span class="mb-1 text-sm text-orange-300 font-semibold text-center">
+                    Maintaining and improving this extension takes a lot of time and effort.<br>
+                    Your support makes this project possible. Every contribution helps, thank you!
+                </span>
                 <a href="https://ko-fi.com/yougo" target="_blank" rel="noopener noreferrer">
                     <img src="../assets/icons/ko-fi.png" alt="Support me on Ko-fi" title="Support me on Ko-fi" class="max-h-10">
                 </a>
@@ -238,7 +225,6 @@
             </div>
         </footer>
     </div> <!-- End of welcome-container -->
-
     <script src="../browser-polyfill.js"></script>
     <script src="popup.js" type="module"></script>
 </body>

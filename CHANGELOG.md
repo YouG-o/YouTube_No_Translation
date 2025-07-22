@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.10.1] - 2025-07-22
+
+### Feat
+- Improved grid observer cleanup: all grid observers are now stored in an array and properly disconnected to prevent duplicate callbacks after SPA navigation.
+- Added parent attribute observer on `#primary > ytd-rich-grid-renderer` to reliably detect filter changes on the home page.
+- Refactored popup toggles: now use a generic handler for all toggles, reducing code duplication and improving maintainability.
+- Added TypeScript support to `bundle-scripts.js` for content scripts.
+
+### Fix
+- Added a background to white text in console logs for better readability in light mode DevTools.
+
+### Docs
+- Updated issue template.
+
 ## [2.10.0] - 2025-07-16
 
 ### Feat

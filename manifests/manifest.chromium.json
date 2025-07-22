@@ -4,14 +4,14 @@
     "name": "YouTube No Translation",
     "description": "Stop YouTube's automatic translations! This extension keeps titles, descriptions and video audio in their original language.",
     "icons": {
-      "48": "dist/assets/icons/icon.png",
-      "96": "dist/assets/icons/icon.png"
+      "48": "dist/assets/icons/icon_48.png",
+      "96": "dist/assets/icons/icon_96.png"
     },
   
     "action": {
       "default_icon": {
-        "48": "dist/assets/icons/icon.png",
-        "96": "dist/assets/icons/icon.png"
+        "48": "dist/assets/icons/icon_48.png",
+        "96": "dist/assets/icons/icon_96.png"
       },
       "default_popup": "dist/popup/popup.html",
       "default_title": "YNT"

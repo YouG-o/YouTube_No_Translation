@@ -34,7 +34,13 @@ function injectToast() {
             return res.text();
         })
         .then(html => {
-            document.body.insertAdjacentHTML('beforeend', html);
+            // Parse the HTML in a detached element to avoid direct injection
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html, 'text/html');
+            const toast = doc.body.firstElementChild;
+            if (toast) {
+                document.body.appendChild(toast);
+            }
             //console.log('[YNT] Toast injected');
 
             // Set extension icon src

@@ -57,6 +57,14 @@ async function migrateSettings() {
             }
         });
 
+        // Ensure installationDate exists for legacy users
+        if (!settings.askForSupport?.installationDate) {
+            settings.askForSupport = settings.askForSupport || {};
+            settings.askForSupport.installationDate = new Date().toISOString();
+            needsUpdate = true;
+            console.log('[YNT-Debug] Set installationDate for legacy user');
+        }
+
         if (needsUpdate) {
             await api.storage.local.set({ settings });
             console.log('[YNT-Debug] Settings migration completed successfully. Reloading extension to apply changes.');

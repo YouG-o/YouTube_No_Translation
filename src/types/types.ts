@@ -48,6 +48,11 @@ export interface ExtensionSettings {
         enabled: boolean;
         apiKey: string;
     };
+    askForSupport: {
+        enabled: boolean;
+        installationDate: string;
+        lastPromptDate: string;
+    };
 }
 
 export interface YouTubePlayerResponse {

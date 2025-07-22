@@ -7,7 +7,8 @@
  * This program is distributed without any warranty; see the license for details.
  */
 
-import { ExtensionSettings, Message } from "../types/types";
+import { ExtensionSettings, Message, ToggleConfig } from "../types/types";
+import { DEFAULT_SETTINGS } from "../config/constants";
 
 
 const titleToggle = document.getElementById('titleTranslation') as HTMLInputElement;
@@ -56,22 +57,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const data = await browser.storage.local.get('settings');
         
         // Default values for missing properties
-        const defaultSettings: ExtensionSettings = {
-            titleTranslation: true,
-            audioTranslation: {
-                enabled: true,
-                language: 'original',
-            },
-            descriptionTranslation: true,
-            subtitlesTranslation: {
-                enabled: false,
-                language: 'original',
-            },
-            youtubeDataApi: {
-                enabled: false,
-                apiKey: ''
-            }
-        };
+        const defaultSettings = DEFAULT_SETTINGS;
 
         let settings: ExtensionSettings;
         let needsUpdate = false;
@@ -190,136 +176,92 @@ if (advancedFeaturesToggle) {
 }
 
 
-// Handle title toggle changes
-titleToggle.addEventListener('change', async () => {
-    const isEnabled = titleToggle.checked;
-    
-    // Save state
+async function handleToggleChange(config: ToggleConfig) {
+    const isEnabled = config.element.checked;
     try {
         const data = await browser.storage.local.get('settings');
-        const settings = data.settings as ExtensionSettings;
-        
-        await browser.storage.local.set({
-            settings: {
-                ...settings,
-                titleTranslation: isEnabled
-            }
-        });
-        console.log('Title state saved');
-    } catch (error) {
-        console.error('Title save error:', error);
-    }
+        let settings = data.settings as ExtensionSettings;
 
-    // Update state
-    try {
+        // Mise à jour de la propriété dans l'objet settings
+        if (config.storagePath && config.storagePath.length > 0) {
+            let obj: any = settings;
+            for (let i = 0; i < config.storagePath.length - 1; i++) {
+                obj = obj[config.storagePath[i] as keyof typeof obj];
+            }
+            obj[config.storagePath[config.storagePath.length - 1] as keyof typeof obj] = isEnabled;
+        } else {
+            (settings as any)[config.storageKey] = isEnabled;
+        }
+
+        await browser.storage.local.set({ settings });
+
+        // Mise à jour UI si besoin
+        if (config.uiUpdate) config.uiUpdate();
+
+        // Envoi du message à la content script
         const tabs = await browser.tabs.query({ active: true, currentWindow: true });
         if (tabs[0]?.id) {
             await browser.tabs.sendMessage(tabs[0].id, {
                 action: 'toggleTranslation',
-                feature: 'titles',
+                feature: config.messageFeature,
                 isEnabled
             });
-            console.log('Title state updated');
         }
+        console.log(`${config.storageKey} state updated`);
     } catch (error) {
-        console.error('Title update error:', error);
+        console.error(`${config.storageKey} update error:`, error);
     }
-});
+}
 
-// Handle audio toggle changes
-audioToggle.addEventListener('change', async () => {
-    const isEnabled = audioToggle.checked;
-    
-    // Save state
-    try {
-        const data = await browser.storage.local.get('settings');
-        const settings = data.settings as ExtensionSettings;
-        
-        await browser.storage.local.set({
-            settings: {
-                ...settings,
-                audioTranslation: {
-                    ...settings.audioTranslation,
-                    enabled: isEnabled
-                }
+// Utilisation pour chaque toggle :
+titleToggle.addEventListener('change', () =>
+    handleToggleChange({
+        element: titleToggle,
+        storageKey: 'titleTranslation',
+        messageFeature: 'titles'
+    })
+);
+
+audioToggle.addEventListener('change', () =>
+    handleToggleChange({
+        element: audioToggle,
+        storageKey: 'audioTranslation',
+        storagePath: ['audioTranslation', 'enabled'],
+        messageFeature: 'audio'
+    })
+);
+
+descriptionToggle.addEventListener('change', () =>
+    handleToggleChange({
+        element: descriptionToggle,
+        storageKey: 'descriptionTranslation',
+        messageFeature: 'description'
+    })
+);
+
+subtitlesToggle.addEventListener('change', () =>
+    handleToggleChange({
+        element: subtitlesToggle,
+        storageKey: 'subtitlesTranslation',
+        storagePath: ['subtitlesTranslation', 'enabled'],
+        messageFeature: 'subtitles'
+    })
+);
+
+youtubeDataApiToggle.addEventListener('change', () =>
+    handleToggleChange({
+        element: youtubeDataApiToggle,
+        storageKey: 'youtubeDataApi',
+        storagePath: ['youtubeDataApi', 'enabled'],
+        messageFeature: 'youtubeDataApi',
+        uiUpdate: () => {
+            // Show/hide API key input only if container exists and has display style
+            if (youtubeApiKeyContainer && youtubeApiKeyContainer.style.display !== undefined) {
+                youtubeApiKeyContainer.style.display = youtubeDataApiToggle.checked ? 'block' : 'none';
             }
-        });
-        console.log('Audio state saved');
-    } catch (error) {
-        console.error('Audio save error:', error);
-    }
-
-    // Update state
-    try {
-        const tabs = await browser.tabs.query({ active: true, currentWindow: true });
-        if (tabs[0]?.id) {
-            await browser.tabs.sendMessage(tabs[0].id, {
-                action: 'toggleTranslation',
-                feature: 'audio',
-                isEnabled
-            });
-            console.log('Audio state updated');
         }
-    } catch (error) {
-        console.error('Audio update error:', error);
-    }
-});
-
-// Handle description toggle changes
-descriptionToggle.addEventListener('change', async () => {
-    const isEnabled = descriptionToggle.checked;
-    
-    try {
-        const data = await browser.storage.local.get('settings');
-        const settings = data.settings as ExtensionSettings;
-        
-        await browser.storage.local.set({
-            settings: {
-                ...settings,
-                descriptionTranslation: isEnabled
-            }
-        });
-
-        await browser.tabs.query({ active: true, currentWindow: true }).then((tabs) => {
-            browser.tabs.sendMessage(tabs[0].id!, {
-                feature: 'description',
-                isEnabled
-            } as Message);
-        });
-    } catch (error) {
-        console.error('Save error:', error);
-    }
-});
-
-// Handle subtitles toggle changes
-subtitlesToggle.addEventListener('change', async () => {
-    const isEnabled = subtitlesToggle.checked;
-    
-    try {
-        const data = await browser.storage.local.get('settings');
-        const settings = data.settings as ExtensionSettings;
-        
-        await browser.storage.local.set({
-            settings: {
-                ...settings,
-                subtitlesTranslation: {
-                    ...settings.subtitlesTranslation,
-                    enabled: isEnabled
-                }
-            }
-        });
-
-        // Send message to content script
-        await browser.tabs.query({ active: true, currentWindow: true }).then((tabs) => {
-            browser.tabs.sendMessage(tabs[0].id!, {
-                feature: 'subtitles',
-                isEnabled
-            } as Message);
-        });
-    } catch (error) {
-        console.error('Save error:', error);
-    }
-});
+    })
+);
 
 // Handle subtitles language selection changes
 subtitlesLanguageSelect.addEventListener('change', async () => {
@@ -402,43 +344,8 @@ function adjustTooltipPositions() {
         }
     });
 }
-
-// Initial adjustment
 adjustTooltipPositions();
 
-
-// Handle YouTube Data API toggle changes
-youtubeDataApiToggle.addEventListener('change', async () => {
-    const isEnabled = youtubeDataApiToggle.checked;
-    
-    // Show/hide API key input only if container exists and has display style
-    if (youtubeApiKeyContainer && youtubeApiKeyContainer.style.display !== undefined) {
-        if (isEnabled) {
-            youtubeApiKeyContainer.style.display = 'block';
-        } else {
-            youtubeApiKeyContainer.style.display = 'none';
-        }
-    }
-    
-    // Save state
-    try {
-        const data = await browser.storage.local.get('settings');
-        const settings = data.settings as ExtensionSettings;
-        
-        await browser.storage.local.set({
-            settings: {
-                ...settings,
-                youtubeDataApi: {
-                    ...settings.youtubeDataApi,
-                    enabled: isEnabled
-                }
-            }
-        });
-        console.log('YouTube Data API state saved:', isEnabled);
-    } catch (error) {
-        console.error('YouTube Data API save error:', error);
-    }
-});
 
 // Handle YouTube Data API key changes
 youtubeDataApiKeyInput.addEventListener('input', async () => {

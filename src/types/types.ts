@@ -126,3 +126,12 @@ export interface TitleFetchResult {
     shouldMarkAsOriginal: boolean;
     shouldMarkAsFailed: boolean;
 }
+
+export type ToggleConfig = {
+    element: HTMLInputElement,
+    storageKey: string,
+    storagePath?: string[],
+    messageFeature: string,
+    uiUpdate?: () => void
+};
+

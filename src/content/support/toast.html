@@ -1,0 +1,41 @@
+<div id="ynt-support-toast"
+     style="all: initial; position: fixed; right: 24px; bottom: 24px; z-index: 2147483647; display: flex; flex-direction: column; gap: 12px; align-items: flex-start; min-width: 320px; max-width: 360px; background: #23272b; color: #fff; border-radius: 12px; box-shadow: 0 4px 24px rgba(0,0,0,0.18); padding: 20px 24px; font-family: inherit; font-size: 16px;"
+     class="animate-fade-in">
+    <button id="ynt-remind-btn"
+            style="position: absolute; top: 10px; right: 10px; background: transparent; border: none; color: #bbb; font-size: 1.5em; cursor: pointer; line-height: 1;">
+        &times;
+    </button>
+    <div style="display: flex; align-items: center; gap: 10px;">
+        <img src="" alt="Extension icon" style="width: 28px; height: 28px; border-radius: 6px;">
+        <span style="font-size: 1.1em; font-weight: 600;">
+            Do you like YouTube No Translation?
+        </span>
+    </div>
+    <div style="font-size: 0.98em;">
+        Your support makes ongoing development possible!
+    </div>
+    <div style="display: flex; width: 100%; justify-content: center;">
+        <button id="ynt-ko-fi-btn"
+                style="background: transparent; border: none; padding: 0; cursor: pointer; display: flex; align-items: center;">
+            <img id="ynt-ko-fi-img" src="" alt="Support me on Ko-fi" title="Support me on Ko-fi" style="height: 32px;">
+        </button>
+    </div>
+    <div style="display: flex; gap: 8px; width: 100%; justify-content: flex-start;">
+        <button id="ynt-dismiss-btn"
+                style="background: transparent; color: #bbb; border-radius: 6px; padding: 8px 12px; border: none; cursor: pointer; flex: 1;">
+            I already did / I don't want to support
+        </button>
+    </div>
+</div>
+<style>
+@keyframes fade-in {
+    from { opacity: 0; transform: translateY(40px);}
+    to { opacity: 1; transform: translateY(0);}
+}
+.animate-fade-in {
+    animation: fade-in 0.3s;
+}
+#ynt-support-toast {
+    position: relative;
+}
+</style>

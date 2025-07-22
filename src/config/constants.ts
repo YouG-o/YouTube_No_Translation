@@ -25,6 +25,11 @@ export const DEFAULT_SETTINGS: ExtensionSettings = {
     youtubeDataApi: {
         enabled: false,
         apiKey: ''
+    },
+    askForSupport: {
+        enabled: true,
+        installationDate: new Date().toISOString(),
+        lastPromptDate: ''
     }
 };
 

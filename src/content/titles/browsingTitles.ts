@@ -14,7 +14,7 @@ import { normalizeText } from '../../utils/text';
 import { extractVideoIdFromUrl } from '../../utils/video';
 import { isYouTubeDataAPIEnabled } from '../../utils/utils';
 import { shouldProcessSearchDescriptionElement, batchProcessSearchDescriptions } from '../description/searchDescriptions';
-import { titleCache, fetchTitleInnerTube } from './index';
+import { titleCache, fetchTitleInnerTube, fetchTitleOembed } from './index';
 
 
 // --- Global variables
@@ -69,6 +69,10 @@ export function updateBrowsingTitleElement(element: HTMLElement, title: string, 
     // Update the title attribute and ynt attribute
     element.setAttribute('title', title);
     element.setAttribute('ynt', videoId);
+
+    if (!titleCache.getTitle(videoId)) {
+        titleCache.setTitle(videoId, title);
+    }
     
     if (isBrowsingTitle) {
         browsingTitlesLog(
@@ -109,7 +113,6 @@ export function updateBrowsingTitleElement(element: HTMLElement, title: string, 
     });
 
     browsingTitlesObserver.set(element, observer);
-    titleCache.setElement(element, title);
 }
 
 
@@ -274,11 +277,16 @@ export async function fetchOriginalTitle(
         originalTitle = preferenceFetchedTitles.get(videoId) || null;
     }
     
+    // Check cache first
+    originalTitle = titleCache.getTitle(videoId) || null;
+    if (originalTitle) {
+        //browsingTitlesLog(`Found title in cache for ${videoId}: %c${normalizeText(originalTitle)}%c`, 'color: #4ade80', 'color: #F44336');
+    }
+    
     // Try oEmbed API if not found in pre-fetched
     if (!originalTitle) {
         try {
-            const apiUrl = `https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${videoId}`;
-            originalTitle = await titleCache.getOriginalTitle(apiUrl);
+            originalTitle = await fetchTitleOembed(videoId) || null;
         } catch (error) {
             browsingTitlesErrorLog(`oEmbed API error for ${videoId}:`, error);
         }
@@ -287,7 +295,7 @@ export async function fetchOriginalTitle(
     // Try InnerTube API if oEmbed fails
     if (!originalTitle) {
         try {
-            originalTitle = await fetchTitleInnerTube(videoId) ?? '';
+            originalTitle = await fetchTitleInnerTube(videoId) || null;
         } catch (error) {
             browsingTitlesErrorLog(`InnerTube API error for ${videoId}:`, error);
         }

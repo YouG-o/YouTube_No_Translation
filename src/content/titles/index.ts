@@ -9,80 +9,109 @@
 
 import { titlesLog, titlesErrorLog } from '../../utils/logger';
 
-
-// Optimized cache manager
+/**
+ * Persistent cache manager for video titles using browser.storage.local.
+ * This cache survives page reloads and browser restarts.
+ */
 export class TitleCache {
-    private apiCache = new Map<string, string>();
+    private cache: Record<string, string> = {};
+    private readonly MAX_ENTRIES = 1000;
+    private readonly CLEANUP_INTERVAL = 24 * 60 * 60 * 1000; // 24 hours in ms
     private lastCleanupTime = Date.now();
-    private readonly MAX_ENTRIES = 300;
-    private readonly CLEANUP_INTERVAL = 20 * 60 * 1000; // 20 minutes in ms
 
-    private cleanupCache(): void {
+    constructor() {
+        this.loadCache();
+    }
+
+    /**
+     * Loads the cache from browser.storage.local.
+     */
+    async loadCache(): Promise<void> {
+        try {
+            const result = await browser.storage.local.get('titleCache');
+            if (result.titleCache) {
+                if (typeof result.titleCache === 'string') {
+                    this.cache = JSON.parse(result.titleCache);
+                } else {
+                    this.cache = result.titleCache as Record<string, string>;
+                }
+                titlesLog('Persistent title cache loaded');
+            }
+        } catch (error) {
+            titlesErrorLog('Failed to load persistent cache:', error);
+        }
+    }
+
+    /**
+     * Saves the cache to browser.storage.local.
+     */
+    async saveCache(): Promise<void> {
+        try {
+            await browser.storage.local.set({ titleCache: JSON.stringify(this.cache) });
+        } catch (error) {
+            titlesErrorLog('Failed to save persistent cache:', error);
+        }
+    }
+
+    /**
+     * Cleans up the cache if it is too old or too large.
+     */
+    async cleanupCache(): Promise<void> {
         const currentTime = Date.now();
-        
+
         // Clear if older than interval
         if (currentTime - this.lastCleanupTime > this.CLEANUP_INTERVAL) {
             titlesLog('Cache expired, clearing all entries');
-            this.clear();
+            this.cache = {};
             this.lastCleanupTime = currentTime;
+            await this.saveCache();
             return;
         }
 
         // Keep only most recent entries if over size limit
-        if (this.apiCache.size > this.MAX_ENTRIES) {
-            const entries = Array.from(this.apiCache.entries());
-            this.apiCache = new Map(entries.slice(-this.MAX_ENTRIES));
-            //titlesLog('Cache size limit reached, keeping most recent entries');
+        const keys = Object.keys(this.cache);
+        if (keys.length > this.MAX_ENTRIES) {
+            // Remove the oldest entries
+            const trimmed: Record<string, string> = {};
+            keys.slice(-this.MAX_ENTRIES).forEach(key => {
+                trimmed[key] = this.cache[key];
+            });
+            this.cache = trimmed;
+            await this.saveCache();
+            titlesLog('Cache size limit reached, keeping most recent entries');
         }
     }
 
-    clear(): void {
-        this.apiCache.clear();
+    /**
+     * Clears the cache completely.
+     */
+    async clear(): Promise<void> {
+        this.cache = {};
+        await browser.storage.local.remove('titleCache');
         titlesLog('Cache cleared');
     }
 
-    hasElement(element: HTMLElement): boolean {        
-        return false;
-    }
-
-    setElement(element: HTMLElement, title: string): void {
-        //titlesLog('Element caching disabled');
-    }
-
-    async getOriginalTitle(apiUrl: string): Promise<string> {
-        this.cleanupCache();
-        try {
-            // If in cache, return cached value
-            if (this.apiCache.has(apiUrl)) {
-                return this.apiCache.get(apiUrl) || '';
-            }
-
-            // Fetch new title
-            const response = await fetch(apiUrl);
-            
-            // If no title found keep current title
-            if (!response.ok) {
-                //titlesLog(`API error (${response.status}), keeping current title`);
-                return '';
-            }
-
-            const data = await response.json();
-            const title = data.title || '';
-            
-            // Cache the result
-            if (title) {
-                this.apiCache.set(apiUrl, title);
-            }
-
-            return title;
-        } catch (error) {
-            titlesErrorLog(`Failed to fetch title: ${error}`);
-            return '';
+    /**
+     * Stores a title in the cache.
+     */
+    async setTitle(videoId: string, title: string): Promise<void> {
+        await this.cleanupCache();
+        if (title) {
+            this.cache[videoId] = title;
+            await this.saveCache();
         }
+    }
+
+    /**
+     * Retrieves a title from the cache.
+     */
+    getTitle(videoId: string): string | undefined {
+        return this.cache[videoId];
     }
 }
 
 export const titleCache = new TitleCache();
+
 
 
 export async function fetchTitleInnerTube(videoId: string): Promise<string | null> {
@@ -119,4 +148,25 @@ export async function fetchTitleInnerTube(videoId: string): Promise<string | nul
             resolve(null);
         }, 3000);
     });
+}
+
+
+/**
+ * Fetch the original title of a YouTube video using the oEmbed API.
+ * @param videoId The YouTube video ID.
+ * @returns The original title as a string, or null if not found.
+ */
+export async function fetchTitleOembed(videoId: string): Promise<string | null> {
+    const apiUrl = `https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${videoId}`;
+    try {
+        const response = await fetch(apiUrl);
+        if (!response.ok) {
+            return null;
+        }
+        const data = await response.json();
+        return data.title || null;
+    } catch (error) {
+        titlesErrorLog(`Failed to fetch oEmbed title for ${videoId}: ${error}`);
+        return null;
+    }
 }

@@ -12,6 +12,7 @@ import { normalizeText } from "../../utils/text";
 import { extractVideoIdFromUrl } from "../../utils/video";
 
 import { fetchOriginalTitle } from "./browsingTitles";
+import { titleCache } from "./index";
 
 
 // Observer and refresh logic for notification popup titles
@@ -70,6 +71,11 @@ async function refreshNotificationTitles(): Promise<void> {
 
         if (originalTitle && !normalizeText(currentTitle).includes(normalizeText(originalTitle))) {
             titleElement.textContent = originalTitle;
+
+            if (!titleCache.getTitle(videoId)) {
+                titleCache.setTitle(videoId, originalTitle);
+            }
+
             titlesLog(
                 `Updated pop-up title from : %c${normalizeText(currentTitle)}%c to : %c${normalizeText(originalTitle)}%c (video id : %c${videoId}%c)`,
                 'color: grey',

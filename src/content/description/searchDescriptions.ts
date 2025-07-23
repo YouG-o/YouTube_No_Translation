@@ -10,7 +10,8 @@
 import { descriptionLog, descriptionErrorLog } from '../../utils/logger';
 import { currentSettings } from '../index';
 import { isSearchResultsPage } from '../../utils/navigation';
-import { isYouTubeDataAPIEnabled } from '../../utils/utils'; // Ajout de l'import
+import { isYouTubeDataAPIEnabled } from '../../utils/utils';
+import { descriptionCache } from './index';
 
 
 let searchDescriptionsObserver = new Map<HTMLElement, MutationObserver>();
@@ -260,6 +261,14 @@ export async function fetchOriginalDescription(
             originalDescription = batchDescription;
         }
     }
+
+    if (!originalDescription) {
+        const cached = descriptionCache.getDescription(videoId);
+        if (cached) {
+            //descriptionLog(`Found description in cache for ${videoId}`);
+            originalDescription = cached;
+        }
+    }
     
     // Try InnerTube API if not found in pre-fetched
     if (!originalDescription) {
@@ -333,6 +342,9 @@ export async function batchProcessSearchDescriptions(titleElements: HTMLElement[
             
             if (originalDescription) {
                 updateSearchDescriptionElement(descriptionElement, originalDescription, videoId);
+                if (!descriptionCache.getDescription(videoId)) {
+                    await descriptionCache.setDescription(videoId, originalDescription);
+                }
             } else {
                 descriptionElement.setAttribute('ynt-search-fail', videoId);
             }

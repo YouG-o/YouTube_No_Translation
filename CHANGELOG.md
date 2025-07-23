@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.10.3] - 2025-07-23
+
+### Feat
+- Added a persistent cache system for video descriptions using `browser.storage.local`. The cache now survives page reloads and browser restarts, with a maximum of 50 entries and a 12-hour expiration.
+
+### Refactor
+- Added a persistent cache system for video titles using `browser.storage.local`. The cache now survives page reloads and browser restarts, with a maximum of 1000 entries and a 24-hour expiration.
+
+### Fix
+- Fixed logic to ensure titles and descriptions are only cached when actually used, and always checked in cache before making network requests.
+
+
+## [2.10.2] - 2025-07-22
+- Added a toast for support.
+
 ## [2.10.1] - 2025-07-22
 
 ### Feat
@@ -335,7 +350,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 *Note: This changelog was introduced in version 2.2.30. For earlier version history, please refer to the [GitHub releases](https://github.com/YouG-o/YouTube_No_Translation/releases).*
 
-[Unreleased]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.10.0...HEAD
+[Unreleased]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.10.3...HEAD
+[2.10.3]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.10.2...v2.10.3
+[2.10.2]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.10.1...v2.10.2
+[2.10.1]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.10.0...v2.10.1
 [2.10.0]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.9.0...v2.10.0
 [2.9.0]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.8.3...v2.9.0
 [2.8.3]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.8.2...v2.8.3

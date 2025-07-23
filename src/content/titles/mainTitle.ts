@@ -12,7 +12,7 @@ import { currentSettings } from "../index";
 import { normalizeText } from "../../utils/text";
 import { waitForElement } from "../../utils/dom";
 import { TitleDataEvent } from "../../types/types";
-import { titleCache, fetchTitleInnerTube } from "./index";
+import { titleCache, fetchTitleInnerTube, fetchTitleOembed } from "./index";
 
 
 let mainTitleContentObserver: MutationObserver | null = null;
@@ -80,6 +80,10 @@ export function updateMainTitleElement(element: HTMLElement, title: string, vide
     
     element.removeAttribute('is-empty');
     element.innerText = title;
+
+    if (!titleCache.getTitle(videoId)) {
+        titleCache.setTitle(videoId, title);
+    }
     
     // --- Block YouTube from re-adding the is-empty attribute
     isEmptyObserver = new MutationObserver((mutations) => {
@@ -119,8 +123,6 @@ export function updateMainTitleElement(element: HTMLElement, title: string, vide
     mainTitleContentObserver.observe(element, {
         childList: true
     });
-
-    titleCache.setElement(element, title);
 }
 
 function updatePageTitle(mainTitle: string): void {
@@ -185,8 +187,6 @@ function updateEmbedTitleElement(element: HTMLElement, title: string, videoId: s
         characterData: true,
         subtree: true
     });
-
-    titleCache.setElement(element, title);
 }
 
 function updateMiniplayerTitleElement(element: HTMLElement, title: string, videoId: string): void {
@@ -222,14 +222,12 @@ function updateMiniplayerTitleElement(element: HTMLElement, title: string, video
         characterData: true,
         subtree: true
     });
-
-    titleCache.setElement(element, title);
 }
 
 // --- Main Title Function
 export async function refreshMainTitle(): Promise<void> {
     const mainTitle = document.querySelector('h1.ytd-watch-metadata > yt-formatted-string') as HTMLElement;
-    if (mainTitle && window.location.pathname === '/watch' && !titleCache.hasElement(mainTitle)) {
+    if (mainTitle && window.location.pathname === '/watch') {
         //mainTitleLog('Processing main title element');
         const videoId = new URLSearchParams(window.location.search).get('v');
         if (videoId) {
@@ -270,7 +268,7 @@ export async function refreshEmbedTitle(): Promise<void> {
     try {
         const embedTitle = await waitForElement('.ytp-title-link') as HTMLElement;
         
-        if (embedTitle && !titleCache.hasElement(embedTitle)) {
+        if (embedTitle) {
             //mainTitleLog('Processing embed title element');
             
             // Get video ID from pathname or URL parameters
@@ -337,7 +335,7 @@ export async function refreshMiniplayerTitle(): Promise<void> {
             return;
         }
 
-        if (miniplayerTitle && !titleCache.hasElement(miniplayerTitle)) {
+        if (miniplayerTitle) {
             // Get video ID from miniplayer - try multiple methods
             let videoId: string | null = null;
             
@@ -411,43 +409,52 @@ export async function refreshMiniplayerTitle(): Promise<void> {
 export async function fetchMainTitle(videoId: string, fallbackToPageTitle: boolean = true, isShorts: boolean = false): Promise<string | null> {
     let originalTitle: string | null = null;
 
-    // First try: Get title from player
-    try {
-        const mainTitleScript = document.createElement('script');
-        mainTitleScript.type = 'text/javascript';
-        mainTitleScript.src = browser.runtime.getURL('dist/content/scripts/mainTitleScript.js');
-
-        // Set up event listener before injecting script
-        const playerTitle = await new Promise<string | null>((resolve) => {
-            const titleListener = (event: TitleDataEvent) => {
-                window.removeEventListener('ynt-title-data', titleListener as EventListener);
-                resolve(event.detail.title);
-            };
-            window.addEventListener('ynt-title-data', titleListener as EventListener);
-            
-            // Inject script after listener is ready
-            document.head.appendChild(mainTitleScript);
-        });
-
-        if (playerTitle) {
-            originalTitle = playerTitle;
-        }
-    } catch (error) {
-        mainTitleErrorLog('Failed to get title from player:', error);
+    // Check cache first
+    originalTitle = titleCache.getTitle(videoId) || null;
+    if (originalTitle) {
+        //mainTitleLog(`Found title in cache for ${videoId}: %c${normalizeText(originalTitle)}%c`, 'color: #4ade80', 'color: #F44336');
     }
+
+    if (!originalTitle) {
+        // First try: Get title from player
+        try {
+            const mainTitleScript = document.createElement('script');
+            mainTitleScript.type = 'text/javascript';
+            mainTitleScript.src = browser.runtime.getURL('dist/content/scripts/mainTitleScript.js');
+    
+            // Set up event listener before injecting script
+            const playerTitle = await new Promise<string | null>((resolve) => {
+                const titleListener = (event: TitleDataEvent) => {
+                    window.removeEventListener('ynt-title-data', titleListener as EventListener);
+                    resolve(event.detail.title);
+                };
+                window.addEventListener('ynt-title-data', titleListener as EventListener);
+                
+                // Inject script after listener is ready
+                document.head.appendChild(mainTitleScript);
+            });
+    
+            if (playerTitle) {
+                originalTitle = playerTitle;
+            }
+        } catch (error) {
+            mainTitleErrorLog('Failed to get title from player:', error);
+        }
+    }
+
 
     // Second try: Fallback to oembed API
     if (!originalTitle) {
         mainTitleLog('Falling back to oembed API');
         const oembedUrl = isShorts ? `https://www.youtube.com/oembed?url=https://www.youtube.com/shorts/${videoId}` : `https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${videoId}`;
-        originalTitle = await titleCache.getOriginalTitle(oembedUrl);
+        originalTitle = await fetchTitleOembed(videoId) || null;
     }
 
     // Try InnerTube API if oEmbed fails
     if (!originalTitle) {
         //mainTitleErrorLog(`Oembed api failed, fetching title from InnerTube API for ${videoId}`);
         try {
-            originalTitle = await fetchTitleInnerTube(videoId) ?? '';
+            originalTitle = await fetchTitleInnerTube(videoId) || null;
         } catch (error) {
             mainTitleErrorLog(`InnerTube API error for ${videoId}:`, error);
         }

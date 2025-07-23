@@ -15,7 +15,7 @@ import { extractVideoIdFromUrl } from "../../utils/video";
 
 import { updateMainTitleElement, fetchMainTitle } from "./mainTitle";
 import { fetchOriginalTitle, lastBrowsingShortsRefresh, setLastBrowsingShortsRefresh, TITLES_THROTTLE } from "./browsingTitles";
-import { titleCache } from "./index";
+import { fetchTitleInnerTube, fetchTitleOembed, titleCache } from "./index";
 
 
 
@@ -34,7 +34,7 @@ export async function refreshShortMainTitle(): Promise<void> {
         
         if (videoId) {
             // Process main shorts title
-            if (shortTitle && !titleCache.hasElement(shortTitle)) {
+            if (shortTitle) {
                 const currentTitle = shortTitle.textContent;
 
                 const originalTitle = await fetchMainTitle(videoId, false, true);
@@ -66,18 +66,24 @@ export async function refreshShortMainTitle(): Promise<void> {
                         
                         if (linkedVideoId) {
                            // mainTitleLog(`Processing linked video title with ID: ${linkedVideoId}`);
-                            
-                            // Using only oembed API for linked video as mentioned
-                            const linkedOriginalTitle = await titleCache.getOriginalTitle(
-                                `https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${linkedVideoId}`
-                            );
-                            
+                            let linkedOriginalTitle: string | null = null;
+
+                            linkedOriginalTitle = titleCache.getTitle(linkedVideoId) || null;
+                            if (!linkedOriginalTitle) {
+                                // Fetch the original title using oEmbed API
+                                linkedOriginalTitle = await fetchTitleOembed(linkedVideoId);
+                            }
+
+                            if (!linkedOriginalTitle) {
+                                linkedOriginalTitle = await fetchTitleInnerTube(linkedVideoId);
+                            }
+
                             if (linkedOriginalTitle && normalizeText(currentLinkedTitle) !== normalizeText(linkedOriginalTitle)) {
-                                try {
-                                    updateMainTitleElement(linkedVideoTitle, linkedOriginalTitle, linkedVideoId);
-                                } catch (error) {
-                                    mainTitleErrorLog(`Failed to update linked video title:`, error);
-                                }
+                            try {
+                            updateMainTitleElement(linkedVideoTitle, linkedOriginalTitle, linkedVideoId);
+                            } catch (error) {
+                            mainTitleErrorLog(`Failed to update linked video title:`, error);
+                            }
                             }
                         }
                     }
@@ -173,7 +179,6 @@ export async function refreshShortsAlternativeFormat(): Promise<void> {
             
             if (normalizeText(currentTitle) === normalizeText(originalTitle)) {
                 // Already showing correct title, no need to modify
-                titleCache.setElement(shortLink, originalTitle);
                 continue;
             }
             
@@ -192,7 +197,10 @@ export async function refreshShortsAlternativeFormat(): Promise<void> {
             titleSpan.textContent = originalTitle;
             shortLink.setAttribute('title', originalTitle);
             shortLink.setAttribute('ynt', videoId);
-            titleCache.setElement(shortLink, originalTitle);
+
+            if (!titleCache.getTitle(videoId)) {
+                titleCache.setTitle(videoId, originalTitle);
+            }
             
         } catch (error) {
             browsingTitlesErrorLog('Error processing alternative shorts format:', error);

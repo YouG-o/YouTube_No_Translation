@@ -76,32 +76,31 @@ export function timeStringToSeconds(timeString: string): number {
 // Parse chapters from description text
 function parseChaptersFromDescription(description: string): Chapter[] {
     const chapters: Chapter[] = [];
-    
+    // Regex: line must start with optional bullet/emoji, then timestamp, then optional separator, then title
+    const chapterRegex = /^\s*([\-\–—•·▪▫‣⁃→>]*\s*)?(\d{1,2}:\d{2}(?::\d{2})?)\s+(.+)$/;
+
     description.split('\n').forEach(line => {
-        // More flexible regex to handle emojis, bullets, and various separators
-        const match = line.trim().match(/^.*?(\d{1,2}):(\d{2})(?::(\d{2}))?.*?\s*(.+)$/);
+        const match = line.trim().match(chapterRegex);
         if (match) {
-            const [, minutes, seconds, hours, title] = match;
-            
-            // Extract clean title by removing everything before the timestamp and separators after
+            const [, , timestamp, title] = match;
+            // Convert timestamp to seconds
+            const parts = timestamp.split(':').map(Number);
+            let totalSeconds = 0;
+            if (parts.length === 2) {
+                totalSeconds = parts[0] * 60 + parts[1];
+            } else if (parts.length === 3) {
+                totalSeconds = parts[0] * 3600 + parts[1] * 60 + parts[2];
+            }
+            // Clean title
             let cleanTitle = title.trim();
-            
-            // Remove common separators at the beginning of title
-            cleanTitle = cleanTitle.replace(/^[\s\-–—•·▪▫‣⁃:→>]*\s*/, '');
-            
-            // Skip if title is too short (likely not a real chapter)
+            // Skip if title is too short
             if (cleanTitle.length < 2) return;
-            
-            const totalSeconds = (hours ? parseInt(hours) * 3600 : 0) + 
-                               parseInt(minutes) * 60 + 
-                               parseInt(seconds);
             chapters.push({
                 startTime: totalSeconds,
-                title: cleanTitle.trim()
+                title: cleanTitle
             });
         }
     });
-    
     return chapters;
 }
 

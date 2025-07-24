@@ -47,7 +47,9 @@
     "dist/content/scripts/TitlesInnerTube.js",
     "dist/content/scripts/getChannelIdScript.js",
     "dist/content/scripts/ChannelNameInnerTubeScript.js",
-    "dist/content/scripts/ChannelDescriptionInnerTube.js"
+    "dist/content/scripts/ChannelDescriptionInnerTube.js",
+    "dist/content/toast.html",
+    "dist/assets/icons/*"
   ],
   "options_ui": {
     "page": "dist/popup/settings.html",

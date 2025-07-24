@@ -52,4 +52,4 @@ safari-icons.sh
 
 # Reviewer source package for Mozilla
 reviewer-source*.zip
-/reviewer-source
+/reviewer-source*

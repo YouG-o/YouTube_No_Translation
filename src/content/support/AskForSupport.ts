@@ -3,13 +3,10 @@ import { ExtensionSettings } from '../../types/types';
 const TOAST_ID = 'ynt-support-toast';
 const REMIND_DELAY = 30;
 const INITIAL_DELAY = 7;
+let toastStorageListener: ((changes: any, area: string) => void) | null = null;
 
 function daysBetween(date1: string, date2: string): number {
     return Math.floor((new Date(date2).getTime() - new Date(date1).getTime()) / (1000 * 60 * 60 * 24));
-}
-
-function secondsBetween(date1: string, date2: string): number {
-    return Math.floor((new Date(date2).getTime() - new Date(date1).getTime()) / 1000);
 }
 
 async function getSettings(): Promise<ExtensionSettings | null> {
@@ -22,12 +19,8 @@ async function setSettings(settings: ExtensionSettings) {
 }
 
 function injectToast() {
-    if (document.getElementById(TOAST_ID)) {
-        //console.log('[YNT] Toast already present');
-        return;
-    }
+    if (document.getElementById(TOAST_ID)) return;
 
-    //console.log('[YNT] Fetching toast HTML...');
     fetch(browser.runtime.getURL('dist/content/toast.html'))
         .then(res => {
             if (!res.ok) throw new Error('HTTP ' + res.status);
@@ -40,8 +33,19 @@ function injectToast() {
             const toast = doc.body.firstElementChild;
             if (toast) {
                 document.body.appendChild(toast);
+
+                // Add storage listener only when toast is visible
+                if (toastStorageListener) {
+                    browser.storage.onChanged.removeListener(toastStorageListener);
+                    toastStorageListener = null;
+                }
+                toastStorageListener = (changes, area) => {
+                    if (area === 'local' && changes.supportToastClosed?.newValue) {
+                        removeToast();
+                    }
+                };
+                browser.storage.onChanged.addListener(toastStorageListener);
             }
-            //console.log('[YNT] Toast injected');
 
             // Set extension icon src
             const extensionIcon = document.querySelector('#ynt-support-toast img[alt="Extension icon"]') as HTMLImageElement | null;
@@ -73,13 +77,16 @@ function injectToast() {
                 removeToast();
             });
 
-            dismissBtn?.addEventListener('click', async () => {
-                const settings = await getSettings();
-                if (settings) {
-                    settings.askForSupport.enabled = false;
-                    await setSettings(settings);
-                }
-                removeToast();
+            const dismissBtns = document.querySelectorAll('.ynt-dismiss-btn');
+            dismissBtns.forEach(btn => {
+                btn.addEventListener('click', async () => {
+                    const settings = await getSettings();
+                    if (settings) {
+                        settings.askForSupport.enabled = false;
+                        await setSettings(settings);
+                    }
+                    removeToast();
+                });
             });
         })
         .catch(err => {
@@ -87,9 +94,16 @@ function injectToast() {
         });
 }
 
-function removeToast() {
+async function removeToast() {
     const toast = document.getElementById(TOAST_ID);
     if (toast) toast.remove();
+    // Remove the storage listener if present
+    if (toastStorageListener) {
+        browser.storage.onChanged.removeListener(toastStorageListener);
+        toastStorageListener = null;
+    }
+    // Notify all tabs that the toast was closed
+    await browser.storage.local.set({ supportToastClosed: true });
 }
 
 export async function maybeShowSupportToast() {
@@ -105,6 +119,9 @@ export async function maybeShowSupportToast() {
         //console.log('[YNT] askForSupport disabled');
         return;
     }
+
+    const { supportToastClosed } = await browser.storage.local.get('supportToastClosed');
+    if (supportToastClosed) return;
 
     const now = new Date().toISOString();
     const { installationDate, lastPromptDate } = settings.askForSupport;

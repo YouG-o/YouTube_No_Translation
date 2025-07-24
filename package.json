@@ -1,6 +1,6 @@
 {
   "name": "ynt",
-  "version": "2.10.3",
+  "version": "2.10.5",
   "description": "Stop YouTube's automatic translations! This extension keeps titles, descriptions and video audio in their original language.",
   "scripts": {
     "clean": "rm -rf dist && rm -f manifest.json",
@@ -33,7 +33,7 @@
     "web-ext:chromium": "web-ext build --overwrite-dest -a web-ext-artifacts/chromium --filename=chromium-ynt-${npm_package_version}.zip",
     "package": "npm run package:firefox && npm run package:chromium",
     "package:firefox": "npm run build:firefox && rm -rf build-tmp && mkdir build-tmp && cp -r dist build-tmp/ && cp LICENSE build-tmp/ && cp CHANGELOG.md build-tmp/ && cp manifest.json build-tmp/ && rm -f build-tmp/dist/assets/icons/icon_edge.png && (cd build-tmp && web-ext build --overwrite-dest -a ../web-ext-artifacts/firefox --filename=firefox-ynt-${npm_package_version}.zip) && rm -rf build-tmp && npm run clean",
-    "package:mozilla-reviewer": "node scripts/package-for-mozilla-reviewers.js",
+    "source:mozilla": "node scripts/package-for-mozilla-reviewers.js",
     "package:chromium": "npm run build:chromium && rm -rf build-tmp && mkdir build-tmp && cp -r dist build-tmp/ && cp LICENSE build-tmp/ && cp CHANGELOG.md build-tmp/ && cp manifest.json build-tmp/ && rm -f build-tmp/dist/assets/icons/icon_edge.png && (cd build-tmp && web-ext build --overwrite-dest -a ../web-ext-artifacts/chromium --filename=chromium-ynt-${npm_package_version}.zip) && rm -rf build-tmp && npm run clean",
     "package:edge": "npm run build:edge && rm -rf build-tmp && mkdir build-tmp && cp -r dist build-tmp/ && cp LICENSE build-tmp/ && cp CHANGELOG.md build-tmp/ && cp manifest.json build-tmp/ && rm -f build-tmp/dist/assets/icons/icon.png build-tmp/dist/assets/icons/icon_48.png build-tmp/dist/assets/icons/icon_96.png && mv build-tmp/dist/assets/icons/icon_edge.png build-tmp/dist/assets/icons/icon.png && (cd build-tmp && web-ext build --overwrite-dest -a ../web-ext-artifacts/edge --filename=edge-ynt-${npm_package_version}.zip) && rm -rf build-tmp && npm run clean",
     "post:build": "rimraf dist/config dist/types",

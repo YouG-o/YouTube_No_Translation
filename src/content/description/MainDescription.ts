@@ -83,6 +83,50 @@ function insertDescriptionSpan(container: Element | null, span: HTMLElement): vo
     container.appendChild(span.cloneNode(true));
 }
 
+
+/**
+ * Parses a text and returns a DocumentFragment with clickable timestamp links.
+ * Non-timestamp parts are returned as plain text nodes.
+ */
+function createTimestampFragment(text: string): DocumentFragment {
+    const timestampPattern = /\b(\d{1,2}):(\d{2})(?::(\d{2}))?\b/g;
+    const fragment = document.createDocumentFragment();
+    let lastIndex = 0;
+    let match;
+
+    timestampPattern.lastIndex = 0;
+    while ((match = timestampPattern.exec(text)) !== null) {
+        if (match.index > lastIndex) {
+            fragment.appendChild(document.createTextNode(text.substring(lastIndex, match.index)));
+        }
+        const timestamp = match[0];
+        let seconds = 0;
+        if (match[3]) {
+            seconds = parseInt(match[1]) * 3600 + parseInt(match[2]) * 60 + parseInt(match[3]);
+        } else {
+            seconds = parseInt(match[1]) * 60 + parseInt(match[2]);
+        }
+        const outerSpan = document.createElement('span');
+        outerSpan.className = 'yt-core-attributed-string--link-inherit-color';
+        outerSpan.dir = 'auto';
+        outerSpan.style.color = 'rgb(62, 166, 255)';
+        const timestampLink = document.createElement('a');
+        timestampLink.textContent = timestamp;
+        timestampLink.className = 'yt-core-attributed-string__link yt-core-attributed-string__link--call-to-action-color';
+        timestampLink.style.cursor = 'pointer';
+        timestampLink.tabIndex = 0;
+        timestampLink.setAttribute('ynt-timestamp', seconds.toString());
+        outerSpan.appendChild(timestampLink);
+        fragment.appendChild(outerSpan);
+        lastIndex = match.index + match[0].length;
+    }
+    if (lastIndex < text.length) {
+        fragment.appendChild(document.createTextNode(text.substring(lastIndex)));
+    }
+    return fragment;
+}
+
+
 export function updateDescriptionElement(element: HTMLElement, description: string, id: string): void {
     // Find the text containers
     const attributedString = element.querySelector('yt-attributed-string');
@@ -116,51 +160,9 @@ export function updateDescriptionElement(element: HTMLElement, description: stri
                 link.style.color = 'rgb(62, 166, 255)';
                 span.appendChild(link);
             } else if (part) {
-                let textContent = part;
-                let lastIndex = 0;
-                let timestampMatch;
-                const fragment = document.createDocumentFragment();
-                timestampPattern.lastIndex = 0;
-                while ((timestampMatch = timestampPattern.exec(textContent)) !== null) {
-                    if (timestampMatch.index > lastIndex) {
-                        fragment.appendChild(document.createTextNode(
-                            textContent.substring(lastIndex, timestampMatch.index)
-                        ));
-                    }
-                    const timestamp = timestampMatch[0];
-                    let seconds = 0;
-                    if (timestampMatch[3]) {
-                        seconds = parseInt(timestampMatch[1]) * 3600 + 
-                                 parseInt(timestampMatch[2]) * 60 + 
-                                 parseInt(timestampMatch[3]);
-                    } else {
-                        seconds = parseInt(timestampMatch[1]) * 60 + 
-                                 parseInt(timestampMatch[2]);
-                    }
-                    const outerSpan = document.createElement('span');
-                    outerSpan.className = 'yt-core-attributed-string--link-inherit-color';
-                    outerSpan.dir = 'auto';
-                    outerSpan.style.color = 'rgb(62, 166, 255)';
-                    const timestampLink = document.createElement('a');
-                    timestampLink.textContent = timestamp;
-                    timestampLink.className = 'yt-core-attributed-string__link yt-core-attributed-string__link--call-to-action-color';
-                    timestampLink.style.cursor = 'pointer';
-                    timestampLink.tabIndex = 0;
-                    timestampLink.setAttribute('ynt-timestamp', seconds.toString());
-                    outerSpan.appendChild(timestampLink);
-                    fragment.appendChild(outerSpan);
-                    lastIndex = timestampMatch.index + timestampMatch[0].length;
-                }
-                if (lastIndex < textContent.length) {
-                    fragment.appendChild(document.createTextNode(
-                        textContent.substring(lastIndex)
-                    ));
-                }
-                if (lastIndex > 0) {
-                    span.appendChild(fragment);
-                } else {
-                    span.appendChild(document.createTextNode(part));
-                }
+                // Replace the timestamp logic by:
+                const fragment = createTimestampFragment(part);
+                span.appendChild(fragment);
             }
         });
         if (index < lines.length - 1) {

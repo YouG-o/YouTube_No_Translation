@@ -18,7 +18,7 @@ import { waitForElement, waitForFilledVideoTitles } from '../utils/dom';
 
 import { refreshMainTitle, refreshEmbedTitle, refreshMiniplayerTitle, cleanupMainTitleContentObserver ,cleanupIsEmptyObserver, cleanupPageTitleObserver, cleanupEmbedTitleContentObserver, cleanupMiniplayerTitleContentObserver } from './titles/mainTitle';
 import { refreshBrowsingVideos, cleanupAllBrowsingTitlesElementsObservers } from './titles/browsingTitles';
-import { descriptionCache, processDescriptionForVideoId, cleanupDescriptionObservers } from './description/descriptionIndex';
+import { processDescriptionForVideoId, cleanupDescriptionObservers } from './description/descriptionIndex';
 import { refreshChannelName, cleanupChannelNameContentObserver } from './channel/channelName';
 import { refreshShortsAlternativeFormat, checkShortsId } from './titles/shortsTitles';
 import { setupNotificationTitlesObserver, cleanupNotificationTitlesObserver } from './titles/notificationTitles';
@@ -134,67 +134,25 @@ function cleanUpVideoPlayerListener() {
 export function setupMainVideoObserver() {
     //cleanupMainVideoObserver();
     waitForElement('ytd-watch-flexy').then((watchFlexy) => {
-        /*coreLog('Setting up video-id observer');
-        mainVideoObserver = new MutationObserver(async (mutations) => {
-            for (const mutation of mutations) {
-                if (mutation.type === 'attributes' && mutation.attributeName === 'video-id') {
-                    titleCache.clear();
-                    descriptionCache.clearCurrentDescription()
-                    
-                    const newVideoId = (mutation.target as HTMLElement).getAttribute('video-id');
-                    coreLog('Video ID changed:', newVideoId);
-                    
-                    if (currentSettings?.titleTranslation) {
-                        // Wait for movie_player and title element
-                        const [player, titleElement] = await Promise.all([
-                            waitForElement('#movie_player'),
-                            waitForElement('ytd-watch-metadata yt-formatted-string.style-scope.ytd-watch-metadata')
-                        ]);
-    
-                        // Only proceed if we're still on the same page
-                        if (titleElement.textContent) {
-                            await refreshMainTitle();
-                            await refreshChannelName();
-                        }
-                    }
-
-                    currentSettings?.descriptionTranslation && processDescriptionForVideoId();
-                }
-            }
-        });*/
-
+        const currentVideoId = watchFlexy.getAttribute('video-id');
+        
         if (currentSettings?.descriptionTranslation) {
             // Manually trigger for the initial video when setting up the observer
             // This handles the case where we navigate to a video page via SPA
-            const currentVideoId = watchFlexy.getAttribute('video-id');
             if (currentVideoId) {
-                //descriptionLog('Manually triggering for initial video-id:', currentVideoId);
-                descriptionCache.clearCurrentDescription();
                 // Process the initial video ID
                 processDescriptionForVideoId();
             }
         }
 
         if (currentSettings?.titleTranslation) {
-            const currentVideoId = watchFlexy.getAttribute('video-id');
             if (currentVideoId) {
                 refreshMainTitle();
                 refreshChannelName();
             }
         }
-
-        /*mainVideoObserver.observe(watchFlexy, {
-            attributes: true,
-            attributeFilter: ['video-id']
-        });*/
-    });
+    })
 }
-
-/*function cleanupMainVideoObserver() {
-    mainVideoObserver?.disconnect();
-    mainVideoObserver = null;
-}*/
-
 
 
 

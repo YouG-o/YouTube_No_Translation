@@ -34,6 +34,12 @@ function getCurrentDescriptionText(element: HTMLElement): string {
     return (snippet || core)?.textContent?.trim() || "";
 }
 
+
+function isDescriptionOriginal(cached: string, current: string): boolean {
+    return normalizeText(cached, true).startsWith(normalizeText(current, true));
+}
+
+
 export async function refreshDescription(): Promise<void> {
     //descriptionLog('Waiting for description element');
     try {
@@ -219,8 +225,8 @@ export function compareDescription(element: HTMLElement): Promise<boolean> {
         }
                 
         // Check if description is already in original language (using prefix matching)
-        const isOriginal = normalizeText(description, true).startsWith(normalizeText(currentText, true));
-        
+        const isOriginal = isDescriptionOriginal(description, currentText);
+                
         if (isOriginal) {
             descriptionLog('Description is already in original language, no update needed');
         } else {

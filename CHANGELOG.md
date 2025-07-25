@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.10.6] - 2025-07-25
+
+### Refactored
+- Major refactor of main video description logic: code is now modular, respects SRP, and uses the new centralized cache system. Timestamp and URL parsing are now handled by dedicated utilities. File and function names have been clarified for maintainability.
+
 ## [2.10.3] - 2025-07-23
 
 ### Feat
@@ -350,7 +355,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 *Note: This changelog was introduced in version 2.2.30. For earlier version history, please refer to the [GitHub releases](https://github.com/YouG-o/YouTube_No_Translation/releases).*
 
-[Unreleased]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.10.3...HEAD
+[Unreleased]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.10.6...HEAD
+[2.10.6]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.10.3...v2.10.6
 [2.10.3]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.10.2...v2.10.3
 [2.10.2]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.10.1...v2.10.2
 [2.10.1]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.10.0...v2.10.1

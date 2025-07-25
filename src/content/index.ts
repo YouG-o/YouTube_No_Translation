@@ -133,7 +133,7 @@ browser.runtime.onMessage.addListener((message: unknown) => {
                 break;
             case 'description':
                 if (message.isEnabled) {
-                    refreshDescription();
+                    //refreshDescription();
 
                     initializeMainVideoObserver();
                 }

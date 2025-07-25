@@ -12,6 +12,7 @@ import { waitForElement } from '../../utils/dom';
 import { normalizeText } from '../../utils/text';
 import { initializeChaptersReplacement } from '../chapters/chaptersIndex';
 import { calculateSimilarity } from '../../utils/text';
+import { descriptionCache } from './index';
 
 
 export async function fetchOriginalDescription(): Promise<string | null> {
@@ -40,14 +41,14 @@ function isDescriptionOriginal(cached: string, current: string): boolean {
 }
 
 
-export async function refreshDescription(): Promise<void> {
+export async function refreshDescription(id: string): Promise<void> {
     //descriptionLog('Waiting for description element');
     try {
         await waitForElement('#description-inline-expander');
         
         // First check if we already have the description in cache
-        let description = descriptionCache.getCurrentDescription();
-        
+        let description: string | null = descriptionCache.getDescription(id) || null;
+
         // Only fetch if not in cache
         if (!description) {
             description = await fetchOriginalDescription();
@@ -60,7 +61,7 @@ export async function refreshDescription(): Promise<void> {
             const descriptionElement = document.querySelector('#description-inline-expander');
             if (descriptionElement) {
                 // Always updateupdate the element, whether it's in cache or not
-                updateDescriptionElement(descriptionElement as HTMLElement, description);
+                updateDescriptionElement(descriptionElement as HTMLElement, description, id);
                 descriptionLog('Description updated to original');
             }
         }
@@ -69,30 +70,6 @@ export async function refreshDescription(): Promise<void> {
     }
 }
 
-export class DescriptionCache {
-    private processedElements = new WeakMap<HTMLElement, string>();
-    private currentVideoDescription: string | null = null;
-
-    hasElement(element: HTMLElement): boolean {
-        return this.processedElements.has(element);
-    }
-
-    setElement(element: HTMLElement, description: string): void {
-        //descriptionLog('Caching element with description');
-        this.processedElements.set(element, description);
-        this.currentVideoDescription = description;
-    }
-
-    getCurrentDescription(): string | null {
-        return this.currentVideoDescription;
-    }
-
-    clearCurrentDescription(): void {
-        this.currentVideoDescription = null;
-    }
-}
-
-export const descriptionCache = new DescriptionCache();
 
 /**
  * Insert the processed description span into a given container.
@@ -106,7 +83,7 @@ function insertDescriptionSpan(container: Element | null, span: HTMLElement): vo
     container.appendChild(span.cloneNode(true));
 }
 
-export function updateDescriptionElement(element: HTMLElement, description: string): void {
+export function updateDescriptionElement(element: HTMLElement, description: string, id: string): void {
     // Find the text containers
     const attributedString = element.querySelector('yt-attributed-string');
     const snippetAttributedString = element.querySelector('#attributed-snippet-text');
@@ -195,17 +172,20 @@ export function updateDescriptionElement(element: HTMLElement, description: stri
     insertDescriptionSpan(attributedString, span);
     insertDescriptionSpan(snippetAttributedString, span);
 
-    descriptionCache.setElement(element, description);
-    setupDescriptionContentObserver();
+    if (!descriptionCache.getDescription(id)) {
+        descriptionCache.setDescription(id, description);
+    }
+
+    setupDescriptionContentObserver(id);
     initializeChaptersReplacement(description);
 }
 
 
 // Compare description text and determine if update is needed
-export function compareDescription(element: HTMLElement): Promise<boolean> {
+export function compareDescription(element: HTMLElement, id: string): Promise<boolean> {
     return new Promise(async (resolve) => {
         // Get the cached description or fetch a new one
-        let description = descriptionCache.getCurrentDescription();
+        let description: string | null = descriptionCache.getDescription(id) || null;
         
         if (!description) {
             // Fetch description if not cached
@@ -226,11 +206,13 @@ export function compareDescription(element: HTMLElement): Promise<boolean> {
                 
         // Check if description is already in original language (using prefix matching)
         const isOriginal = isDescriptionOriginal(description, currentText);
-                
+
         if (isOriginal) {
             descriptionLog('Description is already in original language, no update needed');
         } else {
-            descriptionCache.setElement(element, description);
+            if (!descriptionCache.getDescription(id)) {
+                descriptionCache.setDescription(id, description);
+            }
         }
         
         // Return true if original (no update needed), false if update needed
@@ -245,19 +227,19 @@ let descriptionContentObserver: MutationObserver | null = null;
 
 
 // Helper function to process description for current video ID
-export function processDescriptionForVideoId() {
+export function processDescriptionForVideoId(id: string): void {
     const descriptionElement = document.querySelector('#description-inline-expander');
     if (descriptionElement) {
         waitForElement('#movie_player').then(() => {
             // Instead of calling refreshDescription directly
             // Call compareDescription first
             
-            compareDescription(descriptionElement as HTMLElement).then(isOriginal => {
+            compareDescription(descriptionElement as HTMLElement, id).then(isOriginal => {
                 if (!isOriginal) {
                     // Only refresh if not original                                 
-                    refreshDescription().then(() => {
-                        descriptionExpandObserver();
-                        setupDescriptionContentObserver();
+                    refreshDescription(id).then(() => {
+                        descriptionExpandObserver(id);
+                        setupDescriptionContentObserver(id);
                     });
                 } else {
                     cleanupDescriptionObservers();
@@ -267,14 +249,14 @@ export function processDescriptionForVideoId() {
     } else {
         // If not found, wait for it
         waitForElement('#description-inline-expander').then(() => {
-            refreshDescription();
-            descriptionExpandObserver();
+            refreshDescription(id);
+            descriptionExpandObserver(id);
         });
     }
 }
 
 
-function descriptionExpandObserver() {
+function descriptionExpandObserver(id: string): void {
     // Observer for description expansion/collapse
     waitForElement('#description-inline-expander').then((descriptionElement) => {
         //descriptionLog('Setting up expand/collapse observer');
@@ -282,14 +264,14 @@ function descriptionExpandObserver() {
             for (const mutation of mutations) {
                 if (mutation.type === 'attributes' && mutation.attributeName === 'is-expanded') {
                     descriptionLog('Description expanded/collapsed');
-                    const cachedDescription = descriptionCache.getCurrentDescription();
+                    const cachedDescription = descriptionCache.getDescription(id);
                     if (cachedDescription) {
                         //descriptionLog('Using cached description');
-                        updateDescriptionElement(descriptionElement as HTMLElement, cachedDescription);
+                        updateDescriptionElement(descriptionElement as HTMLElement, cachedDescription, id);
                     } else {
                         const description = await fetchOriginalDescription();
                         if (description) {
-                            updateDescriptionElement(descriptionElement as HTMLElement, description);
+                            updateDescriptionElement(descriptionElement as HTMLElement, description, id);
                         }
                     }
                 }
@@ -303,7 +285,7 @@ function descriptionExpandObserver() {
     });
 }
 
-export function setupDescriptionContentObserver() {
+export function setupDescriptionContentObserver(id: string) {
     // Cleanup existing observer avoiding infinite loops
     cleanupDescriptionContentObserver();
     const descriptionElement = document.querySelector('#description-inline-expander');
@@ -313,7 +295,7 @@ export function setupDescriptionContentObserver() {
     }
     
     // Get cached description
-    let cachedDescription = descriptionCache.getCurrentDescription();
+    let cachedDescription = descriptionCache.getDescription(id);
     if (!cachedDescription) {
         descriptionLog('No cached description available, fetching from API');
         
@@ -321,8 +303,10 @@ export function setupDescriptionContentObserver() {
         fetchOriginalDescription().then(description => {
             if (description) {
                 // Cache the description
+                if (!descriptionCache.getDescription(id)) {
+                    descriptionCache.setDescription(id, description);
+                }
                 cachedDescription = description;
-                descriptionCache.setElement(descriptionElement as HTMLElement, description);
                 
                 // Now set up the observer with the fetched description
                 setupObserver();
@@ -371,7 +355,7 @@ export function setupDescriptionContentObserver() {
                 descriptionContentObserver?.disconnect();
                 
                 // Update with original description - ensure cachedDescription isn't null
-                updateDescriptionElement(descriptionElement as HTMLElement, cachedDescription as string);
+                updateDescriptionElement(descriptionElement as HTMLElement, cachedDescription as string, id);
                 
                 // Reconnect observer
                 if (descriptionContentObserver) {

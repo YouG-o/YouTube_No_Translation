@@ -141,7 +141,7 @@ export function setupMainVideoObserver() {
             // This handles the case where we navigate to a video page via SPA
             if (currentVideoId) {
                 // Process the initial video ID
-                processDescriptionForVideoId();
+                processDescriptionForVideoId(currentVideoId);
             }
         }
 

@@ -38,7 +38,7 @@
   },
   "web_accessible_resources": [
     "dist/content/scripts/audioScript.js",
-    "dist/content/scripts/descriptionScript.js",
+    "dist/content/scripts/MainDescriptionScript.js",
     "dist/content/scripts/subtitlesScript.js",
     "dist/content/scripts/mainTitleScript.js",
     "dist/content/scripts/channelNameScript.js",

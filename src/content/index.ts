@@ -15,7 +15,7 @@ import { setupUrlObserver, setupVisibilityChangeListener, setupVideoPlayerListen
 import { refreshBrowsingVideos } from './titles/browsingTitles';
 import { refreshShortsAlternativeFormat } from './titles/shortsTitles';
 import { refreshMainTitle } from './titles/mainTitle';
-import { refreshDescription } from './description/descriptionIndex';
+import { refreshDescription } from './description/MainDescription';
 import { handleAudioTranslation } from './audio/audioIndex';
 import { handleSubtitlesTranslation } from './subtitles/subtitlesIndex';
 import { maybeShowSupportToast } from './support/AskForSupport';

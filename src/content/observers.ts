@@ -18,7 +18,7 @@ import { waitForElement, waitForFilledVideoTitles } from '../utils/dom';
 
 import { refreshMainTitle, refreshEmbedTitle, refreshMiniplayerTitle, cleanupMainTitleContentObserver ,cleanupIsEmptyObserver, cleanupPageTitleObserver, cleanupEmbedTitleContentObserver, cleanupMiniplayerTitleContentObserver } from './titles/mainTitle';
 import { refreshBrowsingVideos, cleanupAllBrowsingTitlesElementsObservers } from './titles/browsingTitles';
-import { processDescriptionForVideoId, cleanupDescriptionObservers } from './description/descriptionIndex';
+import { processDescriptionForVideoId, cleanupDescriptionObservers } from './description/MainDescription';
 import { refreshChannelName, cleanupChannelNameContentObserver } from './channel/channelName';
 import { refreshShortsAlternativeFormat, checkShortsId } from './titles/shortsTitles';
 import { setupNotificationTitlesObserver, cleanupNotificationTitlesObserver } from './titles/notificationTitles';

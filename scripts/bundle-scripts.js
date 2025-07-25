@@ -10,7 +10,7 @@ const scripts = [
   'titles/mainTitleScript.js',
   'titles/TitlesInnerTube.js',
   'audio/audioScript.js',
-  'description/descriptionScript.js',
+  'description/MainDescriptionScript.js',
   'description/timestampScript.js',
   'description/searchDescriptionInnerTube.js',
   'subtitles/subtitlesScript.js',

@@ -1,5 +1,5 @@
 import { fetchMainTitle, updateMainTitleElement } from '../titles/mainTitle';
-import { fetchOriginalDescription } from '../description/descriptionIndex';
+import { fetchOriginalDescription } from '../description/MainDescription';
 import { currentSettings } from '..';
 
 /**

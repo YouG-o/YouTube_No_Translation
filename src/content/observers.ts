@@ -18,7 +18,7 @@ import { waitForElement, waitForFilledVideoTitles } from '../utils/dom';
 
 import { refreshMainTitle, refreshEmbedTitle, refreshMiniplayerTitle, cleanupMainTitleContentObserver ,cleanupIsEmptyObserver, cleanupPageTitleObserver, cleanupEmbedTitleContentObserver, cleanupMiniplayerTitleContentObserver } from './titles/mainTitle';
 import { refreshBrowsingVideos, cleanupAllBrowsingTitlesElementsObservers } from './titles/browsingTitles';
-import { descriptionCache, compareDescription, refreshDescription, updateDescriptionElement, fetchOriginalDescription } from './description/descriptionIndex';
+import { processDescriptionForVideoId, cleanupDescriptionObservers } from './description/MainDescription';
 import { refreshChannelName, cleanupChannelNameContentObserver } from './channel/channelName';
 import { refreshShortsAlternativeFormat, checkShortsId } from './titles/shortsTitles';
 import { setupNotificationTitlesObserver, cleanupNotificationTitlesObserver } from './titles/notificationTitles';
@@ -134,243 +134,26 @@ function cleanUpVideoPlayerListener() {
 export function setupMainVideoObserver() {
     //cleanupMainVideoObserver();
     waitForElement('ytd-watch-flexy').then((watchFlexy) => {
-        /*coreLog('Setting up video-id observer');
-        mainVideoObserver = new MutationObserver(async (mutations) => {
-            for (const mutation of mutations) {
-                if (mutation.type === 'attributes' && mutation.attributeName === 'video-id') {
-                    titleCache.clear();
-                    descriptionCache.clearCurrentDescription()
-                    
-                    const newVideoId = (mutation.target as HTMLElement).getAttribute('video-id');
-                    coreLog('Video ID changed:', newVideoId);
-                    
-                    if (currentSettings?.titleTranslation) {
-                        // Wait for movie_player and title element
-                        const [player, titleElement] = await Promise.all([
-                            waitForElement('#movie_player'),
-                            waitForElement('ytd-watch-metadata yt-formatted-string.style-scope.ytd-watch-metadata')
-                        ]);
-    
-                        // Only proceed if we're still on the same page
-                        if (titleElement.textContent) {
-                            await refreshMainTitle();
-                            await refreshChannelName();
-                        }
-                    }
-
-                    currentSettings?.descriptionTranslation && processDescriptionForVideoId();
-                }
-            }
-        });*/
-
+        const currentVideoId = watchFlexy.getAttribute('video-id');
+        
         if (currentSettings?.descriptionTranslation) {
             // Manually trigger for the initial video when setting up the observer
             // This handles the case where we navigate to a video page via SPA
-            const currentVideoId = watchFlexy.getAttribute('video-id');
             if (currentVideoId) {
-                //descriptionLog('Manually triggering for initial video-id:', currentVideoId);
-                descriptionCache.clearCurrentDescription();
                 // Process the initial video ID
-                processDescriptionForVideoId();
+                processDescriptionForVideoId(currentVideoId);
             }
         }
 
         if (currentSettings?.titleTranslation) {
-            const currentVideoId = watchFlexy.getAttribute('video-id');
             if (currentVideoId) {
                 refreshMainTitle();
                 refreshChannelName();
             }
         }
-
-        /*mainVideoObserver.observe(watchFlexy, {
-            attributes: true,
-            attributeFilter: ['video-id']
-        });*/
-    });
+    })
 }
 
-/*function cleanupMainVideoObserver() {
-    mainVideoObserver?.disconnect();
-    mainVideoObserver = null;
-}*/
-
-// DESCRIPTION OBSERVERS ------------------------------------------------------------
-let descriptionExpansionObserver: MutationObserver | null = null;
-let descriptionContentObserver: MutationObserver | null = null;
-
-
-// Helper function to process description for current video ID
-function processDescriptionForVideoId() {
-    const descriptionElement = document.querySelector('#description-inline-expander');
-    if (descriptionElement) {
-        waitForElement('#movie_player').then(() => {
-            // Instead of calling refreshDescription directly
-            // Call compareDescription first
-            
-            compareDescription(descriptionElement as HTMLElement).then(isOriginal => {
-                if (!isOriginal) {
-                    // Only refresh if not original                                 
-                    refreshDescription().then(() => {
-                        descriptionExpandObserver();
-                        setupDescriptionContentObserver();
-                    });
-                } else {
-                    cleanupDescriptionObservers();
-                }
-            });
-        });
-    } else {
-        // If not found, wait for it
-        waitForElement('#description-inline-expander').then(() => {
-            refreshDescription();
-            descriptionExpandObserver();
-        });
-    }
-}
-
-
-function descriptionExpandObserver() {
-    // Observer for description expansion/collapse
-    waitForElement('#description-inline-expander').then((descriptionElement) => {
-        //descriptionLog('Setting up expand/collapse observer');
-        descriptionExpansionObserver = new MutationObserver(async (mutations) => {
-            for (const mutation of mutations) {
-                if (mutation.type === 'attributes' && mutation.attributeName === 'is-expanded') {
-                    descriptionLog('Description expanded/collapsed');
-                    const cachedDescription = descriptionCache.getCurrentDescription();
-                    if (cachedDescription) {
-                        //descriptionLog('Using cached description');
-                        updateDescriptionElement(descriptionElement as HTMLElement, cachedDescription);
-                    } else {
-                        const description = await fetchOriginalDescription();
-                        if (description) {
-                            updateDescriptionElement(descriptionElement as HTMLElement, description);
-                        }
-                    }
-                }
-            }
-        });
-
-        descriptionExpansionObserver.observe(descriptionElement, {
-            attributes: true,
-            attributeFilter: ['is-expanded']
-        });
-    });
-}
-
-export function setupDescriptionContentObserver() {
-    // Cleanup existing observer avoiding infinite loops
-    cleanupDescriptionContentObserver();
-    const descriptionElement = document.querySelector('#description-inline-expander');
-    if (!descriptionElement) {
-        descriptionLog('Description element not found, skipping content observer setup');
-        return;
-    }
-    
-    // Get cached description
-    let cachedDescription = descriptionCache.getCurrentDescription();
-    if (!cachedDescription) {
-        descriptionLog('No cached description available, fetching from API');
-        
-        // Fetch description instead of returning
-        fetchOriginalDescription().then(description => {
-            if (description) {
-                // Cache the description
-                cachedDescription = description;
-                descriptionCache.setElement(descriptionElement as HTMLElement, description);
-                
-                // Now set up the observer with the fetched description
-                setupObserver();
-            }
-        });
-        return; // Still need to return here since we're doing async work
-    }
-    
-    // If we have a cached description, set up the observer
-    setupObserver();
-    
-    // Local function to avoid duplicating the observer setup code
-    function setupObserver() {
-        //descriptionLog('Setting up description content observer');
-        
-        descriptionContentObserver = new MutationObserver((mutations) => {
-            // Skip if we don't have a cached description to compare with
-            if (!cachedDescription) {
-                descriptionLog('No cached description available, skipping content observer setup');
-                return;
-            }
-            
-            // Add a small delay to allow YouTube to finish its modifications
-            setTimeout(() => {
-                // Make sure descriptionElement still exists in this closure
-                if (!descriptionElement) return;
-                
-                // Find the specific text container with the actual description content
-                const snippetAttributedString = descriptionElement.querySelector('#attributed-snippet-text');
-                const coreAttributedString = descriptionElement.querySelector('.yt-core-attributed-string--white-space-pre-wrap');
-                
-                if (!snippetAttributedString && !coreAttributedString) return;
-                
-                // Get the actual text content
-                const currentTextContainer = snippetAttributedString || coreAttributedString;
-                const currentText = currentTextContainer?.textContent?.trim();
-                
-                // Compare similarity instead of exact match
-                const similarity = calculateSimilarity(normalizeText(currentText, true), normalizeText(cachedDescription, true));
-                
-                // Consider texts similar if they match at least 75%
-                const isOriginal = similarity >= 0.75;
-                if (isOriginal) return;
-                
-                
-                //descriptionLog(`currentText: ${normalizeText(currentText, true)}`);
-                //descriptionLog(`cachedDescription: ${normalizeText(cachedDescription, true)}`);
-                //descriptionLog(`Similarity: ${(similarity * 100).toFixed(1)}%`);
-                
-                descriptionLog('Description content changed by YouTube, restoring original');
-                
-                // Temporarily disconnect to prevent infinite loop
-                descriptionContentObserver?.disconnect();
-                
-                // Update with original description - ensure cachedDescription isn't null
-                updateDescriptionElement(descriptionElement as HTMLElement, cachedDescription as string);
-                
-                // Reconnect observer
-                if (descriptionContentObserver) {
-                    descriptionContentObserver.observe(descriptionElement, {
-                        childList: true,
-                        subtree: true,
-                        characterData: true
-                    });
-                }
-            }, 50); // 50ms delay
-        });
-        
-        // Start observing - ensure descriptionElement isn't null
-        if (descriptionContentObserver && descriptionElement) {
-            descriptionContentObserver.observe(descriptionElement, {
-                childList: true,
-                subtree: true,
-                characterData: true
-            });
-        }
-        
-        //descriptionLog('Description content observer setup completed');
-    }
-}
-
-function cleanupDescriptionContentObserver(): void{
-    descriptionContentObserver?.disconnect();
-    descriptionContentObserver = null;
-}
-
-function cleanupDescriptionObservers(): void {
-    descriptionExpansionObserver?.disconnect();
-    descriptionExpansionObserver = null;
-
-    cleanupDescriptionContentObserver();
-}
 
 
 let timestampClickHandler: ((event: MouseEvent) => void) | null = null;

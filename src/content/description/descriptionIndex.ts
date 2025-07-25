@@ -10,8 +10,8 @@
 import { descriptionLog, descriptionErrorLog } from '../../utils/logger';
 import { waitForElement } from '../../utils/dom';
 import { normalizeText } from '../../utils/text';
-import { setupDescriptionContentObserver } from '../observers';
 import { initializeChaptersReplacement } from '../chapters/chaptersIndex';
+import { calculateSimilarity } from '../../utils/text';
 
 
 export async function fetchOriginalDescription(): Promise<string | null> {
@@ -25,6 +25,13 @@ export async function fetchOriginalDescription(): Promise<string | null> {
         script.src = browser.runtime.getURL('dist/content/scripts/descriptionScript.js');
         document.documentElement.appendChild(script);
     });
+}
+
+
+function getCurrentDescriptionText(element: HTMLElement): string {
+    const snippet = element.querySelector('#attributed-snippet-text');
+    const core = element.querySelector('.yt-core-attributed-string--white-space-pre-wrap');
+    return (snippet || core)?.textContent?.trim() || "";
 }
 
 export async function refreshDescription(): Promise<void> {
@@ -81,6 +88,18 @@ export class DescriptionCache {
 
 export const descriptionCache = new DescriptionCache();
 
+/**
+ * Insert the processed description span into a given container.
+ * Removes all previous children before appending the new content.
+ */
+function insertDescriptionSpan(container: Element | null, span: HTMLElement): void {
+    if (!container) return;
+    while (container.firstChild) {
+        container.removeChild(container.firstChild);
+    }
+    container.appendChild(span.cloneNode(true));
+}
+
 export function updateDescriptionElement(element: HTMLElement, description: string): void {
     // Find the text containers
     const attributedString = element.querySelector('yt-attributed-string');
@@ -103,11 +122,9 @@ export function updateDescriptionElement(element: HTMLElement, description: stri
     
     const lines = description.split('\n');
     lines.forEach((line, index) => {
-        // Split the line by URLs and create elements accordingly
         const parts = line.split(urlPattern);
         parts.forEach((part, partIndex) => {
             if (part.match(urlPattern)) {
-                // This is a URL, create a link
                 const link = document.createElement('a');
                 link.href = part;
                 link.textContent = part;
@@ -116,70 +133,46 @@ export function updateDescriptionElement(element: HTMLElement, description: stri
                 link.style.color = 'rgb(62, 166, 255)';
                 span.appendChild(link);
             } else if (part) {
-                // Process regular text for timestamps
                 let textContent = part;
                 let lastIndex = 0;
                 let timestampMatch;
-                
-                // Create a temporary document fragment to hold the processed content
                 const fragment = document.createDocumentFragment();
-                
-                // Reset regex index
                 timestampPattern.lastIndex = 0;
-                
-                // Check if we have timestamps in this part
                 while ((timestampMatch = timestampPattern.exec(textContent)) !== null) {
-                    // Add text before the timestamp
                     if (timestampMatch.index > lastIndex) {
                         fragment.appendChild(document.createTextNode(
                             textContent.substring(lastIndex, timestampMatch.index)
                         ));
                     }
-                    
-                    // Get timestamp text and calculate seconds
                     const timestamp = timestampMatch[0];
                     let seconds = 0;
-                    
-                    // Calculate seconds based on format (MM:SS or HH:MM:SS)
-                    if (timestampMatch[3]) { // HH:MM:SS format
+                    if (timestampMatch[3]) {
                         seconds = parseInt(timestampMatch[1]) * 3600 + 
                                  parseInt(timestampMatch[2]) * 60 + 
                                  parseInt(timestampMatch[3]);
-                    } else { // MM:SS format
+                    } else {
                         seconds = parseInt(timestampMatch[1]) * 60 + 
                                  parseInt(timestampMatch[2]);
                     }
-                    
-                    // Create outer container span
                     const outerSpan = document.createElement('span');
                     outerSpan.className = 'yt-core-attributed-string--link-inherit-color';
                     outerSpan.dir = 'auto';
                     outerSpan.style.color = 'rgb(62, 166, 255)';
-                    
-                    // Create timestamp link
                     const timestampLink = document.createElement('a');
                     timestampLink.textContent = timestamp;
                     timestampLink.className = 'yt-core-attributed-string__link yt-core-attributed-string__link--call-to-action-color';
                     timestampLink.style.cursor = 'pointer';
                     timestampLink.tabIndex = 0;
                     timestampLink.setAttribute('ynt-timestamp', seconds.toString());
-                    
                     outerSpan.appendChild(timestampLink);
                     fragment.appendChild(outerSpan);
-                    
-                    // Update last index to continue after this timestamp
                     lastIndex = timestampMatch.index + timestampMatch[0].length;
                 }
-                
-                // Add any remaining text after the last timestamp
                 if (lastIndex < textContent.length) {
                     fragment.appendChild(document.createTextNode(
                         textContent.substring(lastIndex)
                     ));
                 }
-                
-                // If we found timestamps, add the fragment with processed timestamps
-                // Otherwise just add the original text
                 if (lastIndex > 0) {
                     span.appendChild(fragment);
                 } else {
@@ -187,33 +180,17 @@ export function updateDescriptionElement(element: HTMLElement, description: stri
                 }
             }
         });
-
         if (index < lines.length - 1) {
             span.appendChild(document.createElement('br'));
         }
     });
 
-    // Update both containers if they exist
-    if (attributedString) {
-        while (attributedString.firstChild) {
-            attributedString.removeChild(attributedString.firstChild);
-        }
-        attributedString.appendChild(span.cloneNode(true));
-    }
-    
-    if (snippetAttributedString) {
-        while (snippetAttributedString.firstChild) {
-            snippetAttributedString.removeChild(snippetAttributedString.firstChild);
-        }
-        snippetAttributedString.appendChild(span.cloneNode(true));
-    }
+    // Use the utility function to insert the span into both containers
+    insertDescriptionSpan(attributedString, span);
+    insertDescriptionSpan(snippetAttributedString, span);
 
     descriptionCache.setElement(element, description);
-    
-    // Set up content observer to prevent re-translation
     setupDescriptionContentObserver();
-    
-    // Initialize chapters replacement with the original description
     initializeChaptersReplacement(description);
 }
 
@@ -235,19 +212,12 @@ export function compareDescription(element: HTMLElement): Promise<boolean> {
             return;
         }
         
-        // Find the specific text container with the actual description content
-        const snippetAttributedString = element.querySelector('#attributed-snippet-text');
-        const coreAttributedString = element.querySelector('.yt-core-attributed-string--white-space-pre-wrap');
-        
-        if (!snippetAttributedString && !coreAttributedString) {
-            resolve(false); // Cannot compare, need to update
+        const currentText = getCurrentDescriptionText(element);
+        if (!currentText) {
+            resolve(false);
             return;
         }
-        
-        // Get the actual text content
-        const currentTextContainer = snippetAttributedString || coreAttributedString;
-        const currentText = currentTextContainer?.textContent || "";
-        
+                
         // Check if description is already in original language (using prefix matching)
         const isOriginal = normalizeText(description, true).startsWith(normalizeText(currentText, true));
         
@@ -260,4 +230,175 @@ export function compareDescription(element: HTMLElement): Promise<boolean> {
         // Return true if original (no update needed), false if update needed
         resolve(isOriginal);
     });
+}
+
+
+// DESCRIPTION OBSERVERS ------------------------------------------------------------
+let descriptionExpansionObserver: MutationObserver | null = null;
+let descriptionContentObserver: MutationObserver | null = null;
+
+
+// Helper function to process description for current video ID
+export function processDescriptionForVideoId() {
+    const descriptionElement = document.querySelector('#description-inline-expander');
+    if (descriptionElement) {
+        waitForElement('#movie_player').then(() => {
+            // Instead of calling refreshDescription directly
+            // Call compareDescription first
+            
+            compareDescription(descriptionElement as HTMLElement).then(isOriginal => {
+                if (!isOriginal) {
+                    // Only refresh if not original                                 
+                    refreshDescription().then(() => {
+                        descriptionExpandObserver();
+                        setupDescriptionContentObserver();
+                    });
+                } else {
+                    cleanupDescriptionObservers();
+                }
+            });
+        });
+    } else {
+        // If not found, wait for it
+        waitForElement('#description-inline-expander').then(() => {
+            refreshDescription();
+            descriptionExpandObserver();
+        });
+    }
+}
+
+
+function descriptionExpandObserver() {
+    // Observer for description expansion/collapse
+    waitForElement('#description-inline-expander').then((descriptionElement) => {
+        //descriptionLog('Setting up expand/collapse observer');
+        descriptionExpansionObserver = new MutationObserver(async (mutations) => {
+            for (const mutation of mutations) {
+                if (mutation.type === 'attributes' && mutation.attributeName === 'is-expanded') {
+                    descriptionLog('Description expanded/collapsed');
+                    const cachedDescription = descriptionCache.getCurrentDescription();
+                    if (cachedDescription) {
+                        //descriptionLog('Using cached description');
+                        updateDescriptionElement(descriptionElement as HTMLElement, cachedDescription);
+                    } else {
+                        const description = await fetchOriginalDescription();
+                        if (description) {
+                            updateDescriptionElement(descriptionElement as HTMLElement, description);
+                        }
+                    }
+                }
+            }
+        });
+
+        descriptionExpansionObserver.observe(descriptionElement, {
+            attributes: true,
+            attributeFilter: ['is-expanded']
+        });
+    });
+}
+
+export function setupDescriptionContentObserver() {
+    // Cleanup existing observer avoiding infinite loops
+    cleanupDescriptionContentObserver();
+    const descriptionElement = document.querySelector('#description-inline-expander');
+    if (!descriptionElement) {
+        descriptionLog('Description element not found, skipping content observer setup');
+        return;
+    }
+    
+    // Get cached description
+    let cachedDescription = descriptionCache.getCurrentDescription();
+    if (!cachedDescription) {
+        descriptionLog('No cached description available, fetching from API');
+        
+        // Fetch description instead of returning
+        fetchOriginalDescription().then(description => {
+            if (description) {
+                // Cache the description
+                cachedDescription = description;
+                descriptionCache.setElement(descriptionElement as HTMLElement, description);
+                
+                // Now set up the observer with the fetched description
+                setupObserver();
+            }
+        });
+        return; // Still need to return here since we're doing async work
+    }
+    
+    // If we have a cached description, set up the observer
+    setupObserver();
+    
+    // Local function to avoid duplicating the observer setup code
+    function setupObserver() {
+        //descriptionLog('Setting up description content observer');
+        
+        descriptionContentObserver = new MutationObserver((mutations) => {
+            // Skip if we don't have a cached description to compare with
+            if (!cachedDescription) {
+                descriptionLog('No cached description available, skipping content observer setup');
+                return;
+            }
+            
+            // Add a small delay to allow YouTube to finish its modifications
+            setTimeout(() => {
+                // Make sure descriptionElement still exists in this closure
+                if (!descriptionElement) return;
+                
+                const currentText = getCurrentDescriptionText(descriptionElement as HTMLElement);
+                if (!currentText) return;
+                
+                // Compare similarity instead of exact match
+                const similarity = calculateSimilarity(normalizeText(currentText, true), normalizeText(cachedDescription, true));
+                
+                // Consider texts similar if they match at least 75%
+                const isOriginal = similarity >= 0.75;
+                if (isOriginal) return;
+                
+                
+                //descriptionLog(`currentText: ${normalizeText(currentText, true)}`);
+                //descriptionLog(`cachedDescription: ${normalizeText(cachedDescription, true)}`);
+                //descriptionLog(`Similarity: ${(similarity * 100).toFixed(1)}%`);
+                
+                descriptionLog('Description content changed by YouTube, restoring original');
+                
+                // Temporarily disconnect to prevent infinite loop
+                descriptionContentObserver?.disconnect();
+                
+                // Update with original description - ensure cachedDescription isn't null
+                updateDescriptionElement(descriptionElement as HTMLElement, cachedDescription as string);
+                
+                // Reconnect observer
+                if (descriptionContentObserver) {
+                    descriptionContentObserver.observe(descriptionElement, {
+                        childList: true,
+                        subtree: true,
+                        characterData: true
+                    });
+                }
+            }, 50); // 50ms delay
+        });
+        
+        // Start observing - ensure descriptionElement isn't null
+        if (descriptionContentObserver && descriptionElement) {
+            descriptionContentObserver.observe(descriptionElement, {
+                childList: true,
+                subtree: true,
+                characterData: true
+            });
+        }
+        
+        //descriptionLog('Description content observer setup completed');
+    }
+}
+
+function cleanupDescriptionContentObserver(): void{
+    descriptionContentObserver?.disconnect();
+    descriptionContentObserver = null;
+}
+
+export function cleanupDescriptionObservers(): void {
+    descriptionExpansionObserver?.disconnect();
+    descriptionExpansionObserver = null;
+
+    cleanupDescriptionContentObserver();
 }

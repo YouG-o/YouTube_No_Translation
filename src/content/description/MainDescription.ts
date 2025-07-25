@@ -126,6 +126,21 @@ function createTimestampFragment(text: string): DocumentFragment {
     return fragment;
 }
 
+/**
+ * Creates an anchor element for a given URL with YouTube description styling.
+ * @param url - The URL to link to.
+ * @returns HTMLAnchorElement
+ */
+function createUrlLink(url: string): HTMLAnchorElement {
+    const link = document.createElement('a');
+    link.href = url;
+    link.textContent = url;
+    link.className = 'yt-core-attributed-string__link yt-core-attributed-string__link--call-to-action-color';
+    link.setAttribute('target', '_blank');
+    link.style.color = 'rgb(62, 166, 255)';
+    return link;
+}
+
 
 export function updateDescriptionElement(element: HTMLElement, description: string, id: string): void {
     // Find the text containers
@@ -145,20 +160,13 @@ export function updateDescriptionElement(element: HTMLElement, description: stri
     // URL regex pattern
     const urlPattern = /(https?:\/\/[^\s]+)/g;
     // Timestamp pattern - matches common YouTube timestamp formats like 1:23 or 1:23:45
-    const timestampPattern = /\b(\d{1,2}):(\d{2})(?::(\d{2}))?\b/g;
     
     const lines = description.split('\n');
     lines.forEach((line, index) => {
         const parts = line.split(urlPattern);
         parts.forEach((part, partIndex) => {
             if (part.match(urlPattern)) {
-                const link = document.createElement('a');
-                link.href = part;
-                link.textContent = part;
-                link.className = 'yt-core-attributed-string__link yt-core-attributed-string__link--call-to-action-color';
-                link.setAttribute('target', '_blank');
-                link.style.color = 'rgb(62, 166, 255)';
-                span.appendChild(link);
+                span.appendChild(createUrlLink(part));
             } else if (part) {
                 // Replace the timestamp logic by:
                 const fragment = createTimestampFragment(part);

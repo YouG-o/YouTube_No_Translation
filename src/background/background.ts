@@ -93,7 +93,7 @@ async function toDoOnFirstInstall(details: InstalledDetails) {
             url: api.runtime.getURL('dist/popup/settings.html?welcome=true')
         });
 
-        // Find all open YouTube and YouTube No-Cookie tabs and refresh them
+        // Find all open YouTube and YouTube No-Cookie tabs and refresh only those that are not discarded
         const youtubeTabs = await api.tabs.query({ 
             url: [
                 '*://*.youtube.com/*',
@@ -101,10 +101,11 @@ async function toDoOnFirstInstall(details: InstalledDetails) {
             ] 
         });
         for (const tab of youtubeTabs) {
-            if (tab.id) {
+            // Only reload tabs that are not discarded (i.e., active in memory)
+            if (tab.id && tab.discarded === false) {
                 try {
                     await api.tabs.reload(tab.id);
-                    console.log(`[YNT-Debug] Reloaded YouTube tab: ${tab.id}`);
+                    console.log(`[YNT-Debug] Reloaded active YouTube tab: ${tab.id}`);
                 } catch (error) {
                     console.error(`[YNT-Debug] Failed to reload tab ${tab.id}:`, error);
                 }

@@ -8,7 +8,7 @@
     <title>YouTube No Translation!</title>
 </head>
 
-<body class="flex flex-col items-center justify-center min-h-screen bg-gray-700 p-8">
+<body class="flex flex-col items-center justify-center min-h-screen bg-gray-700 p-4">
     <div class="welcome-container w-full max-w-[600px] bg-gray-700">
 
         <header class="pb-4 border-b border-gray-600">
@@ -16,26 +16,37 @@
                 <img src="../assets/icons/icon.png" alt="Logo" class="w-8 h-8">
                 YouTube No Translation Settings
             </h1>
-            <div id="welcomeMessage" class="hidden">
-                <p class="text-md text-gray-300 mb-1">
-                    Thanks for installing! Here you can configure how the extension behaves.
-                </p>
-                <div id="reloadNotice" class="mt-3 p-3 rounded bg-yellow-900/70 border border-yellow-600 text-yellow-200">
-                    <b>Important:</b> For the extension to work on YouTube tabs that were already open before installation, you must reload those tabs.<br>
-                    <button id="reloadYoutubeTabsBtn" class="mt-2 px-4 py-2 bg-yellow-700 hover:bg-yellow-600 text-white rounded font-semibold">
-                        Reload all active YouTube tabs
-                    </button>
-                </div>
-            </div>
             <div class="mt-3 text-xs text-gray-400 flex items-center gap-1">
                 Created by YouGo
                 <a href="https://github.com/YouG-o" target="_blank" rel="noopener noreferrer">
                     <img src="../assets/icons/Github-Dark.svg" alt="GitHub" title="GitHub" class="w-4 h-4 hover:opacity-80 transition-opacity">
                 </a>
             </div>
+            <div id="welcomeMessage" class="hidden">
+                <p class="text-md text-gray-300 mb-1">
+                    Thanks for installing! Here you can configure how the extension behaves.
+                </p>
+                <div id="reloadNotice"
+                     class="flex flex-col items-center justify-center mt-3 mb-6 p-4 rounded-lg border-4 border-yellow-400 bg-yellow-100 text-yellow-900 shadow-lg"
+                     style="font-size: 1.08rem; font-weight: 500;">
+                    <div class="flex items-center gap-2 mb-2">
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="#f59e00" aria-hidden="true" focusable="false">
+                            <path d="M1 21h22L12 2 1 21zm12-3h-2v-2h2v2zm0-4h-2v-4h2v4z"/>
+                        </svg>
+                        <b>Important:</b>
+                    </div>
+                    <div class="text-center">
+                        For the extension to work on YouTube tabs that were already open before installation, you must reload those tabs.<br>
+                        <button id="reloadYoutubeTabsBtn"
+                                class="mt-3 px-5 py-2 rounded bg-yellow-400 hover:bg-yellow-300 text-yellow-900 font-bold border-2 border-yellow-600 shadow transition">
+                            Reload all active YouTube tabs
+                        </button>
+                    </div>
+                </div>
+            </div>
         </header>
 
-        <main class="py-4 pb-[110px]">
+        <main class="py-4 pb-[150px]">
             <div class="space-y-4">
                 <!-- Original Titles Feature -->
                 <div class="p-3 rounded-lg border border-gray-600 hover:bg-gray-600 transition-colors">

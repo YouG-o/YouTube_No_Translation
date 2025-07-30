@@ -1,6 +1,6 @@
 {
   "name": "ynt",
-  "version": "2.10.6",
+  "version": "2.10.7",
   "description": "Stop YouTube's automatic translations! This extension keeps titles, descriptions and video audio in their original language.",
   "scripts": {
     "clean": "rm -rf dist && rm -f manifest.json",

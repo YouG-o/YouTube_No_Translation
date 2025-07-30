@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.10.7] - 2025-07-30
+
+### Changed
+- Removed automatic reload of YouTube tabs on extension install. Instead, a clear warning is now displayed on the Welcome page, with a button allowing users to manually reload active YouTube tabs. Hibernating or backgroud tabs are ignored.
+
 ## [2.10.6] - 2025-07-25
 
 ### Refactored
@@ -355,7 +360,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 *Note: This changelog was introduced in version 2.2.30. For earlier version history, please refer to the [GitHub releases](https://github.com/YouG-o/YouTube_No_Translation/releases).*
 
-[Unreleased]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.10.6...HEAD
+[Unreleased]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.10.7...HEAD
+[2.10.6]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.10.6...v2.10.7
 [2.10.6]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.10.3...v2.10.6
 [2.10.3]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.10.2...v2.10.3
 [2.10.2]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.10.1...v2.10.2

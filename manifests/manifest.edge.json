@@ -1,8 +1,6 @@
 {
     "manifest_version": 3,
-    "author": "YouGo",
     "name": "No Translation on YouTube",
-    "description": "Stop YouTube's automatic translations! This extension keeps titles, descriptions and video audio in their original language.",
     "icons": {
       "48": "dist/assets/icons/icon.png",
       "96": "dist/assets/icons/icon.png"

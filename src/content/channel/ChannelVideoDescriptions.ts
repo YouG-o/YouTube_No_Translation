@@ -10,10 +10,15 @@ export async function processChannelVideoDescriptions(): Promise<void> {
 
     for (const renderer of videoRenderers) {
         const descriptionElement = renderer.querySelector<HTMLElement>('#description-text');
-        if (!descriptionElement) continue;
-
-        // Skip if already processed
-        if (descriptionElement.hasAttribute('ynt-channel-desc')) continue;
+        // Skip if already processed or not visible
+        if (
+            !descriptionElement ||
+            descriptionElement.hasAttribute('ynt-channel-desc') ||
+            !descriptionElement.textContent?.trim() ||
+            descriptionElement.offsetParent === null // Not visible
+        ) {
+            continue;
+        }
 
         // Try to extract videoId from the title or thumbnail link
         let videoId: string | null = null;

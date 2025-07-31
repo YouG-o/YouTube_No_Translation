@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fix
+- Channel page: Only the real (visible and non-empty) video description is now restored for each video. Fixed an issue where the extension would attempt to restore descriptions for all video thumbnails, even when no description was present.
+
 ## [2.10.7] - 2025-07-30
 
 ### Changed

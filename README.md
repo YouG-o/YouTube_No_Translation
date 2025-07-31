@@ -25,8 +25,9 @@
   <br>
 
 
-  [![Available on Mozzila](./assets/images/firefox.png)](https://addons.mozilla.org/firefox/addon/youtube-no-translation/)
-  [![Available on Chrome Web Store](./assets/images/chrome.png)](https://chromewebstore.google.com/detail/youtube-no-translation/lmkeolibdeeglfglnncmfleojmakecjb)
+  [![Available on Mozilla](./assets/images/mozilla-firefox_banner.png)](https://addons.mozilla.org/firefox/addon/youtube-no-translation/)
+  [![Available on Chrome Web Store](./assets/images/chrome-web-store_banner.png)](https://chromewebstore.google.com/detail/youtube-no-translation/lmkeolibdeeglfglnncmfleojmakecjb)  
+  [![Available on Microsoft Store](./assets/images/microsoft-edge_banner.png)](https://microsoftedge.microsoft.com/addons/detail/dflkepcdbnjbbfdokanhhdeolodkcofb)
 
 
   <br>

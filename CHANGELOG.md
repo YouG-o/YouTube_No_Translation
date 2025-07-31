@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+
+## [2.10.8] - 2025-07-31
+
+### Style
+- Improve reload button contrast and add refresh icon for clarity
+
 ### Fix
 - Channel page: Only the real (visible and non-empty) video description is now restored for each video. Fixed an issue where the extension would attempt to restore descriptions for all video thumbnails, even when no description was present.
 
@@ -363,7 +369,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 *Note: This changelog was introduced in version 2.2.30. For earlier version history, please refer to the [GitHub releases](https://github.com/YouG-o/YouTube_No_Translation/releases).*
 
-[Unreleased]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.10.7...HEAD
+[Unreleased]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.10.8...HEAD
+[2.10.6]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.10.7...v2.10.8
 [2.10.6]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.10.6...v2.10.7
 [2.10.6]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.10.3...v2.10.6
 [2.10.3]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.10.2...v2.10.3

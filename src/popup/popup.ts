@@ -161,7 +161,6 @@ if (isWelcome) {
             pageTitle.innerHTML = '';
             pageTitle.appendChild(imgElement);
             pageTitle.appendChild(document.createTextNode('Welcome to YouTube No Translation!'));
-            pageTitle.className = 'text-2xl font-semibold text-white flex items-center gap-2 mb-2';
         }
     }
     

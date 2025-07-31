@@ -8,22 +8,22 @@
     <title>YouTube No Translation!</title>
 </head>
 
-<body class="flex flex-col items-center justify-center min-h-screen bg-gray-700 p-4">
+<body class="flex flex-col items-center justify-center min-h-screen bg-gray-700">
     <div class="welcome-container w-full max-w-[600px] bg-gray-700">
 
         <header class="pb-4 border-b border-gray-600">
-            <h1 class="text-2xl font-semibold text-white flex items-center gap-2 mb-2" id="pageTitle">
+            <h1 class="text-2xl font-semibold text-white flex items-center gap-2" id="pageTitle">
                 <img src="../assets/icons/icon.png" alt="Logo" class="w-8 h-8">
                 YouTube No Translation Settings
             </h1>
-            <div class="mt-3 text-xs text-gray-400 flex items-center gap-1">
+            <div class="mb-3 text-xs text-gray-400 flex items-center gap-1">
                 Created by YouGo
                 <a href="https://github.com/YouG-o" target="_blank" rel="noopener noreferrer">
                     <img src="../assets/icons/Github-Dark.svg" alt="GitHub" title="GitHub" class="w-4 h-4 hover:opacity-80 transition-opacity">
                 </a>
             </div>
             <div id="welcomeMessage" class="hidden">
-                <p class="text-md text-gray-300 mb-1">
+                <p class="text-base text-gray-300 mb-1">
                     Thanks for installing! Here you can configure how the extension behaves.
                 </p>
                 <div id="reloadNotice"
@@ -37,8 +37,14 @@
                     </div>
                     <div class="text-center">
                         For the extension to work on YouTube tabs that were already open before installation, you must reload those tabs.<br>
+                    </div>
+                    <div class="flex justify-center">
                         <button id="reloadYoutubeTabsBtn"
-                                class="mt-3 px-5 py-2 rounded bg-yellow-400 hover:bg-yellow-300 text-yellow-900 font-bold border-2 border-yellow-600 shadow transition">
+                            class="mt-3 px-6 py-2 flex items-center justify-center gap-2 rounded-lg bg-yellow-400 hover:bg-yellow-300 text-yellow-900 font-bold border-2 border-yellow-600 shadow-lg transition"
+                            style="font-size: 1.08rem;">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6" aria-hidden="true" focusable="false">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99" />
+                            </svg>
                             Reload all active YouTube tabs
                         </button>
                     </div>
@@ -46,7 +52,7 @@
             </div>
         </header>
 
-        <main class="py-4 pb-[150px]">
+        <main class="pb-[150px]">
             <div class="space-y-4">
                 <!-- Original Titles Feature -->
                 <div class="p-3 rounded-lg border border-gray-600 hover:bg-gray-600 transition-colors">
@@ -221,7 +227,7 @@
         <footer class="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[600px] flex flex-col gap-4 pt-4 pb-4 bg-gray-700 border-t border-gray-600 z-50">
             <div class="flex flex-col items-center">
                 <span class="mb-1 text-sm text-orange-300 font-semibold text-center">
-                    Maintaining and improving this extension takes a lot of time and effort.<br>
+                    Maintaining and improving this extension takes time and effort.<br>
                     Your support makes this project possible. Every contribution helps, thank you!
                 </span>
                 <a href="https://ko-fi.com/yougo" target="_blank" rel="noopener noreferrer">

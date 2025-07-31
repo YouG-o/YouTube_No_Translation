@@ -74,8 +74,15 @@ fs.writeFileSync(path.join(outDir, 'README.md'), readmeContent.trim() + '\n');
 const pkg = JSON.parse(fs.readFileSync(path.join(rootDir, 'package.json'), 'utf8'));
 const version = pkg.version;
 
-// 4. Zip the folder with version in the name
+// 4. Ensure output directory exists for the zip
+const firefoxArtifactsDir = path.join(rootDir, 'web-ext-artifacts', 'firefox');
+if (!fs.existsSync(firefoxArtifactsDir)) {
+  fs.mkdirSync(firefoxArtifactsDir, { recursive: true });
+}
+
+// 5. Zip the folder with version in the name, inside web-ext-artifacts/firefox/
 const zipName = `reviewer-source-v${version}.zip`;
-execSync(`cd "${rootDir}" && zip -r ${zipName} reviewer-source`);
+const zipPath = path.join(firefoxArtifactsDir, zipName);
+execSync(`cd "${rootDir}" && zip -r "${zipPath}" reviewer-source`);
 fs.rmSync(outDir, { recursive: true, force: true });
-console.log(`✅ Reviewer source package created: ${zipName}`);
+console.log(`✅ Reviewer source package created: ${zipPath}`);

@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- Outdated Xcode Project file.
+- Missing iconset copy in the shell script for Safari.
+
+### Changed
+- Updated iconset to match the required by macOS.
 
 ## [2.10.8] - 2025-07-31
 

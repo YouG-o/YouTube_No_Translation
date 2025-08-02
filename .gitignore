@@ -47,8 +47,10 @@ web-ext-artifacts/
 **/*.xcuserstate
 
 # Safari extension - avoid duplicated files
-safari-extension/YouTube\ No\ Translation/YouTube\ No\ Translation\ Extension/Resources/*
+safari-extension/YouTube No Translation/YouTube No Translation Extension/Resources/**
 safari-icons.sh
+safari-extension/YouTube No Translation/YouTube No Translation/Assets.xcassets/
+safari-extension/YouTube No Translation/YouTube No Translation/Resources/
 
 # Reviewer source package for Mozilla
 reviewer-source*.zip

@@ -72,7 +72,74 @@ echo "Icons generated at $APPICONSET."
 
 # --- Create AppIcon.appiconset Contents.json ---
 cat > "$APPICONSET/Contents.json" <<EOF
-... (misma sección JSON del script original con las entradas de íconos) ...
+{
+  "images": [
+    {
+      "size": "16x16",
+      "idiom": "mac",
+      "filename": "icon-16.png",
+      "scale": "1x"
+    },
+    {
+      "size": "16x16",
+      "idiom": "mac",
+      "filename": "icon-16@2x.png",
+      "scale": "2x"
+    },
+    {
+      "size": "32x32",
+      "idiom": "mac",
+      "filename": "icon-32.png",
+      "scale": "1x"
+    },
+    {
+      "size": "32x32",
+      "idiom": "mac",
+      "filename": "icon-32@2x.png",
+      "scale": "2x"
+    },
+    {
+      "size": "128x128",
+      "idiom": "mac",
+      "filename": "icon-128.png",
+      "scale": "1x"
+    },
+    {
+      "size": "128x128",
+      "idiom": "mac",
+      "filename": "icon-128@2x.png",
+      "scale": "2x"
+    },
+    {
+      "size": "256x256",
+      "idiom": "mac",
+      "filename": "icon-256.png",
+      "scale": "1x"
+    },
+    {
+      "size": "256x256",
+      "idiom": "mac",
+      "filename": "icon-256@2x.png",
+      "scale": "2x"
+    },
+    {
+      "size": "512x512",
+      "idiom": "mac",
+      "filename": "icon-512.png",
+      "scale": "1x"
+    },
+    {
+      "size": "512x512",
+      "idiom": "mac",
+      "filename": "icon-512@2x.png",
+      "scale": "2x"
+    }
+  ],
+  "info": {
+    "version": 1,
+    "author": "xcode"
+  }
+}
 EOF
 echo "AppIcon.appiconset Contents.json created."
 

@@ -7,7 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.10.10] - 2025-08-05
+
 ### Fixed
+- Exclude suggestion link text from description extraction for accurate comparison
 - Outdated Xcode Project file.
 - Missing iconset copy in the shell script for Safari.
 
@@ -376,8 +379,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 *Note: This changelog was introduced in version 2.2.30. For earlier version history, please refer to the [GitHub releases](https://github.com/YouG-o/YouTube_No_Translation/releases).*
 
 [Unreleased]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.10.8...HEAD
-[2.10.6]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.10.7...v2.10.8
-[2.10.6]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.10.6...v2.10.7
+[2.10.10]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.10.8...v2.10.10
+[2.10.8]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.10.7...v2.10.8
+[2.10.7]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.10.6...v2.10.7
 [2.10.6]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.10.3...v2.10.6
 [2.10.3]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.10.2...v2.10.3
 [2.10.2]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.10.1...v2.10.2

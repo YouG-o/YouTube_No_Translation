@@ -29,10 +29,37 @@ export async function fetchOriginalDescription(): Promise<string | null> {
 }
 
 
+/**
+ * Returns the current description text, excluding YouTube suggestion links.
+ * Only includes text nodes not inside a suggestion link.
+ */
 function getCurrentDescriptionText(element: HTMLElement): string {
     const snippet = element.querySelector('#attributed-snippet-text');
     const core = element.querySelector('.yt-core-attributed-string--white-space-pre-wrap');
-    return (snippet || core)?.textContent?.trim() || "";
+    const container = snippet || core;
+    if (!container) return "";
+
+    function extractText(node: Node): string {
+        // If this node is a suggestion link, ignore it
+        if (
+            node.nodeType === Node.ELEMENT_NODE &&
+            (node as Element).matches('a.yt-core-attributed-string__link')
+        ) {
+            return "";
+        }
+        // If it's a text node, return its content
+        if (node.nodeType === Node.TEXT_NODE) {
+            return node.textContent || "";
+        }
+        // Otherwise, recurse into children
+        let text = "";
+        node.childNodes.forEach(child => {
+            text += extractText(child);
+        });
+        return text;
+    }
+
+    return extractText(container).trim();
 }
 
 

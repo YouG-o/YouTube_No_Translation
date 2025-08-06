@@ -16,15 +16,17 @@
  */
 
 (() => {
-    // Get handle from script attribute
+    // Get handle from script attribute and decode it if needed
     const scriptTag = document.currentScript;
-    const handle = scriptTag && scriptTag.getAttribute('data-channel-handle');
+    let handle = scriptTag && scriptTag.getAttribute('data-channel-handle');
     if (!handle) {
         window.dispatchEvent(new CustomEvent('ynt-get-channel-id-inner-tube', {
             detail: { channelId: null, error: 'No channel handle provided' }
         }));
         return;
     }
+    // Always decode the handle for multibyte support
+    handle = decodeURIComponent(handle);
 
     // Get client version from YouTube config
     const clientVersion = window?.yt?.config_?.INNERTUBE_CLIENT_VERSION || '2.20250527.00.00';
@@ -49,14 +51,14 @@
             .filter(el => el.channelRenderer)
             .map(el => el.channelRenderer) || [];
 
-        // Try to find an exact handle match (case-insensitive, with or without @)
-        const normalizedHandle = handle.replace(/^@/, '').toLowerCase();
+        // Find the exact match by comparing canonicalBaseUrl (still encoded) to the original handle in the URL
+        const originalEncodedHandle = scriptTag.getAttribute('data-channel-handle');
         const exactMatch = channels.find(ch => {
             const url = ch.navigationEndpoint?.browseEndpoint?.canonicalBaseUrl || '';
-            return url.toLowerCase() === `/@${normalizedHandle}`;
+            return url === `/@${originalEncodedHandle}`;
         });
 
-        const channelId = exactMatch?.channelId || channels[0]?.channelId || null;
+        const channelId = exactMatch?.channelId || null;
 
         window.dispatchEvent(new CustomEvent('ynt-get-channel-id-inner-tube', {
             detail: { channelId }

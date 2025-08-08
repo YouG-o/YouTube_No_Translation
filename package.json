@@ -1,6 +1,6 @@
 {
   "name": "ynt",
-  "version": "2.10.10",
+  "version": "2.10.11",
   "description": "Keep YouTube content in its original language: titles, descriptions, audio tracks, subtitles... No more unwanted translations.",
   "scripts": {
     "clean": "rm -rf dist && rm -f manifest.json",
@@ -50,8 +50,15 @@
     "extension",
     "addon",
     "translation",
+    "translate",
     "description",
-    "dubbing"
+    "dubbing",
+    "subtitles",
+    "audio",
+    "language",
+    "no-translation",
+    "no-translate-youtube",
+    "original-language"
   ],
   "author": "YouGo",
   "license": "AGPL-3.0-or-later",
@@ -63,13 +70,13 @@
     "@types/chrome": "^0.0.326",
     "@types/webextension-polyfill": "^0.12.3",
     "autoprefixer": "^10.4.21",
-    "concurrently": "^9.1.2",
-    "esbuild": "^0.25.5",
+    "concurrently": "^9.2.0",
+    "esbuild": "^0.25.8",
     "postcss": "^8.5.6",
     "rimraf": "^6.0.1",
     "tailwindcss": "^3.4.17",
-    "typescript": "^5.8.3",
-    "web-ext": "^8.7.1"
+    "typescript": "^5.9.2",
+    "web-ext": "^8.9.0"
   },
   "dependencies": {
     "webextension-polyfill": "^0.12.0"

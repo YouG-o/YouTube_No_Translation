@@ -129,16 +129,30 @@ function shouldProcessBrowsingElement(titleElement: HTMLElement): ProcessingResu
     }
 
     // Check for playlist containers (legacy and new format)
-    const isPlaylistContainer = titleElement.closest('ytd-rich-grid-media') !== null && 
-                                     videoUrl.includes('&list=') && 
-                                     !videoUrl.includes('&index=');
+    const hasPlaylistParam = videoUrl.includes('list=') && !videoUrl.includes('&index=');
+
+    const isRichGridPlaylist =
+        titleElement.closest('ytd-rich-grid-media') !== null && hasPlaylistParam;
 
     // New format: check if parent link has 'list=' but not 'index='
-    const parentLink = titleElement.closest('a.yt-lockup-metadata-view-model-wiz__title');
-    const isPlaylistAlternativeContainer = parentLink && parentLink.getAttribute('href')?.includes('list=') && 
+    const parentLink = titleElement.closest('a.yt-lockup-metadata-view-model-wiz__title') as HTMLAnchorElement | null;
+    const isPlaylistAlternativeContainer = !!parentLink && parentLink.getAttribute('href')?.includes('list=') && 
                                !parentLink.getAttribute('href')?.includes('index=');
 
-    if (isPlaylistContainer || isPlaylistAlternativeContainer) {
+    // Additional: channel grid and other playlist renderers loaded on scroll
+    const isInKnownPlaylistRenderer =
+        !!titleElement.closest('ytd-grid-playlist-renderer, ytd-playlist-renderer, ytd-compact-playlist-renderer, ytd-playlist-panel-renderer');
+
+    // Additional: anchor with id="video-title" belonging to a grid playlist renderer
+    const anchor = titleElement.closest('a#video-title') as HTMLAnchorElement | null;
+    const anchorIsGridPlaylistLink = !!anchor && anchor.classList.contains('ytd-grid-playlist-renderer');
+
+    const isPlaylistContainer =
+        isRichGridPlaylist ||
+        isPlaylistAlternativeContainer ||
+        (hasPlaylistParam && (isInKnownPlaylistRenderer || anchorIsGridPlaylistLink));
+
+    if (isPlaylistContainer) {
         // Clean up any attributes the extension might have previously set incorrectly on this element
         titleElement.removeAttribute('ynt-fail');
         titleElement.removeAttribute('ynt-original');

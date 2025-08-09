@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- Improved playlist detection: channel grid playlists (including those loaded on scroll) are now correctly ignored, preventing their titles from being overwritten by the first video title in the playlist.
+
 ## [2.10.11] - 2025-08-08
 
 ### Fixed

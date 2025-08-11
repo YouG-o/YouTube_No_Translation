@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.10.12] - 2025-08-11
+
 ### Fixed
 - Improved playlist detection: channel grid playlists (including those loaded on scroll) are now correctly ignored, preventing their titles from being overwritten by the first video title in the playlist.
 - Added grid parent observer to all type of pages, to update titles if a filter is applyed. (Was only added on home page before, but filters also exists elsewhere)
@@ -16,7 +18,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - Always decode channel handle if it is percent-encoded (UTF-8), as happens for multibyte handles
-
 
 ## [2.10.10] - 2025-08-05
 
@@ -389,7 +390,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 *Note: This changelog was introduced in version 2.2.30. For earlier version history, please refer to the [GitHub releases](https://github.com/YouG-o/YouTube_No_Translation/releases).*
 
-[Unreleased]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.10.11...HEAD
+[Unreleased]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.10.12...HEAD
+[2.10.12]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.10.11...v2.10.12
 [2.10.11]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.10.10...v2.10.11
 [2.10.10]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.10.8...v2.10.10
 [2.10.8]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.10.7...v2.10.8

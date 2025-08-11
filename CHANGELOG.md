@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Improved playlist detection: channel grid playlists (including those loaded on scroll) are now correctly ignored, preventing their titles from being overwritten by the first video title in the playlist.
 - Added grid parent observer to all type of pages, to update titles if a filter is applyed. (Was only added on home page before, but filters also exists elsewhere)
+- Notification dropdown observer now only activates when the menu-style is set to notifications, preventing false positives from other dropdowns like settings.
 
 ## [2.10.11] - 2025-08-08
 

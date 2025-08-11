@@ -299,7 +299,7 @@ function handleGridMutation(pageName: string) {
         setTimeout(() => {
             refreshBrowsingVideos();
             refreshShortsAlternativeFormat();
-        }, 700);
+        }, 650);
         lastHomeRefresh = now;
     }
 }
@@ -507,18 +507,23 @@ function setupNotificationTitlesDropdownObserver() {
 
     notificationTitlesDropdownObserver = new MutationObserver(() => {
         waitForElement('ytd-popup-container tp-yt-iron-dropdown[vertical-align="top"]').then((dropdown) => {
+            // Find the multi-page menu renderer inside the dropdown
+            const menuRenderer = dropdown.querySelector('ytd-multi-page-menu-renderer');
+            const menuStyle = menuRenderer?.getAttribute('menu-style');
+            const isNotificationMenu = menuStyle === 'multi-page-menu-style-type-notifications';
+
             const computedStyle = window.getComputedStyle(dropdown);
             const isVisible = computedStyle.display !== 'none';
             
-            if (isVisible && !notificationDropdownHandled) {
-                // Dropdown became visible
+            if (isVisible && isNotificationMenu && !notificationDropdownHandled) {
+                // Dropdown became visible and is the notifications menu
                 notificationDropdownHandled = true;
                 coreLog('Notification titles dropdown appeared, setting up observer');
                 setupNotificationTitlesObserver();
-            } else if (!isVisible && notificationDropdownHandled) {
-                // Dropdown became hidden
+            } else if ((!isVisible || !isNotificationMenu) && notificationDropdownHandled) {
+                // Dropdown became hidden or is not the notifications menu
                 notificationDropdownHandled = false;
-                coreLog('Notification titles dropdown disappeared, ready for next opening');
+                //coreLog('Notification titles dropdown disappeared or is not notifications, ready for next opening');
                 cleanupNotificationTitlesObserver();
             }
         }).catch(() => {

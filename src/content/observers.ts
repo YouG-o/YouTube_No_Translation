@@ -278,15 +278,13 @@ async function pageVideosObserver() {
         pageGridObservers.push(observer);
     });
 
-    // Add parent grid observer (useful on Home page when clicking on filters)
-    if (pageName === 'Home') {
-        const gridParent = document.querySelector('#primary > ytd-rich-grid-renderer') as HTMLElement | null;
-        if (gridParent) {
-            pageGridParentObserver = new MutationObserver(() => handleGridMutation(pageName));
-            pageGridParentObserver.observe(gridParent, {
-                attributes: true
-            });
-        }
+    // Add parent grid observer (useful when clicking on filters)
+    const gridParent = document.querySelector('#primary > ytd-rich-grid-renderer') as HTMLElement | null;
+    if (gridParent) {
+        pageGridParentObserver = new MutationObserver(() => handleGridMutation(pageName));
+        pageGridParentObserver.observe(gridParent, {
+            attributes: true
+        });
     }
 }
 
@@ -298,6 +296,10 @@ function handleGridMutation(pageName: string) {
             refreshBrowsingVideos();
             refreshShortsAlternativeFormat();
         }, 100);
+        setTimeout(() => {
+            refreshBrowsingVideos();
+            refreshShortsAlternativeFormat();
+        }, 700);
         lastHomeRefresh = now;
     }
 }

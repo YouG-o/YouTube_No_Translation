@@ -24,7 +24,7 @@ export let lastBrowsingShortsRefresh = 0;
 export function setLastBrowsingShortsRefresh(value: number) {
     lastBrowsingShortsRefresh = value;
 }
-export const TITLES_THROTTLE = 1000;
+export const TITLES_THROTTLE = 500;
 const browsingTitlesFallbackQueue = new Set<string>();
 const processingVideos = new Set<string>(); // Track individual videos being processed
 

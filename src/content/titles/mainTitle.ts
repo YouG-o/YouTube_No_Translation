@@ -342,46 +342,45 @@ export async function refreshMiniplayerTitle(): Promise<void> {
         }
 
         if (miniplayerTitle) {
-            // Get video ID from miniplayer - try multiple methods
+            // Get video ID from miniplayer using injected script
             let videoId: string | null = null;
-            
-            // Method 1: Try to find video link in miniplayer
-            const miniplayerContainer = document.querySelector('ytd-miniplayer');
-            if (miniplayerContainer) {
-                const videoLink = miniplayerContainer.querySelector('a[href*="/watch?v="]') as HTMLAnchorElement;
-                if (videoLink) {
-                    const urlParams = new URL(videoLink.href).searchParams;
-                    videoId = urlParams.get('v');
-                }
-            }
-            
-            // Method 2: Fallback to current URL if still on /watch page
-            if (!videoId && window.location.pathname === '/watch') {
-                videoId = new URLSearchParams(window.location.search).get('v');
-            }
 
-            // Method 3: Try to extract from player if available
-            if (!videoId) {
-                try {
-                    // Look for video ID in any ytd-miniplayer attributes or data
-                    const miniplayerElement = miniplayerTitle.closest('ytd-miniplayer');
-                    if (miniplayerElement) {
-                        // Check if there's any data attribute with video ID
-                        const allAttributes = Array.from(miniplayerElement.attributes);
-                        for (const attr of allAttributes) {
-                            if (attr.value && attr.value.match(/^[a-zA-Z0-9_-]{11}$/)) {
-                                videoId = attr.value;
-                                break;
-                            }
+            try {
+                // Inject script to get video ID from player APIs
+                const miniplayerIdScript = document.createElement('script');
+                miniplayerIdScript.type = 'text/javascript';
+                miniplayerIdScript.src = browser.runtime.getURL('dist/content/scripts/getIdFromMiniPlayer.js');
+
+                // Set up event listener before injecting script
+                videoId = await new Promise<string | null>((resolve) => {
+                    const idListener = (event: CustomEvent) => {
+                        window.removeEventListener('ynt-miniplayer-id', idListener as EventListener);
+                        const { videoId: id, method } = event.detail;
+                        if (id) {
+                            mainTitleLog(`[Miniplayer] Video ID found via ${method}: ${id}`);
+                        } else {
+                            mainTitleErrorLog('[Miniplayer] Failed to get video ID from player APIs');
                         }
-                    }
-                } catch (error) {
-                    // Silent fail for attribute extraction
-                }
+                        resolve(id);
+                    };
+
+                    window.addEventListener('ynt-miniplayer-id', idListener as EventListener);
+
+                    // Inject script after listener is ready
+                    document.head.appendChild(miniplayerIdScript);
+
+                    // Timeout fallback
+                    setTimeout(() => {
+                        window.removeEventListener('ynt-miniplayer-id', idListener as EventListener);
+                        resolve(null);
+                    }, 3000);
+                });
+
+            } catch (error) {
+                mainTitleErrorLog('[Miniplayer] Error injecting script:', error);
             }
 
             if (videoId) {
-
                 const originalTitle = await fetchMainTitle(videoId, false);
 
                 if (!originalTitle) {
@@ -400,10 +399,11 @@ export async function refreshMiniplayerTitle(): Promise<void> {
                 // Apply the original title
                 try {
                     updateMiniplayerTitleElement(miniplayerTitle, originalTitle, videoId);
-                    //updatePageTitle(originalTitle);
                 } catch (error) {
                     mainTitleErrorLog(`Failed to update miniplayer title:`, error);
                 }
+            } else {
+                mainTitleErrorLog('[Miniplayer] No video ID found, skipping title update');
             }
         }
     } catch (error) {

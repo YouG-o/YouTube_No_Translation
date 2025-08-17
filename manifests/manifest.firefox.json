@@ -47,25 +47,26 @@
   },
   
   "web_accessible_resources": [{
-      "resources": [
-        "dist/content/scripts/audioScript.js",
-        "dist/content/scripts/MainDescriptionScript.js",
-        "dist/content/scripts/subtitlesScript.js",
-        "dist/content/scripts/mainTitleScript.js",
-        "dist/content/scripts/channelNameScript.js",
-        "dist/content/scripts/timestampScript.js",
-        "dist/content/scripts/searchDescriptionInnerTube.js",
-        "dist/content/scripts/TitlesInnerTube.js",
-        "dist/content/scripts/getChannelIdScript.js",
-        "dist/content/scripts/ChannelNameInnerTubeScript.js",
-        "dist/content/scripts/ChannelDescriptionInnerTube.js",
-        "dist/content/toast.html",
-        "dist/assets/icons/*"
-      ],
-      "matches": [
-        "*://*.youtube.com/*",
-        "*://*.youtube-nocookie.com/*"
-      ]
+    "resources": [
+      "dist/content/scripts/audioScript.js",
+      "dist/content/scripts/MainDescriptionScript.js",
+      "dist/content/scripts/subtitlesScript.js",
+      "dist/content/scripts/mainTitleScript.js",
+      "dist/content/scripts/channelNameScript.js",
+      "dist/content/scripts/timestampScript.js",
+      "dist/content/scripts/searchDescriptionInnerTube.js",
+      "dist/content/scripts/TitlesInnerTube.js",
+      "dist/content/scripts/getChannelIdScript.js",
+      "dist/content/scripts/ChannelNameInnerTubeScript.js",
+      "dist/content/scripts/ChannelDescriptionInnerTube.js",
+      "dist/content/scripts/getIdFromMiniPlayer.js",
+      "dist/content/toast.html",
+      "dist/assets/icons/*"
+    ],
+    "matches": [
+      "*://*.youtube.com/*",
+      "*://*.youtube-nocookie.com/*"
+    ]
   }],
 
   "options_ui": {

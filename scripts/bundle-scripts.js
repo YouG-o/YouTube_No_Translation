@@ -8,6 +8,7 @@ const outDir = path.join(__dirname, '../dist/content/scripts');
 const scripts = [
   'scripts/getChannelIdScript.js',
   'titles/mainTitleScript.js',
+  'titles/getIdFromMiniPlayer.js',
   'titles/TitlesInnerTube.js',
   'audio/audioScript.js',
   'description/MainDescriptionScript.js',

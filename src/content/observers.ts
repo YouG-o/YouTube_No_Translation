@@ -104,6 +104,7 @@ export function setupVideoPlayerListener() {
         }
 
         applyVideoPlayerSettings();
+        cleanupMiniplayerTitleContentObserver();
     };
     
     videoEvents.forEach(eventType => {

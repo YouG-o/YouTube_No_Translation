@@ -763,7 +763,7 @@ function handleUrlChange() {
     }
 }
 
-// --- Visibility change listener to refresh titles when tab becomes visible
+// --- Visibility change listener to refresh titles when tab becomes visible again
 let visibilityChangeListener: ((event: Event) => void) | null = null;
 
 export function setupVisibilityChangeListener(): void {
@@ -773,20 +773,16 @@ export function setupVisibilityChangeListener(): void {
     coreLog('Setting up visibility change listener');
     
     visibilityChangeListener = () => {
-        // Only execute when tab becomes visible again
         if (document.visibilityState === 'visible') {
             coreLog('Tab became visible, refreshing titles to fix potential duplicates');
-            
-            // Refresh titles to fix any potentially duplicated titles
             if (currentSettings?.titleTranslation) {
                 refreshBrowsingVideos();
                 refreshShortsAlternativeFormat();
                 refreshEndScreenTitles();
+                refreshMainTitle();
             }
         }
     };
-    
-    // Add the event listener
     document.addEventListener('visibilitychange', visibilityChangeListener);
 }
 

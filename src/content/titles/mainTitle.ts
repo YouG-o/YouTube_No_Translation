@@ -66,7 +66,10 @@ export function cleanupMiniplayerTitleContentObserver(): void {
 export function updateMainTitleElement(element: HTMLElement, title: string, videoId: string): void {
     cleanupMainTitleContentObserver();
     cleanupIsEmptyObserver();
-    
+
+    // Remove any previous marker
+    element.removeAttribute('data-ynt-modified');
+
     mainTitleLog(
         `Updated main title from : %c${normalizeText(element.textContent)}%c to : %c${normalizeText(title)}%c (video id : %c${videoId}%c)`,
         'color: grey',    
@@ -80,6 +83,9 @@ export function updateMainTitleElement(element: HTMLElement, title: string, vide
     
     element.removeAttribute('is-empty');
     element.innerText = title;
+
+    // Add marker to indicate this is the extension's original title
+    element.setAttribute('data-ynt-modified', 'true');
 
     if (!titleCache.getTitle(videoId)) {
         titleCache.setTitle(videoId, title);
@@ -241,7 +247,7 @@ export async function refreshMainTitle(): Promise<void> {
             }
 
             // Skip if title is already correct and doesn't have is-empty attribute
-            if (normalizeText(currentTitle) === normalizeText(originalTitle) && !mainTitle.hasAttribute('is-empty')) {
+            if (normalizeText(currentTitle) === normalizeText(originalTitle) && !mainTitle.hasAttribute('is-empty') && !mainTitle.hasAttribute('data-ynt-modified')) {
                 mainTitleLog('Main title is already original');
                 return;
             }

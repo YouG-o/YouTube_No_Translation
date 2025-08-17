@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+
+## [2.10.13] - 2025-08-17
+
 ### Fixed
 
 - Fixed Mini Player title still translated.
@@ -395,7 +398,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 *Note: This changelog was introduced in version 2.2.30. For earlier version history, please refer to the [GitHub releases](https://github.com/YouG-o/YouTube_No_Translation/releases).*
 
-[Unreleased]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.10.12...HEAD
+[Unreleased]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.10.13...HEAD
+[2.10.13]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.10.12...v2.10.13
 [2.10.12]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.10.11...v2.10.12
 [2.10.11]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.10.10...v2.10.11
 [2.10.10]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.10.8...v2.10.10

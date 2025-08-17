@@ -104,6 +104,7 @@ export function setupVideoPlayerListener() {
         }
 
         applyVideoPlayerSettings();
+        cleanupMiniplayerTitleContentObserver();
     };
     
     videoEvents.forEach(eventType => {
@@ -134,24 +135,25 @@ function cleanUpVideoPlayerListener() {
 export function setupMainVideoObserver() {
     //cleanupMainVideoObserver();
     waitForElement('ytd-watch-flexy').then((watchFlexy) => {
-        const currentVideoId = watchFlexy.getAttribute('video-id');
-        
-        if (currentSettings?.descriptionTranslation) {
-            // Manually trigger for the initial video when setting up the observer
-            // This handles the case where we navigate to a video page via SPA
+        function waitForVideoId(retry = 0) {
+            const currentVideoId = watchFlexy.getAttribute('video-id');
             if (currentVideoId) {
-                // Process the initial video ID
-                processDescriptionForVideoId(currentVideoId);
+                //coreLog(`FOUND A VIDEO ID: ${currentVideoId} after ${retry} retries`);
+                if (currentSettings?.descriptionTranslation) {
+                    processDescriptionForVideoId(currentVideoId);
+                }
+                if (currentSettings?.titleTranslation) {
+                    refreshMainTitle();
+                    refreshChannelName();
+                }
+            } else if (retry < 30) { // Try for up to ~ 4 seconds (30 * 100ms)
+                setTimeout(() => waitForVideoId(retry + 1), 100);
+            } else {
+                coreLog('Failed to find a video-id.');
             }
         }
-
-        if (currentSettings?.titleTranslation) {
-            if (currentVideoId) {
-                refreshMainTitle();
-                refreshChannelName();
-            }
-        }
-    })
+        waitForVideoId();
+    });
 }
 
 
@@ -763,7 +765,7 @@ function handleUrlChange() {
     }
 }
 
-// --- Visibility change listener to refresh titles when tab becomes visible
+// --- Visibility change listener to refresh titles when tab becomes visible again
 let visibilityChangeListener: ((event: Event) => void) | null = null;
 
 export function setupVisibilityChangeListener(): void {
@@ -773,20 +775,19 @@ export function setupVisibilityChangeListener(): void {
     coreLog('Setting up visibility change listener');
     
     visibilityChangeListener = () => {
-        // Only execute when tab becomes visible again
         if (document.visibilityState === 'visible') {
             coreLog('Tab became visible, refreshing titles to fix potential duplicates');
-            
-            // Refresh titles to fix any potentially duplicated titles
             if (currentSettings?.titleTranslation) {
                 refreshBrowsingVideos();
                 refreshShortsAlternativeFormat();
-                refreshEndScreenTitles();
+                refreshMiniplayerTitle();
+                if (window.location.pathname === '/watch') {
+                    refreshMainTitle();
+                    refreshEndScreenTitles();
+                }
             }
         }
     };
-    
-    // Add the event listener
     document.addEventListener('visibilitychange', visibilityChangeListener);
 }
 

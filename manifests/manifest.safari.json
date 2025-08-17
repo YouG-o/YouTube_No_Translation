@@ -46,6 +46,7 @@
     "dist/content/scripts/getChannelIdScript.js",
     "dist/content/scripts/ChannelNameInnerTubeScript.js",
     "dist/content/scripts/ChannelDescriptionInnerTube.js",
+    "dist/content/scripts/getIdFromMiniPlayer.js",
     "dist/content/toast.html",
     "dist/assets/icons/*"
   ],

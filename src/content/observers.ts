@@ -134,24 +134,25 @@ function cleanUpVideoPlayerListener() {
 export function setupMainVideoObserver() {
     //cleanupMainVideoObserver();
     waitForElement('ytd-watch-flexy').then((watchFlexy) => {
-        const currentVideoId = watchFlexy.getAttribute('video-id');
-        
-        if (currentSettings?.descriptionTranslation) {
-            // Manually trigger for the initial video when setting up the observer
-            // This handles the case where we navigate to a video page via SPA
+        function waitForVideoId(retry = 0) {
+            const currentVideoId = watchFlexy.getAttribute('video-id');
             if (currentVideoId) {
-                // Process the initial video ID
-                processDescriptionForVideoId(currentVideoId);
+                //coreLog(`FOUND A VIDEO ID: ${currentVideoId} after ${retry} retries`);
+                if (currentSettings?.descriptionTranslation) {
+                    processDescriptionForVideoId(currentVideoId);
+                }
+                if (currentSettings?.titleTranslation) {
+                    refreshMainTitle();
+                    refreshChannelName();
+                }
+            } else if (retry < 30) { // Try for up to ~ 4 seconds (30 * 100ms)
+                setTimeout(() => waitForVideoId(retry + 1), 100);
+            } else {
+                coreLog('Failed to find a video-id.');
             }
         }
-
-        if (currentSettings?.titleTranslation) {
-            if (currentVideoId) {
-                refreshMainTitle();
-                refreshChannelName();
-            }
-        }
-    })
+        waitForVideoId();
+    });
 }
 
 

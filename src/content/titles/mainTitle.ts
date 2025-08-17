@@ -239,7 +239,7 @@ export async function refreshMainTitle(): Promise<void> {
         if (videoId) {
             const currentTitle = mainTitle.textContent;
 
-            const originalTitle = await fetchMainTitle(videoId, true);
+            const originalTitle = await fetchMainTitle(videoId, false);
 
             if (!originalTitle) {
                 mainTitleLog('Failed to get original title, keeping current');
@@ -291,7 +291,7 @@ export async function refreshEmbedTitle(): Promise<void> {
             if (videoId) {
                 const currentTitle = embedTitle.textContent;
 
-                const originalTitle = await fetchMainTitle(videoId, true);
+                const originalTitle = await fetchMainTitle(videoId, false);
 
                 if (!originalTitle) {
                     mainTitleLog('Failed to get original title, keeping current');
@@ -412,7 +412,7 @@ export async function refreshMiniplayerTitle(): Promise<void> {
 }
 
 
-export async function fetchMainTitle(videoId: string, fallbackToPageTitle: boolean = true, isShorts: boolean = false): Promise<string | null> {
+export async function fetchMainTitle(videoId: string, fallbackToPageTitle: boolean = false, isShorts: boolean = false): Promise<string | null> {
     let originalTitle: string | null = null;
 
     // Check cache first

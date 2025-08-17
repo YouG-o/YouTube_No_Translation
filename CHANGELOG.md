@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- Fixed an issue where the main video title and description remained translated on the first video opened after a full page load or direct link.
+
 ## [2.10.12] - 2025-08-11
 
 ### Fixed

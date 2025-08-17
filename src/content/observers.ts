@@ -779,8 +779,11 @@ export function setupVisibilityChangeListener(): void {
             if (currentSettings?.titleTranslation) {
                 refreshBrowsingVideos();
                 refreshShortsAlternativeFormat();
-                refreshEndScreenTitles();
-                refreshMainTitle();
+                refreshMiniplayerTitle();
+                if (window.location.pathname === '/watch') {
+                    refreshMainTitle();
+                    refreshEndScreenTitles();
+                }
             }
         }
     };

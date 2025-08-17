@@ -325,7 +325,7 @@ export async function refreshMiniplayerTitle(): Promise<void> {
     
     // Wait for the miniplayer title element to be available
     try {
-        const miniplayerTitle = await waitForElement('.miniplayer-title.style-scope.ytd-miniplayer') as HTMLElement;
+        const miniplayerTitle = await waitForElement('ytd-miniplayer-info-bar h1.ytdMiniplayerInfoBarTitle span.yt-core-attributed-string') as HTMLElement;
 
         // Wait for the element to have content (YouTube might load the element before filling it)
         let attempts = 0;
@@ -400,7 +400,7 @@ export async function refreshMiniplayerTitle(): Promise<void> {
                 // Apply the original title
                 try {
                     updateMiniplayerTitleElement(miniplayerTitle, originalTitle, videoId);
-                    updatePageTitle(originalTitle);
+                    //updatePageTitle(originalTitle);
                 } catch (error) {
                     mainTitleErrorLog(`Failed to update miniplayer title:`, error);
                 }

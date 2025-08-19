@@ -21,6 +21,7 @@ export const DEFAULT_SETTINGS: ExtensionSettings = {
     subtitlesTranslation: {
         enabled: false,
         language: 'disabled',
+        asrEnabled: false,
     },
     youtubeDataApi: {
         enabled: false,

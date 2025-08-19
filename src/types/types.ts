@@ -43,6 +43,7 @@ export interface ExtensionSettings {
     subtitlesTranslation: {
         enabled: boolean;
         language: string;
+        asrEnabled: boolean;
     };
     youtubeDataApi: {
         enabled: boolean;

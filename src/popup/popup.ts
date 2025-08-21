@@ -198,7 +198,7 @@ async function handleToggleChange(config: ToggleConfig) {
         const data = await browser.storage.local.get('settings');
         let settings = data.settings as ExtensionSettings;
 
-        // Mise à jour de la propriété dans l'objet settings
+        // Update property in settings object
         if (config.storagePath && config.storagePath.length > 0) {
             let obj: any = settings;
             for (let i = 0; i < config.storagePath.length - 1; i++) {
@@ -211,17 +211,30 @@ async function handleToggleChange(config: ToggleConfig) {
 
         await browser.storage.local.set({ settings });
 
-        // Mise à jour UI si besoin
+        // Update UI if needed
         if (config.uiUpdate) config.uiUpdate();
 
-        // Envoi du message à la content script
-        const tabs = await browser.tabs.query({ active: true, currentWindow: true });
-        if (tabs[0]?.id) {
-            await browser.tabs.sendMessage(tabs[0].id, {
-                action: 'toggleTranslation',
-                feature: config.messageFeature,
-                isEnabled
-            });
+        // Send message to content script (only if YouTube tab is active)
+        try {
+            const tabs = await browser.tabs.query({ active: true, currentWindow: true });
+            if (tabs[0]?.id && tabs[0]?.url) {
+                // Check if current tab is YouTube
+                const isYouTubeTab = tabs[0].url.includes('youtube.com') || tabs[0].url.includes('youtube-nocookie.com');
+                
+                if (isYouTubeTab) {
+                    await browser.tabs.sendMessage(tabs[0].id, {
+                        action: 'toggleTranslation',
+                        feature: config.messageFeature,
+                        isEnabled
+                    });
+                    console.log(`[YNT] Message sent to YouTube tab for ${config.messageFeature}`);
+                } else {
+                    console.log(`[YNT] Settings updated but not sending message (not a YouTube tab): ${tabs[0].url}`);
+                }
+            }
+        } catch (messageError) {
+            // Ignore message sending errors (content script might not be loaded)
+            console.log(`[YNT] Could not send message to content script for ${config.messageFeature}:`, messageError);
         }
         console.log(`${config.storageKey} state updated`);
     } catch (error) {
@@ -314,13 +327,21 @@ subtitlesLanguageSelect.addEventListener('change', async () => {
         
         console.log('Subtitles language saved:', selectedLanguage);
         
-        // Inform active tab about the change
-        const tabs = await browser.tabs.query({ active: true, currentWindow: true });
-        if (tabs[0]?.id) {
-            await browser.tabs.sendMessage(tabs[0].id, {
-                feature: 'subtitlesLanguage',
-                language: selectedLanguage
-            });
+        // Inform active tab about the change (only if YouTube)
+        try {
+            const tabs = await browser.tabs.query({ active: true, currentWindow: true });
+            if (tabs[0]?.id && tabs[0]?.url) {
+                const isYouTubeTab = tabs[0].url.includes('youtube.com') || tabs[0].url.includes('youtube-nocookie.com');
+                
+                if (isYouTubeTab) {
+                    await browser.tabs.sendMessage(tabs[0].id, {
+                        feature: 'subtitlesLanguage',
+                        language: selectedLanguage
+                    });
+                }
+            }
+        } catch (messageError) {
+            console.log('[YNT] Could not send language change message:', messageError);
         }
     } catch (error) {
         console.error('Failed to save subtitles language:', error);
@@ -347,13 +368,21 @@ audioLanguageSelect.addEventListener('change', async () => {
         
         console.log('Audio language saved:', selectedLanguage);
         
-        // Inform active tab about the change
-        const tabs = await browser.tabs.query({ active: true, currentWindow: true });
-        if (tabs[0]?.id) {
-            await browser.tabs.sendMessage(tabs[0].id, {
-                feature: 'audioLanguage',
-                language: selectedLanguage
-            });
+        // Inform active tab about the change (only if YouTube)
+        try {
+            const tabs = await browser.tabs.query({ active: true, currentWindow: true });
+            if (tabs[0]?.id && tabs[0]?.url) {
+                const isYouTubeTab = tabs[0].url.includes('youtube.com') || tabs[0].url.includes('youtube-nocookie.com');
+                
+                if (isYouTubeTab) {
+                    await browser.tabs.sendMessage(tabs[0].id, {
+                        feature: 'audioLanguage',
+                        language: selectedLanguage
+                    });
+                }
+            }
+        } catch (messageError) {
+            console.log('[YNT] Could not send audio language change message:', messageError);
         }
     } catch (error) {
         console.error('Failed to save audio language:', error);

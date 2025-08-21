@@ -17,6 +17,8 @@ const audioLanguageSelect = document.getElementById('audioLanguage') as HTMLSele
 const descriptionToggle = document.getElementById('descriptionTranslation') as HTMLInputElement;
 const subtitlesToggle = document.getElementById('subtitlesTranslation') as HTMLInputElement;
 const subtitlesLanguageSelect = document.getElementById('subtitlesLanguage') as HTMLSelectElement;
+const asrSubtitlesToggle = document.getElementById('asrSubtitlesEnabled') as HTMLInputElement;
+const asrToggleContainer = document.getElementById('asrToggleContainer') as HTMLDivElement;
 const extensionVersionElement = document.getElementById('extensionVersion') as HTMLSpanElement;
 const youtubeDataApiToggle = document.getElementById('youtubeDataApiEnabled') as HTMLInputElement;
 const youtubeDataApiKeyInput = document.getElementById('youtubeDataApiKey') as HTMLInputElement;
@@ -48,6 +50,17 @@ function toggleExtraSettings() {
         extraSettingsContent.classList.add('hidden');
         extraSettingsArrow.style.transform = 'rotate(0deg)';
     }
+}
+
+// Function to update ASR toggle visibility
+function updateAsrToggleVisibility() {
+    if (!asrToggleContainer) return;
+    
+    const subtitlesEnabled = subtitlesToggle.checked;
+    const selectedLanguage = subtitlesLanguageSelect.value;
+    const shouldShow = subtitlesEnabled && selectedLanguage !== 'disabled';
+    
+    asrToggleContainer.style.display = shouldShow ? 'block' : 'none';
 }
 
 // Initialize toggle states from storage
@@ -113,8 +126,12 @@ document.addEventListener('DOMContentLoaded', async () => {
         descriptionToggle.checked = settings.descriptionTranslation;
         subtitlesToggle.checked = settings.subtitlesTranslation.enabled;
         subtitlesLanguageSelect.value = settings.subtitlesTranslation.language;
+        asrSubtitlesToggle.checked = settings.subtitlesTranslation.asrEnabled;
         youtubeDataApiToggle.checked = settings.youtubeDataApi.enabled;
         youtubeDataApiKeyInput.value = settings.youtubeDataApi.apiKey;
+        
+        // Update ASR toggle visibility based on current settings
+        updateAsrToggleVisibility();
         
         // Show/hide API key input based on toggle state
         if (youtubeDataApiToggle.checked && youtubeApiKeyContainer && youtubeApiKeyContainer.style.display !== undefined) {
@@ -243,10 +260,21 @@ subtitlesToggle.addEventListener('change', () =>
         element: subtitlesToggle,
         storageKey: 'subtitlesTranslation',
         storagePath: ['subtitlesTranslation', 'enabled'],
-        messageFeature: 'subtitles'
+        messageFeature: 'subtitles',
+        uiUpdate: updateAsrToggleVisibility
     })
 );
 
+asrSubtitlesToggle.addEventListener('change', () =>
+    handleToggleChange({
+        element: asrSubtitlesToggle,
+        storageKey: 'subtitlesTranslation',
+        storagePath: ['subtitlesTranslation', 'asrEnabled'],
+        messageFeature: 'asrSubtitles'
+    })
+);
+
+// Handle YouTube Data API toggle change
 youtubeDataApiToggle.addEventListener('change', () =>
     handleToggleChange({
         element: youtubeDataApiToggle,
@@ -265,6 +293,9 @@ youtubeDataApiToggle.addEventListener('change', () =>
 // Handle subtitles language selection changes
 subtitlesLanguageSelect.addEventListener('change', async () => {
     const selectedLanguage = subtitlesLanguageSelect.value;
+    
+    // Update ASR toggle visibility
+    updateAsrToggleVisibility();
     
     // Save language preference
     try {

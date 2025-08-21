@@ -10,7 +10,7 @@
 
 export interface Message {
     action: 'toggleTranslation';
-    feature: 'titles' | 'isolatedPlayerTitles' | 'audio' | 'description' | 'isolatedPlayerDescriptionSearch' | 'subtitles';
+    feature: 'titles' | 'audio' | 'description' | 'subtitles';
     isEnabled: boolean;
 }
 

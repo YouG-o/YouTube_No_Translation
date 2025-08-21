@@ -18,9 +18,9 @@ async function syncSubtitlesLanguagePreference() {
         
         if (settings?.subtitlesTranslation?.language) {
             localStorage.setItem('ynt-subtitlesLanguage', settings.subtitlesTranslation.language);
-            if (settings?.subtitlesTranslation?.asrEnabled) {
-                localStorage.setItem('ynt-subtitlesAsrEnabled', settings.subtitlesTranslation.asrEnabled.toString());
-            }
+            // Sync ASR enabled setting
+            const asrEnabled = settings.subtitlesTranslation.asrEnabled || false;
+            localStorage.setItem('ynt-subtitlesAsrEnabled', asrEnabled.toString());
             //subtitlesLog(`Synced subtitle language preference from extension storage: ${settings.subtitlesTranslation.language}`);
         }
     } catch (error) {
@@ -42,15 +42,32 @@ browser.runtime.onMessage.addListener((message: unknown) => {
     coreLog('Received message:', message); // Add debug log
     
     if (typeof message === 'object' && message !== null &&
-        'feature' in message && message.feature === 'subtitlesLanguage' &&
-        'language' in message && typeof message.language === 'string') {
+        'feature' in message && typeof message.feature === 'string') {
         
-        // Store preference directly without JSON.stringify
-        subtitlesLog(`Setting subtitle language preference to: ${message.language}`);
-        localStorage.setItem('ynt-subtitlesLanguage', message.language);
+        // Handle subtitle language changes
+        if (message.feature === 'subtitlesLanguage' &&
+            'language' in message && typeof message.language === 'string') {
+            
+            subtitlesLog(`Setting subtitle language preference to: ${message.language}`);
+            localStorage.setItem('ynt-subtitlesLanguage', message.language);
+            handleSubtitlesTranslation();
+        }
         
-        // Reapply subtitles if a video is currently playing
-        handleSubtitlesTranslation();
+        // Handle ASR subtitle setting changes
+        if (message.feature === 'asrSubtitles' &&
+            'isEnabled' in message && typeof message.isEnabled === 'boolean') {
+            
+            subtitlesLog(`Setting ASR subtitles enabled to: ${message.isEnabled}`);
+            localStorage.setItem('ynt-subtitlesAsrEnabled', message.isEnabled.toString());
+            handleSubtitlesTranslation();
+        }
+        
+        // Handle general subtitles toggle changes
+        if (message.feature === 'subtitles') {
+            subtitlesLog('Subtitles setting changed, syncing preferences');
+            syncSubtitlesLanguagePreference();
+            handleSubtitlesTranslation();
+        }
     }
     return true;
 });

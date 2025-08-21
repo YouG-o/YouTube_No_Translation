@@ -19,9 +19,9 @@
  * Handles YouTube's subtitles selection to force original language
  * 
  * YouTube provides different types of subtitle tracks:
+ * - Manual tracks: Can be original language or translated
  * - ASR (Automatic Speech Recognition) tracks: Always in original video language
- * - Manual tracks: Can be original or translated
- * - Translated tracks: Generated from manual tracks
+ * - Translated tracks: Generated from ASR track
  * 
  * Strategy to get original subtitles track:
  * 1. Find ASR track to determine original video language
@@ -60,7 +60,7 @@
 
     // Retry counter for finding the player element
     let playerPollRetryCount = 0;
-    const MAX_PLAYER_POLL_RETRIES = 25; // Approx 5 seconds (25 * 200ms)
+    const MAX_PLAYER_POLL_RETRIES = 20; // Approx 3 seconds (20 * 150ms)
 
     // Flag to ensure the main settings application logic is initiated only once per script execution instance
     let settingsAttemptOrchestrationInitiated = false;
@@ -83,7 +83,7 @@
             playerPollRetryCount++;
             if (playerPollRetryCount <= MAX_PLAYER_POLL_RETRIES) {
                 // log(`Player element or base API not ready, retrying poll (${playerPollRetryCount}/${MAX_PLAYER_POLL_RETRIES})`);
-                setTimeout(orchestrateSubtitleConfiguration, 200);
+                setTimeout(orchestrateSubtitleConfiguration, 150);
             } else {
                 errorLog('Player element or base API not found after multiple retries. Cannot configure subtitles.');
             }
@@ -151,7 +151,7 @@
                         player.removeEventListener('onStateChange', stateChangeHandler);
                         onApiReadyAndPlayerActive(); // Attempt to apply settings anyway.
                     }
-                }, 7000); // 7 seconds fallback.
+                }, 2000); // 2 seconds fallback.
             }
         };
 
@@ -180,7 +180,7 @@
                     proceedWhenPlayerActive();
                 }
             }
-        }, 3000); // 3 seconds for onApiChange to fire.
+        }, 1000); // 1 second for onApiChange to fire.
     }
 
     /**
@@ -203,6 +203,7 @@
 
         // Get language preference from localStorage
         const subtitlesLanguage = localStorage.getItem('ynt-subtitlesLanguage') || 'original';
+        const asrEnabled = localStorage.getItem('ynt-subtitlesAsrEnabled') === 'true';
         //log(`Using preferred language: ${subtitlesLanguage}`);
 
         // Check if subtitles are disabled
@@ -258,8 +259,40 @@
                 player.setOption('captions', 'track', languageTrack);
                 return true;
             } else {
-                log(`Selected language "${subtitlesLanguage}" not available, disabling subtitles`);
-                player.setOption('captions', 'track', {});
+                // No manual track found for selected language
+                if (!asrEnabled) {
+                    log(`Selected language "${subtitlesLanguage}" not available, disabling subtitles (ASR disabled)`);
+                    player.setOption('captions', 'track', {});
+                    return true;
+                }
+
+                // ASR is enabled, try ASR track fallback
+                const asrTrack = captionTracks.find(track => track.kind === 'asr');
+                if (!asrTrack) {
+                    log(`Selected language "${subtitlesLanguage}" not available and no ASR track found, disabling subtitles`);
+                    player.setOption('captions', 'track', {});
+                    return true;
+                }
+
+                // Check if ASR is already in target language
+                if (asrTrack.languageCode === subtitlesLanguage) {
+                    log(`Using ASR track in target language: "${asrTrack.name.simpleText}"`);
+                    player.setOption('captions', 'track', asrTrack);
+                    return true;
+                }
+
+                // Try ASR translation to target language
+                log(`Attempting ASR translation from "${asrTrack.languageCode}" to "${subtitlesLanguage}"`);
+                const translatedTrack = {
+                    ...asrTrack,
+                    translationLanguage: {
+                        languageCode: subtitlesLanguage,
+                        languageName: subtitlesLanguage // Will be updated by YouTube
+                    }
+                };
+                
+                player.setOption('captions', 'track', translatedTrack);
+                log(`ASR translation applied: "${asrTrack.name.simpleText}" >> "${subtitlesLanguage}"`);
                 return true;
             }
         } catch (error) {
@@ -286,6 +319,13 @@
     }
 
     // Execute the orchestration logic when the script is injected.
-    // log('Initializing subtitles translation prevention script.');
+    // Try immediately once (fast-path)
+    try {
+        // Fast immediate attempt with short timeout to avoid blocking
+        setPreferredSubtitles();
+    } catch (e) {
+        /* ignore */
+    }
+
     orchestrateSubtitleConfiguration();
 })();

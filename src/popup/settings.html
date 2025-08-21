@@ -147,7 +147,7 @@
                                     <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
                                 </svg>
                                 <span class="absolute z-20 bottom-full left-0 ml-[-20px] mb-2 w-[220px] px-3 py-2 text-xs text-white bg-gray-900/95 rounded-md shadow-lg whitespace-normal opacity-0 pointer-events-none invisible group-hover:opacity-100 group-hover:visible transition-opacity">
-                                    Display subtitles in your preferred language if available. If not, subtitles will be disabled. Auto generated subtitles are ignored.
+                                    Display subtitles in your preferred language if available. If not, subtitles will be disabled. Auto generated subtitles are ignored by default.
                                 </span>
                             </div>
                         </div>
@@ -180,6 +180,26 @@
                             <option value="tr">Turkish</option>
                             <option value="vi">Vietnamese</option>
                         </select>
+                    </div>
+                    <!-- ASR Toggle -->
+                    <div class="mt-2 asr-toggle-container" id="asrToggleContainer" style="display: none;">
+                        <div class="flex items-center justify-between p-2 rounded border border-gray-500 bg-gray-800/50">
+                            <div class="flex items-center gap-2">
+                                <h3 class="text-xs font-medium text-gray-200">Enable Auto Generated subtitles</h3>
+                                <div class="relative group tooltip">
+                                    <svg class="w-3 h-3 text-gray-400 cursor-help group hover:text-gray-300" viewBox="0 0 24 24" fill="currentColor">
+                                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
+                                    </svg>
+                                    <span class="absolute z-20 bottom-full left-0 ml-[-20px] mb-2 w-[220px] px-3 py-2 text-xs text-white bg-gray-900/95 rounded-md shadow-lg whitespace-normal opacity-0 pointer-events-none invisible group-hover:opacity-100 group-hover:visible transition-opacity">
+                                        When enabled, if no manual subtitles are available in your preferred language, auto-generated (ASR) subtitles will be used instead, with translation if needed.
+                                    </span>
+                                </div>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" class="sr-only peer" id="asrSubtitlesEnabled">
+                                <div class="w-9 h-5 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-blue-600"></div>
+                            </label>
+                        </div>
                     </div>
                 </div>
                 <!-- Extra Settings Section -->

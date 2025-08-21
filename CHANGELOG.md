@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Feature
+- Added a setting "Enable Auto Generated Subtitles", if prefered language is not available in a manual subtitle track, subtitles will be auto generated in this language.
 
 ## [2.10.13] - 2025-08-17
 

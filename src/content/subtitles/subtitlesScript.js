@@ -60,7 +60,7 @@
 
     // Retry counter for finding the player element
     let playerPollRetryCount = 0;
-    const MAX_PLAYER_POLL_RETRIES = 25; // Approx 5 seconds (25 * 200ms)
+    const MAX_PLAYER_POLL_RETRIES = 20; // Approx 3 seconds (20 * 150ms)
 
     // Flag to ensure the main settings application logic is initiated only once per script execution instance
     let settingsAttemptOrchestrationInitiated = false;
@@ -83,7 +83,7 @@
             playerPollRetryCount++;
             if (playerPollRetryCount <= MAX_PLAYER_POLL_RETRIES) {
                 // log(`Player element or base API not ready, retrying poll (${playerPollRetryCount}/${MAX_PLAYER_POLL_RETRIES})`);
-                setTimeout(orchestrateSubtitleConfiguration, 200);
+                setTimeout(orchestrateSubtitleConfiguration, 150);
             } else {
                 errorLog('Player element or base API not found after multiple retries. Cannot configure subtitles.');
             }
@@ -151,7 +151,7 @@
                         player.removeEventListener('onStateChange', stateChangeHandler);
                         onApiReadyAndPlayerActive(); // Attempt to apply settings anyway.
                     }
-                }, 7000); // 7 seconds fallback.
+                }, 2000); // 2 seconds fallback.
             }
         };
 
@@ -180,7 +180,7 @@
                     proceedWhenPlayerActive();
                 }
             }
-        }, 3000); // 3 seconds for onApiChange to fire.
+        }, 1000); // 1 second for onApiChange to fire.
     }
 
     /**
@@ -286,6 +286,13 @@
     }
 
     // Execute the orchestration logic when the script is injected.
-    // log('Initializing subtitles translation prevention script.');
+    // Try immediately once (fast-path)
+    try {
+        // Fast immediate attempt with short timeout to avoid blocking
+        setPreferredSubtitles();
+    } catch (e) {
+        /* ignore */
+    }
+
     orchestrateSubtitleConfiguration();
 })();

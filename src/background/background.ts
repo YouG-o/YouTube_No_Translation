@@ -36,8 +36,17 @@ async function migrateSettings() {
             console.log('[YNT-Debug] Migrating subtitlesTranslation setting from boolean to object');
             settings.subtitlesTranslation = {
                 enabled: settings.subtitlesTranslation,
-                language: settings.subtitlesLanguage || 'original' // Preserve existing subtitlesLanguage preference
+                language: settings.subtitlesLanguage || 'original', // Preserve existing subtitlesLanguage preference
+                asrEnabled: false
             };
+            needsUpdate = true;
+        }
+
+        // Check if subtitlesTranslation.asrEnabled needs to be added
+        if (settings.subtitlesTranslation.asrEnabled !== true && 
+            settings.subtitlesTranslation.asrEnabled !== false) {
+            console.log('[YNT-Debug] Adding asrEnabled property to subtitlesTranslation');
+            settings.subtitlesTranslation.asrEnabled = false;
             needsUpdate = true;
         }
 

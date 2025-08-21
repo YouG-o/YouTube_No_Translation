@@ -18,6 +18,9 @@ async function syncSubtitlesLanguagePreference() {
         
         if (settings?.subtitlesTranslation?.language) {
             localStorage.setItem('ynt-subtitlesLanguage', settings.subtitlesTranslation.language);
+            if (settings?.subtitlesTranslation?.asrEnabled) {
+                localStorage.setItem('ynt-subtitlesAsrEnabled', settings.subtitlesTranslation.asrEnabled.toString());
+            }
             //subtitlesLog(`Synced subtitle language preference from extension storage: ${settings.subtitlesTranslation.language}`);
         }
     } catch (error) {

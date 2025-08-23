@@ -227,15 +227,23 @@
             </div>
             <div class="flex items-center justify-between px-2">
                 <p class="text-xs text-gray-400">v<span id="extensionVersion"></span></p>
-                <a href="https://github.com/YouG-o/YouTube_No_Translation/issues" 
-                    target="_blank" 
-                    rel="noopener noreferrer" 
-                    class="text-xs text-gray-400 hover:text-gray-300 transition-colors flex items-center gap-1">
-                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
-                    </svg>
-                    Report an issue
-                </a>
+                <div class="flex items-center gap-2">
+                    <button id="clearCacheBtn" class="text-xs text-red-400 hover:text-red-300 transition-colors flex items-center gap-1 disabled:opacity-50" title="Clear cached titles and descriptions">
+                        <svg class="w-3 h-3" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
+                        </svg>
+                        Clear Cache
+                    </button>
+                    <a href="https://github.com/YouG-o/YouTube_No_Translation/issues" 
+                        target="_blank" 
+                        rel="noopener noreferrer" 
+                        class="text-xs text-gray-400 hover:text-gray-300 transition-colors flex items-center gap-1">
+                        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
+                        </svg>
+                        Report an issue
+                    </a>
+                </div>
             </div>
         </footer>
 

@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.12.0] - 2025-08-23
+
+### Added
+- Added a "Clear cache" button in the popup and settings page to allow users to clear cached titles and descriptions when experiencing incorrect content
+
+### Fixed
+- Improved cache priority order: cache is now checked first, then pre-fetched titles only if cache is empty
+- Fixed cache overwriting issues where pre-fetched titles were incorrectly overwritten by empty cache values
+- Removed redundant description caching in content observer to centralize cache logic in validation function
+
 ## [2.11.0] - 2025-08-21
 
 ### Feature
@@ -409,7 +419,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 *Note: This changelog was introduced in version 2.2.30. For earlier version history, please refer to the [GitHub releases](https://github.com/YouG-o/YouTube_No_Translation/releases).*
 
-[Unreleased]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.10.13...HEAD
+[Unreleased]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.12.0...HEAD
+[2.12.0]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.11.0...v2.12.0
+[2.11.0]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.10.13...v2.11.0
 [2.10.13]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.10.12...v2.10.13
 [2.10.12]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.10.11...v2.10.12
 [2.10.11]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.10.10...v2.10.11

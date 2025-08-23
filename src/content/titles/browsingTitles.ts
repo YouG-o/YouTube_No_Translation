@@ -69,10 +69,6 @@ export function updateBrowsingTitleElement(element: HTMLElement, title: string, 
     // Update the title attribute and ynt attribute
     element.setAttribute('title', title);
     element.setAttribute('ynt', videoId);
-
-    if (!titleCache.getTitle(videoId)) {
-        titleCache.setTitle(videoId, title);
-    }
     
     if (isBrowsingTitle) {
         browsingTitlesLog(
@@ -286,15 +282,15 @@ export async function fetchOriginalTitle(
 ): Promise<TitleFetchResult> {
     let originalTitle: string | null = null;
     
-    // Check pre-fetched titles first (from YouTube Data API v3 batch)
-    if (preferenceFetchedTitles?.has(videoId)) {
-        originalTitle = preferenceFetchedTitles.get(videoId) || null;
-    }
-    
     // Check cache first
     originalTitle = titleCache.getTitle(videoId) || null;
     if (originalTitle) {
         //browsingTitlesLog(`Found title in cache for ${videoId}: %c${normalizeText(originalTitle)}%c`, 'color: #4ade80', 'color: #F44336');
+    } 
+
+    // Check pre-fetched titles (from YouTube Data API v3 batch)    
+    if (!originalTitle && preferenceFetchedTitles?.has(videoId)) {
+            originalTitle = preferenceFetchedTitles.get(videoId) || null;
     }
     
     // Try oEmbed API if not found in pre-fetched
@@ -363,6 +359,9 @@ export async function fetchOriginalTitle(
         }
         return { originalTitle, shouldSkip: true, shouldMarkAsOriginal: true, shouldMarkAsFailed: false };
     }
+    
+    // Cache the fetched title
+    titleCache.setTitle(videoId, originalTitle);
 
     return { originalTitle, shouldSkip: false, shouldMarkAsOriginal: false, shouldMarkAsFailed: false };
 }

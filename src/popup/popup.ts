@@ -23,6 +23,7 @@ const extensionVersionElement = document.getElementById('extensionVersion') as H
 const youtubeDataApiToggle = document.getElementById('youtubeDataApiEnabled') as HTMLInputElement;
 const youtubeDataApiKeyInput = document.getElementById('youtubeDataApiKey') as HTMLInputElement;
 const youtubeApiKeyContainer = document.getElementById('youtubeApiKeyContainer') as HTMLDivElement;
+const clearCacheBtn = document.getElementById('clearCacheBtn') as HTMLButtonElement;
 
 // Extra settings collapsible section - only exists in popup
 const extraSettingsToggle = document.getElementById('extraSettingsToggle') as HTMLDivElement;
@@ -426,6 +427,63 @@ youtubeDataApiKeyInput.addEventListener('input', async () => {
         console.log('YouTube Data API key saved');
     } catch (error) {
         console.error('YouTube Data API key save error:', error);
+    }
+});
+
+// Handle cache clearing
+clearCacheBtn.addEventListener('click', async () => {
+    const originalText = clearCacheBtn.textContent;
+    
+    try {
+        clearCacheBtn.disabled = true;
+        clearCacheBtn.textContent = 'Clearing...';
+        
+        // Clear both title and description caches
+        await browser.storage.local.remove(['titleCache', 'descriptionCache']);
+        
+        // Send message to content scripts to clear their in-memory caches
+        try {
+            const tabs = await browser.tabs.query({ 
+                url: ["*://*.youtube.com/*", "*://*.youtube-nocookie.com/*"] 
+            });
+            
+            let clearedTabs = 0;
+            for (const tab of tabs) {
+                if (tab.id) {
+                    try {
+                        await browser.tabs.sendMessage(tab.id, {
+                            action: 'clearCache'
+                        });
+                        clearedTabs++;
+                    } catch (messageError) {
+                        // Ignore tabs where content script is not loaded
+                        console.log(`[YNT] Could not send clear cache message to tab ${tab.id}`);
+                    }
+                }
+            }
+            
+            clearCacheBtn.textContent = `Cleared! (${clearedTabs} tabs)`;
+            console.log(`[YNT] Cache cleared successfully. Notified ${clearedTabs} YouTube tabs.`);
+        } catch (error) {
+            clearCacheBtn.textContent = 'Cache Cleared!';
+            console.log('[YNT] Cache cleared from storage, but could not notify content scripts:', error);
+        }
+        
+        // Reset button after 2 seconds
+        setTimeout(() => {
+            clearCacheBtn.textContent = originalText;
+            clearCacheBtn.disabled = false;
+        }, 2000);
+        
+    } catch (error) {
+        console.error('[YNT] Failed to clear cache:', error);
+        clearCacheBtn.textContent = 'Error';
+        clearCacheBtn.disabled = false;
+        
+        // Reset button after 2 seconds
+        setTimeout(() => {
+            clearCacheBtn.textContent = originalText;
+        }, 2000);
     }
 });
 

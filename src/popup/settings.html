@@ -242,8 +242,32 @@
                         </div>
                     </div>
                 </div>
+                
+                <!-- Cache Management -->
+                <div class="p-3 rounded border border-red-500 bg-red-900/20">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-2">
+                            <h3 class="text-sm font-medium text-red-300">Cache Management</h3>
+                            <div class="relative group tooltip">
+                                <svg class="w-4 h-4 text-red-400 cursor-help group hover:text-red-300" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
+                                </svg>
+                                <span class="absolute z-20 bottom-full left-0 ml-[-20px] mb-2 w-[220px] px-3 py-2 text-xs text-white bg-gray-900/95 rounded-md shadow-lg whitespace-normal opacity-0 pointer-events-none invisible group-hover:opacity-100 group-hover:visible transition-opacity">
+                                    Clear cached titles and descriptions. Use this if you're experiencing incorrect content or want to start fresh.
+                                </span>
+                            </div>
+                        </div>
+                        <button id="clearCacheBtn" class="px-4 py-2 text-sm text-white bg-red-600 hover:bg-red-700 rounded border border-red-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2">
+                            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
+                            </svg>
+                            Clear Cache
+                        </button>
+                    </div>
+                </div>
             </div>
         </main>
+        
         <footer class="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[600px] flex flex-col gap-4 pt-4 pb-4 bg-gray-700 border-t border-gray-600 z-50">
             <div class="flex flex-col items-center">
                 <span class="mb-1 text-sm text-orange-300 font-semibold text-center">

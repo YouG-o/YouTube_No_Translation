@@ -7,7 +7,7 @@
  * This program is distributed without any warranty; see the license for details.
  */
 
-import { descriptionLog, descriptionErrorLog } from '../../utils/logger';
+import { descriptionLog, descriptionErrorLog, coreLog } from '../../utils/logger';
 
 export class DescriptionCache {
     private cache: Record<string, string> = {};
@@ -88,3 +88,15 @@ export class DescriptionCache {
 }
 
 export const descriptionCache = new DescriptionCache();
+
+// Listen for cache clear messages
+browser.runtime.onMessage.addListener((message: unknown) => {
+    if (typeof message === 'object' && message !== null && 'action' in message) {
+        if (message.action === 'clearCache') {
+            descriptionCache.clear();
+            coreLog('[Description cache cleared via message');
+            return Promise.resolve(true);
+        }
+    }
+    return false;
+});

@@ -7,7 +7,7 @@
  * This program is distributed without any warranty; see the license for details.
  */
 
-import { titlesLog, titlesErrorLog } from '../../utils/logger';
+import { titlesLog, titlesErrorLog, coreLog } from '../../utils/logger';
 
 /**
  * Persistent cache manager for video titles using browser.storage.local.
@@ -112,6 +112,17 @@ export class TitleCache {
 
 export const titleCache = new TitleCache();
 
+// Listen for cache clear messages
+browser.runtime.onMessage.addListener((message: unknown) => {
+    if (typeof message === 'object' && message !== null && 'action' in message) {
+        if (message.action === 'clearCache') {
+            titleCache.clear();
+            coreLog('Title cache cleared via message');
+            return Promise.resolve(true);
+        }
+    }
+    return false;
+});
 
 
 export async function fetchTitleInnerTube(videoId: string): Promise<string | null> {

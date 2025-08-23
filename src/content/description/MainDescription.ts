@@ -209,10 +209,6 @@ export function updateDescriptionElement(element: HTMLElement, description: stri
     insertDescriptionSpan(attributedString, span);
     insertDescriptionSpan(snippetAttributedString, span);
 
-    if (!descriptionCache.getDescription(id)) {
-        descriptionCache.setDescription(id, description);
-    }
-
     setupDescriptionContentObserver(id);
     initializeChaptersReplacement(description);
 }
@@ -247,9 +243,7 @@ export function compareDescription(element: HTMLElement, id: string): Promise<bo
         if (isOriginal) {
             descriptionLog('Description is already in original language, no update needed');
         } else {
-            if (!descriptionCache.getDescription(id)) {
-                descriptionCache.setDescription(id, description);
-            }
+            descriptionCache.setDescription(id, description);
         }
         
         // Return true if original (no update needed), false if update needed
@@ -339,10 +333,6 @@ export function setupDescriptionContentObserver(id: string) {
         // Fetch description instead of returning
         fetchOriginalDescription().then(description => {
             if (description) {
-                // Cache the description
-                if (!descriptionCache.getDescription(id)) {
-                    descriptionCache.setDescription(id, description);
-                }
                 cachedDescription = description;
                 
                 // Now set up the observer with the fetched description

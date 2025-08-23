@@ -86,10 +86,6 @@ export function updateMainTitleElement(element: HTMLElement, title: string, vide
 
     // Add marker to indicate this is the extension's original title
     element.setAttribute('data-ynt-modified', 'true');
-
-    /*if (!titleCache.getTitle(videoId)) {
-        titleCache.setTitle(videoId, title);
-    }*/
     
     // --- Block YouTube from re-adding the is-empty attribute
     isEmptyObserver = new MutationObserver((mutations) => {

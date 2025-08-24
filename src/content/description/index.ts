@@ -8,12 +8,12 @@
  */
 
 import { descriptionLog, descriptionErrorLog, coreLog } from '../../utils/logger';
+import type { CacheData, CacheEntry } from '../../types/types';
 
 export class DescriptionCache {
-    private cache: Record<string, string> = {};
+   private cache: Record<string, CacheEntry> = {};
     private readonly MAX_ENTRIES = 50;
-    private readonly CLEANUP_INTERVAL = 12 * 60 * 60 * 1000; // 12 hours in ms
-    private lastCleanupTime = Date.now();
+    private readonly CLEANUP_INTERVAL = 24 * 60 * 60 * 1000; // 24 hours in ms
 
     constructor() {
         this.loadCache();
@@ -21,12 +21,13 @@ export class DescriptionCache {
 
     async loadCache(): Promise<void> {
         try {
-            const result = await browser.storage.local.get('descriptionCache');
-            if (result.descriptionCache) {
-                if (typeof result.descriptionCache === 'string') {
-                    this.cache = JSON.parse(result.descriptionCache);
-                } else {
-                    this.cache = result.descriptionCache as Record<string, string>;
+            const result = await browser.storage.local.get('ynt-cache');
+            const yntCache = result['ynt-cache'] as CacheData | undefined;
+            if (yntCache && yntCache.descriptions) {
+                if (typeof yntCache.descriptions === 'string') {
+                    this.cache = JSON.parse(yntCache.descriptions);
+                } else if (yntCache.descriptions && typeof yntCache.descriptions === 'object') {
+                    this.cache = yntCache.descriptions as Record<string, CacheEntry>;
                 }
                 descriptionLog('Persistent description cache loaded');
             }
@@ -37,7 +38,14 @@ export class DescriptionCache {
 
     async saveCache(): Promise<void> {
         try {
-            await browser.storage.local.set({ descriptionCache: JSON.stringify(this.cache) });
+            // Get existing cache data
+            const result = await browser.storage.local.get('ynt-cache');
+            const cacheData: CacheData = result['ynt-cache'] || {};
+            
+            // Update only description-related data
+            cacheData.descriptions = JSON.stringify(this.cache);
+            
+            await browser.storage.local.set({ 'ynt-cache': cacheData });
         } catch (error) {
             descriptionErrorLog('Failed to save persistent description cache:', error);
         }
@@ -45,23 +53,36 @@ export class DescriptionCache {
 
     async cleanupCache(): Promise<void> {
         const currentTime = Date.now();
+        let hasExpiredEntries = false;
 
-        // Clear if older than interval
-        if (currentTime - this.lastCleanupTime > this.CLEANUP_INTERVAL) {
-            descriptionLog('Description cache expired, clearing all entries');
-            this.cache = {};
-            this.lastCleanupTime = currentTime;
+        // Remove entries older than interval
+        Object.keys(this.cache).forEach(videoId => {
+            const entry = this.cache[videoId];
+            if (currentTime - entry.timestamp > this.CLEANUP_INTERVAL) {
+                delete this.cache[videoId];
+                hasExpiredEntries = true;
+            }
+        });
+
+        if (hasExpiredEntries) {
             await this.saveCache();
-            return;
+            descriptionLog('Expired description cache entries removed');
         }
 
         // Keep only most recent entries if over size limit
         const keys = Object.keys(this.cache);
         if (keys.length > this.MAX_ENTRIES) {
-            const trimmed: Record<string, string> = {};
-            keys.slice(-this.MAX_ENTRIES).forEach(key => {
-                trimmed[key] = this.cache[key];
+            // Sort by timestamp (newest first) and keep only the most recent
+            const sortedEntries = keys
+                .map(key => ({ key, timestamp: this.cache[key].timestamp }))
+                .sort((a, b) => b.timestamp - a.timestamp)
+                .slice(0, this.MAX_ENTRIES);
+
+            const trimmed: Record<string, CacheEntry> = {};
+            sortedEntries.forEach(entry => {
+                trimmed[entry.key] = this.cache[entry.key];
             });
+            
             this.cache = trimmed;
             await this.saveCache();
             descriptionLog('Description cache size limit reached, keeping most recent entries');
@@ -70,20 +91,43 @@ export class DescriptionCache {
 
     async clear(): Promise<void> {
         this.cache = {};
-        await browser.storage.local.remove('descriptionCache');
+        try {
+            // Get existing cache data
+            const result = await browser.storage.local.get('ynt-cache');
+            const cacheData: CacheData = result['ynt-cache'] || {};
+            
+            // Remove only description-related data
+            delete cacheData.descriptions;
+            
+            // If cache object is empty, remove it completely
+            if (Object.keys(cacheData).length === 0) {
+                await browser.storage.local.remove('ynt-cache');
+            } else {
+                await browser.storage.local.set({ 'ynt-cache': cacheData });
+            }
+        } catch (error) {
+            descriptionErrorLog('Failed to clear description cache:', error);
+        }
         descriptionLog('Description cache cleared');
     }
 
     async setDescription(videoId: string, description: string): Promise<void> {
         await this.cleanupCache();
         if (description) {
-            this.cache[videoId] = description;
+           this.cache[videoId] = {
+               content: description,
+               timestamp: Date.now()
+           };
             await this.saveCache();
         }
     }
 
     getDescription(videoId: string): string | undefined {
-        return this.cache[videoId];
+        // Trigger cleanup check on cache access
+        this.cleanupCache().catch(error => {
+            descriptionErrorLog('Failed to cleanup cache during read:', error);
+        });
+       return this.cache[videoId]?.content;
     }
 }
 

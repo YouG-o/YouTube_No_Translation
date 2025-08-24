@@ -439,7 +439,7 @@ clearCacheBtn.addEventListener('click', async () => {
         clearCacheBtn.textContent = 'Clearing...';
         
         // Clear both title and description caches
-        await browser.storage.local.remove(['titleCache', 'descriptionCache']);
+        await browser.storage.local.remove('ynt-cache');
         
         // Send message to content scripts to clear their in-memory caches
         try {

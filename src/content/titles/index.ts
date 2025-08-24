@@ -8,16 +8,16 @@
  */
 
 import { titlesLog, titlesErrorLog, coreLog } from '../../utils/logger';
+import type { CacheData, CacheEntry } from '../../types/types';
 
 /**
  * Persistent cache manager for video titles using browser.storage.local.
  * This cache survives page reloads and browser restarts.
  */
 export class TitleCache {
-    private cache: Record<string, string> = {};
+    private cache: Record<string, CacheEntry> = {};
     private readonly MAX_ENTRIES = 1000;
     private readonly CLEANUP_INTERVAL = 24 * 60 * 60 * 1000; // 24 hours in ms
-    private lastCleanupTime = Date.now();
 
     constructor() {
         this.loadCache();
@@ -28,12 +28,13 @@ export class TitleCache {
      */
     async loadCache(): Promise<void> {
         try {
-            const result = await browser.storage.local.get('titleCache');
-            if (result.titleCache) {
-                if (typeof result.titleCache === 'string') {
-                    this.cache = JSON.parse(result.titleCache);
+            const result = await browser.storage.local.get('ynt-cache');
+            const cacheData = result['ynt-cache'] as CacheData;
+            if (cacheData && 'titles' in cacheData && cacheData.titles) {
+                if (typeof cacheData.titles === 'string') {
+                    this.cache = JSON.parse(cacheData.titles);
                 } else {
-                    this.cache = result.titleCache as Record<string, string>;
+                    this.cache = cacheData.titles as Record<string, CacheEntry>;
                 }
                 titlesLog('Persistent title cache loaded');
             }
@@ -47,7 +48,14 @@ export class TitleCache {
      */
     async saveCache(): Promise<void> {
         try {
-            await browser.storage.local.set({ titleCache: JSON.stringify(this.cache) });
+            // Get existing cache data
+            const result = await browser.storage.local.get('ynt-cache');
+            const cacheData: CacheData = result['ynt-cache'] || {};
+            
+            // Update only title-related data
+            cacheData.titles = JSON.stringify(this.cache);
+            
+            await browser.storage.local.set({ 'ynt-cache': cacheData });
         } catch (error) {
             titlesErrorLog('Failed to save persistent cache:', error);
         }
@@ -58,27 +66,39 @@ export class TitleCache {
      */
     async cleanupCache(): Promise<void> {
         const currentTime = Date.now();
+        let hasExpiredEntries = false;
 
-        // Clear if older than interval
-        if (currentTime - this.lastCleanupTime > this.CLEANUP_INTERVAL) {
-            titlesLog('Cache expired, clearing all entries');
-            this.cache = {};
-            this.lastCleanupTime = currentTime;
+        // Remove entries older than interval
+        Object.keys(this.cache).forEach(videoId => {
+            const entry = this.cache[videoId];
+            if (currentTime - entry.timestamp > this.CLEANUP_INTERVAL) {
+                delete this.cache[videoId];
+                hasExpiredEntries = true;
+            }
+        });
+
+        if (hasExpiredEntries) {
             await this.saveCache();
-            return;
+            titlesLog('Expired title cache entries removed');
         }
 
         // Keep only most recent entries if over size limit
         const keys = Object.keys(this.cache);
         if (keys.length > this.MAX_ENTRIES) {
-            // Remove the oldest entries
-            const trimmed: Record<string, string> = {};
-            keys.slice(-this.MAX_ENTRIES).forEach(key => {
-                trimmed[key] = this.cache[key];
+            // Sort by timestamp (newest first) and keep only the most recent
+            const sortedEntries = keys
+                .map(key => ({ key, timestamp: this.cache[key].timestamp }))
+                .sort((a, b) => b.timestamp - a.timestamp)
+                .slice(0, this.MAX_ENTRIES);
+
+            const trimmed: Record<string, CacheEntry> = {};
+            sortedEntries.forEach(entry => {
+                trimmed[entry.key] = this.cache[entry.key];
             });
+            
             this.cache = trimmed;
             await this.saveCache();
-            titlesLog('Cache size limit reached, keeping most recent entries');
+            titlesLog('Title cache size limit reached, keeping most recent entries');
         }
     }
 
@@ -87,7 +107,23 @@ export class TitleCache {
      */
     async clear(): Promise<void> {
         this.cache = {};
-        await browser.storage.local.remove('titleCache');
+        try {
+            // Get existing cache data
+            const result = await browser.storage.local.get('ynt-cache');
+            const cacheData: CacheData = result['ynt-cache'] || {};
+            
+            // Remove only title-related data
+            delete cacheData.titles;
+            
+            // If cache object is empty, remove it completely
+            if (Object.keys(cacheData).length === 0) {
+                await browser.storage.local.remove('ynt-cache');
+            } else {
+                await browser.storage.local.set({ 'ynt-cache': cacheData });
+            }
+        } catch (error) {
+            titlesErrorLog('Failed to clear title cache:', error);
+        }
         titlesLog('Cache cleared');
     }
 
@@ -97,7 +133,10 @@ export class TitleCache {
     async setTitle(videoId: string, title: string): Promise<void> {
         await this.cleanupCache();
         if (title) {
-            this.cache[videoId] = title;
+            this.cache[videoId] = {
+                content: title,
+                timestamp: Date.now()
+            };
             await this.saveCache();
         }
     }
@@ -106,7 +145,11 @@ export class TitleCache {
      * Retrieves a title from the cache.
      */
     getTitle(videoId: string): string | undefined {
-        return this.cache[videoId];
+        // Trigger cleanup check on cache access
+        this.cleanupCache().catch(error => {
+            titlesErrorLog('Failed to cleanup cache during read:', error);
+        });
+        return this.cache[videoId]?.content;
     }
 }
 

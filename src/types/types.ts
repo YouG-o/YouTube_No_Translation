@@ -141,3 +141,12 @@ export type ToggleConfig = {
     uiUpdate?: () => void
 };
 
+export interface CacheData {
+    titles?: string;
+    descriptions?: string;
+}
+
+export interface CacheEntry {
+    content: string;
+    timestamp: number;
+}

@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.12.1] - 2025-08-24
+
+### Fixed
+- Fixed cache timestamp persistence by storing cleanup timestamps in local storage instead of memory variables
+- Cache expiration now works correctly after browser restarts (24h)
+- Unified cache storage structure under single 'ynt-cache' object to prevent local storage pollution
+
+
 ## [2.12.0] - 2025-08-23
 
 ### Added
@@ -419,7 +427,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 *Note: This changelog was introduced in version 2.2.30. For earlier version history, please refer to the [GitHub releases](https://github.com/YouG-o/YouTube_No_Translation/releases).*
 
-[Unreleased]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.12.0...HEAD
+[Unreleased]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.12.1...HEAD
+[2.12.1]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.12.0...v2.12.1
 [2.12.0]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.11.0...v2.12.0
 [2.11.0]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.10.13...v2.11.0
 [2.10.13]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.10.12...v2.10.13

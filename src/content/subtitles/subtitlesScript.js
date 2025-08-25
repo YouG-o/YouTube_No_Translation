@@ -237,15 +237,23 @@
                     track.languageCode === asrTrack.languageCode && !track.kind
                 );
 
+                // If manual track in original language exists, use it
+                if (originalTrack) {
+                    log(`Setting subtitles to original language (manual): "${originalTrack.name.simpleText}"`);
+                    player.setOption('captions', 'track', originalTrack);
+                    return true;
+                }
+
                 // If no manual track in original language exists
-                if (!originalTrack) {
-                    log('No manual track in original language, disabling subtitles');
+                if (!asrEnabled) {
+                    log('No manual track in original language, disabling subtitles (ASR disabled)');
                     player.setOption('captions', 'track', {});
                     return true;
                 }
 
-                log(`Setting subtitles to original language: "${originalTrack.name.simpleText}"`);
-                player.setOption('captions', 'track', originalTrack);
+                // Use ASR track as fallback when ASR is enabled
+                log(`No manual track in original language, using ASR track: "${asrTrack.name.simpleText}"`);
+                player.setOption('captions', 'track', asrTrack);
                 return true;
             } 
             

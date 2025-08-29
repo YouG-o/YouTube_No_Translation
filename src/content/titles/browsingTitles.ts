@@ -131,7 +131,7 @@ function shouldProcessBrowsingElement(titleElement: HTMLElement): ProcessingResu
         titleElement.closest('ytd-rich-grid-media') !== null && hasPlaylistParam;
 
     // New format: check if parent link has 'list=' but not 'index='
-    const parentLink = titleElement.closest('a.yt-lockup-metadata-view-model-wiz__title') as HTMLAnchorElement | null;
+    const parentLink = titleElement.closest('a.yt-lockup-metadata-view-model__title, a.yt-lockup-metadata-view-model-wiz__title') as HTMLAnchorElement | null;
     const isPlaylistAlternativeContainer = !!parentLink && parentLink.getAttribute('href')?.includes('list=') && 
                                !parentLink.getAttribute('href')?.includes('index=');
 
@@ -378,7 +378,7 @@ export async function refreshBrowsingVideos(): Promise<void> {
 
     // Select recommended video titles (new format)
     const recommendedTitles = Array.from(
-        document.querySelectorAll('a.yt-lockup-metadata-view-model-wiz__title > span.yt-core-attributed-string')
+        document.querySelectorAll('a.yt-lockup-metadata-view-model__title > span.yt-core-attributed-string, a.yt-lockup-metadata-view-model-wiz__title > span.yt-core-attributed-string')
     ) as HTMLElement[];
 
     // Merge both lists

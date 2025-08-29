@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.12.3] - 2025-08-27
+
+### Fixed
+- Fixed some browsing video titles not being processed due to YouTube HTML structure changes: added support for new `yt-lockup-metadata-view-model__title` class selector alongside existing ones for improved compatibility
+
 ## [2.12.2] - 2025-08-26
 
 ### Fix
@@ -432,7 +437,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 *Note: This changelog was introduced in version 2.2.30. For earlier version history, please refer to the [GitHub releases](https://github.com/YouG-o/YouTube_No_Translation/releases).*
 
-[Unreleased]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.12.2...HEAD
+[Unreleased]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.12.3...HEAD
+[2.12.3]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.12.2...v2.12.3
 [2.12.2]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.12.1...v2.12.2
 [2.12.1]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.12.0...v2.12.1
 [2.12.0]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.11.0...v2.12.0

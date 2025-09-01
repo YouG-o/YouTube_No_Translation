@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- Fixed a conflict with SponsorBlock: chapter button in the player now always displays the original chapter title, even when SponsorBlock tries to override it.
+
 ## [2.12.3] - 2025-08-27
 
 ### Fixed

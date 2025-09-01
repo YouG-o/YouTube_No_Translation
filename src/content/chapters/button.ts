@@ -12,6 +12,7 @@ import { normalizeText } from '../../utils/text';
 
 import { cachedChapters, findChapterByTime, getCurrentVideoTime } from './chaptersIndex';
 
+let sponsorChapterObserver: MutationObserver | null = null;
 
 // Update chapter button with original title
 export function updateChapterButton(): void {
@@ -31,5 +32,29 @@ export function updateChapterButton(): void {
             chapterButton.textContent = targetChapter.title;
             chapterButton.setAttribute('data-original-chapter-button', targetChapter.title);
         }
+    }
+
+    // SponsorBlock compatibility: force original title using MutationObserver
+    const sponsorChapterText = document.querySelector('.ytp-chapter-title .sponsorChapterText') as HTMLElement;
+
+    // Disconnect previous observer if any
+    if (sponsorChapterObserver) {
+        sponsorChapterObserver.disconnect();
+        sponsorChapterObserver = null;
+    }
+
+    if (sponsorChapterText && targetChapter) {
+        // Set the correct text initially
+        sponsorChapterText.textContent = targetChapter.title;
+
+        // Create a MutationObserver to keep the text original
+        sponsorChapterObserver = new MutationObserver(() => {
+            if (sponsorChapterText.textContent !== targetChapter.title) {
+                chaptersLog(`SponsorBlock chapter text forcibly updated: Time ${currentTime}s -> "${targetChapter.title}"`);
+                sponsorChapterText.textContent = targetChapter.title;
+            }
+        });
+
+        sponsorChapterObserver.observe(sponsorChapterText, { childList: true, subtree: true, characterData: true });
     }
 }

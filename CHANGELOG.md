@@ -7,8 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.12.4] - 2025-09-04
+
 ### Fixed
-- Fixed a conflict with SponsorBlock: chapter button in the player now always displays the original chapter title, even when SponsorBlock tries to override it.
+- Fixed a conflict with SponsorBlock: chapter button in the player now always displays the original chapter title, even when SponsorBlock tries to override it using MutationObserver
+
+### Style
+- Improved popup visual consistency: Cache Management section styling is now consistent with other sections (neutral colors instead of warning-style red)
+
+### Fixed
 
 ## [2.12.3] - 2025-08-27
 
@@ -440,7 +447,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 *Note: This changelog was introduced in version 2.2.30. For earlier version history, please refer to the [GitHub releases](https://github.com/YouG-o/YouTube_No_Translation/releases).*
 
-[Unreleased]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.12.3...HEAD
+[Unreleased]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.12.4...HEAD
+[2.12.4]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.12.3...v2.12.4
 [2.12.3]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.12.2...v2.12.3
 [2.12.2]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.12.1...v2.12.2
 [2.12.1]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.12.0...v2.12.1

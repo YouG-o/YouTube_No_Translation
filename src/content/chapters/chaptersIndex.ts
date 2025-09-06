@@ -166,12 +166,28 @@ export function initializeChaptersReplacement(originalDescription: string): void
     const style = document.createElement('style');
     style.id = 'ynt-chapters-style';
     style.textContent = `
+        /* Old structure: .ytp-tooltip-title span */
         .ytp-tooltip.ytp-bottom.ytp-preview .ytp-tooltip-title span {
             font-size: 0 !important;
             line-height: 0 !important;
         }
         
         .ytp-tooltip.ytp-bottom.ytp-preview .ytp-tooltip-title span[data-original-chapter]::after {
+            content: attr(data-original-chapter);
+            font-size: 12px !important;
+            line-height: normal !important;
+            color: inherit;
+            font-family: inherit;
+            display: inline !important;
+        }
+        
+        /* New structure: .ytp-tooltip-progress-bar-pill-title */
+        .ytp-tooltip-progress-bar-pill-title {
+            font-size: 0 !important;
+            line-height: 0 !important;
+        }
+        
+        .ytp-tooltip-progress-bar-pill-title[data-original-chapter]::after {
             content: attr(data-original-chapter);
             font-size: 12px !important;
             line-height: normal !important;

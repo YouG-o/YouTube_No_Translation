@@ -9,6 +9,7 @@
 
 import { chaptersLog, chaptersErrorLog } from '../../utils/logger';
 import { normalizeText } from '../../utils/text';
+import { isNewYouTubePlayer } from '../../utils/video';
 
 import { cachedChapters, findChapterByTime, timeStringToSeconds } from './chaptersIndex';
 
@@ -18,13 +19,33 @@ export function updateTooltipChapter(): void {
     const visibleTooltip = document.querySelector('.ytp-tooltip.ytp-bottom.ytp-preview:not([style*="display: none"])');
     if (!visibleTooltip) return;
     
-    const timeElement = visibleTooltip.querySelector('.ytp-tooltip-text');
-    const titleElement = visibleTooltip.querySelector('.ytp-tooltip-title span');
+    // Reliable detection: check if we're on the new player (Delhi UI)
+    const isNewPlayer = isNewYouTubePlayer();
     
-    if (!timeElement || !titleElement) return;
+    let timeString: string | null = null;
+    let titleElement: Element | null = null;
     
-    const timeString = timeElement.textContent?.trim();
-    if (!timeString) return;
+    if (isNewPlayer) {
+        // New YouTube player (September 2025)
+        const pillTimeElement = visibleTooltip.querySelector('.ytp-tooltip-progress-bar-pill-time-stamp');
+        const pillTitleElement = visibleTooltip.querySelector('.ytp-tooltip-progress-bar-pill-title');
+        
+        if (pillTimeElement && pillTitleElement && pillTimeElement.textContent?.trim()) {
+            timeString = pillTimeElement.textContent.trim();
+            titleElement = pillTitleElement;
+        }
+    } else {
+        // Old YouTube player
+        const timeElement = visibleTooltip.querySelector('.ytp-tooltip-text');
+        const oldTitleElement = visibleTooltip.querySelector('.ytp-tooltip-title span');
+        
+        if (timeElement && oldTitleElement && timeElement.textContent?.trim()) {
+            timeString = timeElement.textContent.trim();
+            titleElement = oldTitleElement;
+        }
+    }
+    
+    if (!titleElement || !timeString) return;
     
     const timeInSeconds = timeStringToSeconds(timeString);
     const targetChapter = findChapterByTime(timeInSeconds, cachedChapters);
@@ -35,6 +56,7 @@ export function updateTooltipChapter(): void {
         if (normalizeText(currentOriginalChapter) !== normalizeText(targetChapter.title)) {
             chaptersLog(`Time: ${timeString} (${timeInSeconds}s) -> Chapter: "${targetChapter.title}"`);
             titleElement.setAttribute('data-original-chapter', targetChapter.title);
+            titleElement.textContent = targetChapter.title;
         }
     }
 }

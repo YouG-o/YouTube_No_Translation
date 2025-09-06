@@ -29,3 +29,29 @@ export function extractVideoIdFromUrl(videoUrl: string): string | null {
         return null;
     }
 }
+
+/**
+ * Detects if the current YouTube player is using the new Delhi UI
+ * @returns true if the new player (Delhi UI) is detected, false otherwise
+ */
+export function isNewYouTubePlayer(): boolean {
+    const player = getYouTubePlayer();
+    return player?.classList.contains('ytp-delhi-modern') ?? false;
+}
+
+/**
+ * Gets the appropriate YouTube player element based on current page context
+ * @returns the player element or null if not found
+ */
+export function getYouTubePlayer(): HTMLElement | null {
+    // Determine target player ID based on current URL
+    let targetId = 'movie_player'; // Default for regular videos
+    
+    if (window.location.pathname.startsWith('/shorts')) {
+        targetId = 'shorts-player'; // Player for shorts
+    } else if (window.location.pathname.startsWith('/@')) {
+        targetId = 'c4-player'; // Player for channels main video
+    }
+    
+    return document.getElementById(targetId);
+}

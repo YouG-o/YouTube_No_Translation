@@ -44,12 +44,12 @@ const LOG_STYLES = {
         color: '#06b6d4'  // light blue
     },
     CHAPTERS: {
-        context: '[CHAPTERS]',
+        context: '[Chapters]',
         color: '#9C27B0'  // purple
     },
     THUMBNAILS: {
         context: '[Thumbnails]',
-        color: '#FF5722'  // deep orange
+        color: '#8B5CF6'  // violet
     }
 } as const;
 

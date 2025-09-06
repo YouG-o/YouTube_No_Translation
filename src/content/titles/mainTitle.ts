@@ -13,6 +13,7 @@ import { normalizeText } from "../../utils/text";
 import { waitForElement } from "../../utils/dom";
 import { TitleDataEvent } from "../../types/types";
 import { titleCache, fetchTitleInnerTube, fetchTitleOembed } from "./index";
+import { isNewYouTubePlayer } from "../../utils/video";
 
 
 let mainTitleContentObserver: MutationObserver | null = null;
@@ -266,9 +267,19 @@ export async function refreshEmbedTitle(): Promise<void> {
     // Clean up existing observer first
     cleanupEmbedTitleContentObserver();
     
-    // Wait for the embed title element to be available
+    // Detect which player type we're dealing with
+    const isNewPlayer = isNewYouTubePlayer();
+    
+    let embedTitle: HTMLElement | null = null;
+    
     try {
-        const embedTitle = await waitForElement('.ytp-title-link') as HTMLElement;
+        if (isNewPlayer) {
+            // New player: Delhi UI structure with overlay
+            embedTitle = await waitForElement('.ytp-fullscreen-metadata .ytPlayerOverlayVideoDetailsRendererTitle span.yt-core-attributed-string') as HTMLElement;
+        } else {
+            // Old player: Classic structure
+            embedTitle = await waitForElement('.ytp-title-link') as HTMLElement;
+        }
         
         if (embedTitle) {
             //mainTitleLog('Processing embed title element');

@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Feat
+- Translated thumbnails are now back to original
+
+### Fix
+- YNT now handles YT's new player : fixed chapters tooltip and video title in full screen. (kept it working with old player for now)
+
 ## [2.12.4] - 2025-09-04
 
 ### Fixed

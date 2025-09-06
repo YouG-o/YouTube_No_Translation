@@ -46,6 +46,10 @@ const LOG_STYLES = {
     CHAPTERS: {
         context: '[CHAPTERS]',
         color: '#9C27B0'  // purple
+    },
+    THUMBNAILS: {
+        context: '[Thumbnails]',
+        color: '#FF5722'  // deep orange
     }
 } as const;
 
@@ -101,3 +105,6 @@ export const channelNameErrorLog = createErrorLogger(LOG_STYLES.CHANNEL_NAME);
 
 export const chaptersLog = createLogger(LOG_STYLES.CHAPTERS);
 export const chaptersErrorLog = createErrorLogger(LOG_STYLES.CHAPTERS);
+
+export const browsingThumbnailsLog = createLogger(LOG_STYLES.THUMBNAILS);
+export const browsingThumbnailsErrorLog = createErrorLogger(LOG_STYLES.THUMBNAILS);

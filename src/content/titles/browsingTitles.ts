@@ -15,6 +15,7 @@ import { extractVideoIdFromUrl } from '../../utils/video';
 import { isYouTubeDataAPIEnabled } from '../../utils/utils';
 import { shouldProcessSearchDescriptionElement, batchProcessSearchDescriptions } from '../description/searchDescriptions';
 import { titleCache, fetchTitleInnerTube, fetchTitleOembed } from './index';
+import { restoreOriginalThumbnail } from '../Thumbnails/browsingThumbnails';
 
 
 // --- Global variables
@@ -400,6 +401,11 @@ export async function refreshBrowsingVideos(): Promise<void> {
             continue;
         }
         
+        // Skip thumbnail restoration for videos already marked as original
+        if (!titleElement.hasAttribute('ynt-original')) {
+            restoreOriginalThumbnail(videoId, titleElement);
+        }
+
         const currentTitle = titleElement.textContent || '';
         
         const processingState = checkElementProcessingState(titleElement, videoId);
@@ -458,7 +464,7 @@ export async function refreshBrowsingVideos(): Promise<void> {
         })
     );
 
-// Batch process descriptions for all translated titles
+    // Batch process descriptions for all translated titles
     if (translatedTitleElements.length > 0) {
         await batchProcessSearchDescriptions(translatedTitleElements, translatedVideoIds);
     }

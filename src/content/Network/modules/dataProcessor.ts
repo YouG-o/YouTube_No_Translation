@@ -43,7 +43,8 @@ window.processYouTubeData = async function(originalData: any, cleanData: any): P
             const extractedDescriptions = extractDescriptions(cleanData);
             if (extractedDescriptions.videoDescriptions.size > 0 || 
                 extractedDescriptions.channelDescriptions.size > 0 || 
-                extractedDescriptions.mainVideoDescription) {
+                extractedDescriptions.mainVideoDescription ||
+                extractedDescriptions.channelLongDescription) {
                 modifiedData = replaceDescriptions(modifiedData, extractedDescriptions);
             }
         } catch (error) {

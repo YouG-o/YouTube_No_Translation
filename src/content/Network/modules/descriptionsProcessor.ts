@@ -10,12 +10,66 @@
 import type { DescriptionExtractionResult } from '../../../types/types';
 
 /**
+ * Deep path used for long channel description extraction and replacement
+ */
+const LONG_DESC_PATH: Array<string | number> = [
+    "onResponseReceivedEndpoints", 0, "appendContinuationItemsAction", 
+    "continuationItems", 0, "aboutChannelRenderer", "metadata", 
+    "aboutChannelViewModel", "description"
+];
+
+/**
+ * Get value at nested path safely
+ */
+function getValueByPath(obj: any, pathArr: Array<string | number>): any {
+    let ref = obj;
+    for (let k of pathArr) {
+        if (typeof k === "number") {
+            if (!Array.isArray(ref) || ref.length <= k) return undefined;
+            ref = ref[k];
+        } else {
+            if (!ref || !(k in ref)) return undefined;
+            ref = ref[k];
+        }
+    }
+    return ref;
+}
+
+/**
+ * Set value at nested path safely
+ */
+function setValueByPath(obj: any, pathArr: Array<string | number>, value: any): boolean {
+    let ref = obj;
+    for (let i = 0; i < pathArr.length - 1; i++) {
+        const k = pathArr[i];
+        if (typeof k === "number") {
+            if (!Array.isArray(ref)) return false;
+            ref = ref[k];
+        } else {
+            if (!ref || !(k in ref)) return false;
+            ref = ref[k];
+        }
+    }
+    const lastKey = pathArr[pathArr.length - 1];
+    if (typeof lastKey === "number") {
+        if (!Array.isArray(ref) || ref.length <= lastKey) return false;
+        ref[lastKey] = value;
+        return true;
+    } else {
+        if (!ref || !(lastKey in ref)) return false;
+        ref[lastKey] = value;
+        return true;
+    }
+}
+
+/**
  * Extract original descriptions from clean YouTube API response
  */
 export function extractDescriptions(data: any): DescriptionExtractionResult {
     const videoDescriptions = new Map<string, string>();
     const channelDescriptions = new Map<string, string>();
     let mainVideoDescription: string | undefined;
+    let channelLongDescription: string | undefined;
 
     // Extract main video description
     try {
@@ -25,6 +79,16 @@ export function extractDescriptions(data: any): DescriptionExtractionResult {
             if (secondary?.attributedDescription?.content) {
                 mainVideoDescription = secondary.attributedDescription.content;
             }
+        }
+    } catch (e) {
+        // Ignore extraction errors
+    }
+
+    // Extract long channel description from deep path
+    try {
+        const longDesc = getValueByPath(data, LONG_DESC_PATH);
+        if (typeof longDesc === 'string' && longDesc.length > 0) {
+            channelLongDescription = longDesc;
         }
     } catch (e) {
         // Ignore extraction errors
@@ -88,7 +152,8 @@ export function extractDescriptions(data: any): DescriptionExtractionResult {
     return {
         videoDescriptions,
         channelDescriptions,
-        mainVideoDescription
+        mainVideoDescription,
+        channelLongDescription
     };
 }
 
@@ -97,6 +162,7 @@ export function extractDescriptions(data: any): DescriptionExtractionResult {
  */
 export function replaceDescriptions(originalData: any, extractedDescriptions: DescriptionExtractionResult): any {
     let replacedCount = 0;
+    let replacedLongDesc = 0;
     const dataCopy = JSON.parse(JSON.stringify(originalData));
 
     function walkAndReplaceDescriptions(obj: any): any {
@@ -203,9 +269,18 @@ export function replaceDescriptions(originalData: any, extractedDescriptions: De
     }
 
     walkAndReplaceDescriptions(dataCopy);
+
+    // Explicit replacement of long channel description
+    if (typeof extractedDescriptions.channelLongDescription === "string") {
+        const oldLongDesc = getValueByPath(dataCopy, LONG_DESC_PATH);
+        if (oldLongDesc !== extractedDescriptions.channelLongDescription) {
+            setValueByPath(dataCopy, LONG_DESC_PATH, extractedDescriptions.channelLongDescription);
+            replacedLongDesc++;
+        }
+    }
     
-    if (replacedCount > 0) {
-        console.log(`[YNT][Descriptions Processor] Replaced ${replacedCount} descriptions`);
+    if (replacedCount > 0 || replacedLongDesc > 0) {
+        console.log(`[YNT][Descriptions Processor] Replaced ${replacedCount} descriptions, longDesc: ${replacedLongDesc}`);
     }
 
     return dataCopy;

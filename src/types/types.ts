@@ -164,6 +164,7 @@ export interface TitleExtractionResult {
 export interface DescriptionExtractionResult {
     videoDescriptions: Map<string, string>;
     channelDescriptions: Map<string, string>;
+    channelLongDescription?: string;
     mainVideoDescription?: string;
 }
 

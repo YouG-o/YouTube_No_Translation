@@ -7,6 +7,16 @@
  * This program is distributed without any warranty; see the license for details.
  */
 
-
-
 declare const browser: typeof import('webextension-polyfill');
+
+interface Window {
+    _youtubeFinalResponses: Array<{ url: string; json: any }>;
+    _ynt_networkConfig: {
+        endpoints: string[];
+        features: {
+            titles: boolean;
+            descriptions: boolean;
+        };
+    };
+    processYouTubeData: (originalData: any, cleanData: any) => Promise<any>;
+}

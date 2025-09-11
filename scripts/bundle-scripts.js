@@ -17,7 +17,10 @@ const scripts = [
   'subtitles/subtitlesScript.js',
   'channel/channelNameScript.js',
   'channel/ChannelNameInnerTubeScript.js',
-  'channel/ChannelDescriptionInnerTube.js'
+  'channel/ChannelDescriptionInnerTube.js',
+  // Network interceptor scripts
+  'Network/networkInterceptorScript.js',
+  'Network/modules/dataProcessor.js'
 ];
 
 if (!fs.existsSync(outDir)) {

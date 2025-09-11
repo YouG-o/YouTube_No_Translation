@@ -281,7 +281,7 @@ descriptionToggle.addEventListener('change', () =>
     handleToggleChange({
         element: descriptionToggle,
         storageKey: 'descriptionTranslation',
-        messageFeature: 'description'
+        messageFeature: 'descriptions'
     })
 );
 

@@ -19,6 +19,7 @@ import { refreshDescription } from './description/MainDescription';
 import { handleAudioTranslation } from './audio/audioIndex';
 import { handleSubtitlesTranslation } from './subtitles/subtitlesIndex';
 import { maybeShowSupportToast } from './support/AskForSupport';
+import { initializeNetworkInterceptor } from './Network/networkIndex';
 
 
 coreLog('Content script starting to load...');
@@ -87,6 +88,9 @@ function initializeTitleTranslation() {
         return;
     }
     
+    // Update network interceptor configuration instead of initializing
+    updateNetworkInterceptorFeatures();
+    
     //initializeMainVideoObserver();
 }
 
@@ -103,6 +107,9 @@ function initializeDescriptionTranslation() {
     
     descriptionLog('Initializing description translation prevention');
     
+    // Update network interceptor configuration instead of initializing
+    updateNetworkInterceptorFeatures();
+    
     //initializeMainVideoObserver();
 };
 
@@ -112,13 +119,27 @@ function initializeSubtitlesTranslation() {
     initializeVideoPlayerListener();
 };
 
+/**
+ * Centralized function to update network interceptor based on current settings
+ */
+function updateNetworkInterceptorFeatures() {
+    const features = {
+        titles: currentSettings?.titleTranslation || false,
+        descriptions: currentSettings?.descriptionTranslation || false
+    };
+    
+    // Only initialize if at least one feature is enabled
+    if (features.titles || features.descriptions) {
+        initializeNetworkInterceptor(features);
+    }
+}
+
 browser.runtime.onMessage.addListener((message: unknown) => {
     if (isToggleMessage(message)) {
         switch(message.feature) {
             case 'audio':
                 if (message.isEnabled) {
                     handleAudioTranslation();
-
                     initializeVideoPlayerListener();                    
                 }
                 break;
@@ -128,20 +149,21 @@ browser.runtime.onMessage.addListener((message: unknown) => {
                     refreshBrowsingVideos();
                     refreshShortsAlternativeFormat();
                     
+                    updateNetworkInterceptorFeatures();
+                    
                     initializeMainVideoObserver();
                 }
                 break;
-            case 'description':
+            case 'descriptions':
                 if (message.isEnabled) {
-                    //refreshDescription();
-
+                    updateNetworkInterceptorFeatures();
+                    
                     initializeMainVideoObserver();
                 }
                 break;
             case 'subtitles':
                 if (message.isEnabled) {
                     handleSubtitlesTranslation();
-
                     initializeVideoPlayerListener();
                 }
                 break;

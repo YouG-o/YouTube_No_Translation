@@ -10,7 +10,7 @@
 
 export interface Message {
     action: 'toggleTranslation';
-    feature: 'titles' | 'thumbnails' | 'audio' | 'description' | 'subtitles';
+    feature: 'titles' | 'thumbnails' | 'audio' | 'descriptions' | 'subtitles';
     isEnabled: boolean;
 }
 
@@ -152,4 +152,21 @@ export interface CacheData {
 export interface CacheEntry {
     content: string;
     timestamp: number;
+}
+
+// Network interceptor types
+export interface TitleExtractionResult {
+    videoTitles: Map<string, string>;
+    channelTitles: Map<string, string>;
+    mainVideoTitle?: string;
+}
+
+export interface NetworkInterceptorFeatures {
+    titles: boolean;
+    descriptions: boolean;
+}
+
+export interface NetworkConfigUpdateMessage {
+    type: 'YNT_UPDATE_CONFIG';
+    features: NetworkInterceptorFeatures;
 }

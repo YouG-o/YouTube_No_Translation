@@ -8,6 +8,7 @@
  */
 
 import { extractTitles, replaceTitles } from './titlesProcessor';
+import { extractDescriptions, replaceDescriptions } from './descriptionsProcessor';
 
 /**
  * Central data processor that coordinates all feature modules
@@ -36,10 +37,18 @@ window.processYouTubeData = async function(originalData: any, cleanData: any): P
         }
     }
 
-    // Future: Process descriptions if enabled
+    // Process descriptions if enabled
     if (config.features.descriptions) {
-        // TODO: Implement description processing
-        console.log('[YNT][Data Processor] Description processing not yet implemented');
+        try {
+            const extractedDescriptions = extractDescriptions(cleanData);
+            if (extractedDescriptions.videoDescriptions.size > 0 || 
+                extractedDescriptions.channelDescriptions.size > 0 || 
+                extractedDescriptions.mainVideoDescription) {
+                modifiedData = replaceDescriptions(modifiedData, extractedDescriptions);
+            }
+        } catch (error) {
+            console.error('[YNT][Data Processor] Error processing descriptions:', error);
+        }
     }
 
     return modifiedData;

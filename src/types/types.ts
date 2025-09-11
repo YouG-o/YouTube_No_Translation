@@ -161,6 +161,12 @@ export interface TitleExtractionResult {
     mainVideoTitle?: string;
 }
 
+export interface DescriptionExtractionResult {
+    videoDescriptions: Map<string, string>;
+    channelDescriptions: Map<string, string>;
+    mainVideoDescription?: string;
+}
+
 export interface NetworkInterceptorFeatures {
     titles: boolean;
     descriptions: boolean;

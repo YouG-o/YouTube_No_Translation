@@ -10,35 +10,39 @@
 import { coreLog, coreErrorLog } from '../../utils/logger';
 import type { NetworkInterceptorFeatures, NetworkConfigUpdateMessage } from '../../types/types';
 
-let networkInterceptorActive = false;
+let networkInterceptorState: 'inactive' | 'initializing' | 'active' = 'inactive';
 let currentFeatures: NetworkInterceptorFeatures = { titles: false, descriptions: false };
+let pendingFeatures: NetworkInterceptorFeatures | null = null;
 
 /**
  * Initialize or update network interceptor with specific features
  */
 export async function initializeNetworkInterceptor(features: NetworkInterceptorFeatures): Promise<void> {
-    // Check if configuration has actually changed
-    const hasChanged = features.titles !== currentFeatures.titles || 
-                      features.descriptions !== currentFeatures.descriptions;
+    // If nothing changed and already active, do nothing
+    const hasChanged = features.titles !== currentFeatures.titles || features.descriptions !== currentFeatures.descriptions;
+    if (networkInterceptorState === 'active' && !hasChanged) return;
 
-    // If interceptor is already active and config hasn't changed, do nothing
-    if (networkInterceptorActive && !hasChanged) {
+    // Update desired features
+    currentFeatures = { ...features };
+
+    // If we're already initializing, just store pending features and return
+    if (networkInterceptorState === 'initializing') {
+        pendingFeatures = { ...features };
+        coreLog('Network interceptor already initializing - queued configuration update');
         return;
     }
 
-    // Update current features
-    currentFeatures = { ...features };
-
-    // If interceptor is already active, just update configuration
-    if (networkInterceptorActive) {
+    // If already active, just post the update
+    if (networkInterceptorState === 'active') {
         updateNetworkInterceptorConfig(features);
         coreLog(`Network interceptor configuration updated: titles=${features.titles}, descriptions=${features.descriptions}`);
         return;
     }
 
-    // Initialize interceptor for the first time
+    // Start initialization
     try {
         coreLog(`Initializing network interceptor: titles=${features.titles}, descriptions=${features.descriptions}`);
+        networkInterceptorState = 'initializing';
 
         // Inject data processor first
         const dataProcessorScript = document.createElement('script');
@@ -48,21 +52,29 @@ export async function initializeNetworkInterceptor(features: NetworkInterceptorF
             const interceptorScript = document.createElement('script');
             interceptorScript.src = browser.runtime.getURL('dist/content/scripts/networkInterceptorScript.js');
             interceptorScript.onload = () => {
-                updateNetworkInterceptorConfig(features);
-                networkInterceptorActive = true;
+                // Apply current features and any pending update once
+                updateNetworkInterceptorConfig(currentFeatures);
+                if (pendingFeatures) {
+                    updateNetworkInterceptorConfig(pendingFeatures);
+                    pendingFeatures = null;
+                }
+                networkInterceptorState = 'active';
                 coreLog('Network interceptor initialized successfully');
             };
             interceptorScript.onerror = () => {
+                networkInterceptorState = 'inactive';
                 coreErrorLog('Failed to load network interceptor script');
             };
             document.documentElement.appendChild(interceptorScript);
         };
         dataProcessorScript.onerror = () => {
+            networkInterceptorState = 'inactive';
             coreErrorLog('Failed to load data processor script');
         };
         document.documentElement.appendChild(dataProcessorScript);
 
     } catch (error) {
+        networkInterceptorState = 'inactive';
         coreErrorLog('Failed to initialize network interceptor:', error);
     }
 }
@@ -71,12 +83,10 @@ export async function initializeNetworkInterceptor(features: NetworkInterceptorF
  * Update network interceptor configuration using postMessage
  */
 function updateNetworkInterceptorConfig(features: NetworkInterceptorFeatures): void {
-    // Use postMessage to communicate with page context (CSP-safe)
     const message: NetworkConfigUpdateMessage = {
         type: 'YNT_UPDATE_CONFIG',
         features: features
     };
-    
     window.postMessage(message, '*');
 }
 
@@ -84,7 +94,7 @@ function updateNetworkInterceptorConfig(features: NetworkInterceptorFeatures): v
  * Check if network interceptor is active
  */
 export function isNetworkInterceptorActive(): boolean {
-    return networkInterceptorActive;
+    return networkInterceptorState === 'active';
 }
 
 /**

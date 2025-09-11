@@ -16,6 +16,7 @@ export function extractTitles(data: any): TitleExtractionResult {
     const videoTitles = new Map<string, string>();
     const channelTitles = new Map<string, string>();
     let mainVideoTitle: string | undefined;
+    let microformatTitle: string | undefined;
 
     // Extract main video title
     try {
@@ -26,15 +27,19 @@ export function extractTitles(data: any): TitleExtractionResult {
                 mainVideoTitle = primary.title.runs[0].text;
             }
         }
-    } catch (e) {
-        // Ignore extraction errors
+    } catch (e) {}
+
+    // Extract microformat title (new)
+    if (data?.microformat?.microformatDataRenderer) {
+        const mf = data.microformat.microformatDataRenderer;
+        if (mf.title) microformatTitle = mf.title;
+        else if (mf.siteName) microformatTitle = mf.siteName;
     }
 
-    // Walk through data structure to find video and channel titles
     function walkForTitles(obj: any): void {
         if (!obj || typeof obj !== 'object') return;
 
-        // Extract video titles (videoId)
+        // Video titles
         if (obj.videoId && obj.title) {
             let title: string | undefined;
             if (obj.title.runs?.[0]?.text) {
@@ -42,25 +47,22 @@ export function extractTitles(data: any): TitleExtractionResult {
             } else if (obj.title.simpleText) {
                 title = obj.title.simpleText;
             }
-            
             if (title) {
                 videoTitles.set(obj.videoId, title);
             }
         }
 
-        // Extract channel titles (channelRenderer with channelId)
+        // Channel titles (channelRenderer)
         if (obj.channelId && obj.title?.simpleText) {
             channelTitles.set(obj.channelId, obj.title.simpleText);
         }
 
-        // Extract page header titles (channel pages - pageHeaderRenderer)
+        // Channel header titles (pageHeaderRenderer)
         if (obj.pageHeaderRenderer?.content?.pageHeaderViewModel) {
             const header = obj.pageHeaderRenderer.content.pageHeaderViewModel;
             const headerTitle = header.title?.dynamicTextViewModel?.text?.content;
             if (headerTitle) {
-                const headerKey = header.pageTitle || 
-                                obj.metadata?.channelMetadataRenderer?.externalId || 
-                                "headerChannel";
+                const headerKey = header.pageTitle || obj.metadata?.channelMetadataRenderer?.externalId || "headerChannel";
                 channelTitles.set(headerKey, headerTitle);
             }
         }
@@ -74,6 +76,11 @@ export function extractTitles(data: any): TitleExtractionResult {
     }
 
     walkForTitles(data);
+
+    // Optionally add microformat title to channelTitles with a fixed key
+    if (microformatTitle) {
+        channelTitles.set('microformat', microformatTitle);
+    }
 
     return {
         videoTitles,
@@ -104,8 +111,6 @@ export function replaceTitles(originalData: any, extractedTitles: TitleExtractio
         // Replace video titles (objects with videoId)
         if (obj.videoId && extractedTitles.videoTitles.has(obj.videoId)) {
             const cleanTitle = extractedTitles.videoTitles.get(obj.videoId)!;
-            
-            // Replace title.runs[0].text format
             if (obj.title?.runs?.[0]?.text) {
                 const originalTitle = obj.title.runs[0].text;
                 if (originalTitle !== cleanTitle) {
@@ -113,8 +118,6 @@ export function replaceTitles(originalData: any, extractedTitles: TitleExtractio
                     replacedCount++;
                 }
             }
-            
-            // Replace title.simpleText format
             if (obj.title?.simpleText) {
                 const originalTitle = obj.title.simpleText;
                 if (originalTitle !== cleanTitle) {
@@ -142,7 +145,6 @@ export function replaceTitles(originalData: any, extractedTitles: TitleExtractio
             const headerKey = header.pageTitle || 
                             obj.metadata?.channelMetadataRenderer?.externalId || 
                             "headerChannel";
-            
             if (extractedTitles.channelTitles.has(headerKey)) {
                 const cleanTitle = extractedTitles.channelTitles.get(headerKey)!;
                 if (header.title?.dynamicTextViewModel?.text?.content) {
@@ -152,6 +154,20 @@ export function replaceTitles(originalData: any, extractedTitles: TitleExtractio
                         replacedCount++;
                     }
                 }
+            }
+        }
+
+        // Replace microformat title (added)
+        if (obj.microformat?.microformatDataRenderer && extractedTitles.channelTitles.has('microformat')) {
+            const mf = obj.microformat.microformatDataRenderer;
+            const cleanTitle = extractedTitles.channelTitles.get('microformat')!;
+            if (mf.title && mf.title !== cleanTitle) {
+                mf.title = cleanTitle;
+                replacedCount++;
+            }
+            if (mf.siteName && mf.siteName !== cleanTitle) {
+                mf.siteName = cleanTitle;
+                replacedCount++;
             }
         }
 
@@ -166,7 +182,7 @@ export function replaceTitles(originalData: any, extractedTitles: TitleExtractio
     }
 
     walkAndReplaceTitles(dataCopy);
-    
+
     if (replacedCount > 0) {
         console.log(`[YNT][Titles Processor] Replaced ${replacedCount} titles`);
     }

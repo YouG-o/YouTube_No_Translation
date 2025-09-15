@@ -23,6 +23,10 @@ let embedTitleContentObserver: MutationObserver | null = null;
 let miniplayerTitleContentObserver: MutationObserver | null = null;
 let mainTitleIsUpdating = false;
 
+// Debounce variables for page title updates
+let pageTitleDebounceTimer: number | null = null;
+const PAGE_TITLE_DEBOUNCE_MS = 200;
+
 // --- Utility Functions
 export function cleanupMainTitleContentObserver(): void {
     if (mainTitleContentObserver) {
@@ -45,6 +49,12 @@ export function cleanupPageTitleObserver(): void {
         //mainTitleLog('Cleaning up page title observer');
         pageTitleObserver.disconnect();
         pageTitleObserver = null;
+    }
+    
+    // Clear debounce timer when cleaning up
+    if (pageTitleDebounceTimer !== null) {
+        clearTimeout(pageTitleDebounceTimer);
+        pageTitleDebounceTimer = null;
     }
 }
 
@@ -144,10 +154,19 @@ function updatePageTitle(mainTitle: string): void {
     if (titleElement) {
         pageTitleObserver = new MutationObserver(() => {
             if (normalizeText(document.title) !== normalizeText(expectedTitle)) {
-                mainTitleLog('YouTube changed page title, reverting');
-                //mainTitleLog('Current:', normalizeText(document.title));
-                //mainTitleLog('Expected:', normalizeText(expectedTitle));
-                document.title = expectedTitle;
+                // Clear existing debounce timer
+                if (pageTitleDebounceTimer !== null) {
+                    clearTimeout(pageTitleDebounceTimer);
+                }
+                
+                // Set new debounce timer
+                pageTitleDebounceTimer = window.setTimeout(() => {
+                    if (normalizeText(document.title) !== normalizeText(expectedTitle)) {
+                        mainTitleLog('YouTube changed page title, reverting');
+                        document.title = expectedTitle;
+                    }
+                    pageTitleDebounceTimer = null;
+                }, PAGE_TITLE_DEBOUNCE_MS);
             }
         });
         

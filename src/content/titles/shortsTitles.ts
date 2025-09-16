@@ -14,10 +14,11 @@ import { normalizeText } from "../../utils/text";
 import { extractVideoIdFromUrl } from "../../utils/video";
 
 import { updateMainTitleElement, fetchMainTitle } from "./mainTitle";
-import { fetchOriginalTitle, lastBrowsingShortsRefresh, setLastBrowsingShortsRefresh, TITLES_THROTTLE } from "./browsingTitles";
+import { fetchOriginalTitle, lastBrowsingShortsRefresh, setLastBrowsingShortsRefresh, TITLES_DEBOUNCE } from "./browsingTitles";
 import { fetchTitleInnerTube, fetchTitleOembed, titleCache } from "./index";
 
-
+// Debounce variables for shorts alternative format
+let shortsAlternativeDebounceTimer: number | null = null;
 
 // --- Shorts Title Function
 export async function refreshShortMainTitle(): Promise<void> {
@@ -124,86 +125,98 @@ export const checkShortsId = () => {
 
 // Handle alternative shorts format with different HTML structure
 export async function refreshShortsAlternativeFormat(): Promise<void> {
-    const now = Date.now();
-    if (now - lastBrowsingShortsRefresh < TITLES_THROTTLE) {
-        return;
+    // Clear existing debounce timer
+    if (shortsAlternativeDebounceTimer !== null) {
+        clearTimeout(shortsAlternativeDebounceTimer);
     }
-    setLastBrowsingShortsRefresh(now);
 
-    // Target the specific structure used for alternative shorts display
-    const shortsLinks = document.querySelectorAll('.shortsLockupViewModelHostEndpoint') as NodeListOf<HTMLAnchorElement>;
-    
-    for (const shortLink of shortsLinks) {
-        try {
-            // Check if we've already processed this element correctly
-            if (shortLink.hasAttribute('ynt')) {
-                const currentTitle = shortLink.querySelector('span')?.textContent;
-                const storedTitle = shortLink.getAttribute('title');
+    // Set new debounce timer
+    shortsAlternativeDebounceTimer = window.setTimeout(async () => {
+        // Target the specific structure used for alternative shorts display
+        const shortsLinks = document.querySelectorAll('.shortsLockupViewModelHostEndpoint') as NodeListOf<HTMLAnchorElement>;
+        
+        for (const shortLink of shortsLinks) {
+            try {
+                // Check if we've already processed this element correctly
+                if (shortLink.hasAttribute('ynt')) {
+                    const currentTitle = shortLink.querySelector('span')?.textContent;
+                    const storedTitle = shortLink.getAttribute('title');
+                    
+                    // If the current displayed title and stored title attribute match, no need to update
+                    if (currentTitle && storedTitle && 
+                        normalizeText(currentTitle) === normalizeText(storedTitle)) {
+                        continue;
+                    }
+                }
                 
-                // If the current displayed title and stored title attribute match, no need to update
-                if (currentTitle && storedTitle && 
-                    normalizeText(currentTitle) === normalizeText(storedTitle)) {
+                // Extract video ID from href
+                const href = shortLink.getAttribute('href');
+                if (!href || !href.includes('/shorts/')) {
                     continue;
                 }
-            }
-            
-            // Extract video ID from href
-            const href = shortLink.getAttribute('href');
-            if (!href || !href.includes('/shorts/')) {
-                continue;
-            }
-            
-            const videoId = extractVideoIdFromUrl(`https://www.youtube.com${href}`);
-            if (!videoId) {
-                continue;
-            }
-            
-            // Find the title span element
-            const titleSpan = shortLink.querySelector('span');
-            if (!titleSpan) {
-                continue;
-            }
-            
-            const currentTitle = titleSpan.textContent;
-            const titleFetchResult = await fetchOriginalTitle(videoId, shortLink, currentTitle || '');
-            const originalTitle = titleFetchResult.originalTitle;
-            if (!originalTitle) {
-                browsingTitlesLog(`Failed to get original title from API for short: ${videoId}, keeping current title : ${normalizeText(currentTitle)}`);
-                continue;
-            }
-            
-            if (!originalTitle) {
-                browsingTitlesLog(`Failed to get original title from API for short: ${videoId}, keeping current title : ${normalizeText(currentTitle)}`);
-                continue;
-            }
-            
-            if (normalizeText(currentTitle) === normalizeText(originalTitle)) {
-                // Already showing correct title, no need to modify
-                continue;
-            }
-            
-            // Update the title
-            browsingTitlesLog(
-                `Updated shorts title from: %c${normalizeText(currentTitle)}%c to: %c${normalizeText(originalTitle)}%c (short id: %c${videoId}%c)`,
-                'color: grey',
-                'color: #fca5a5',
-                'color: white; background: rgba(0,0,0,0.5); padding:2px 4px; border-radius:3px;',
-                'color: #fca5a5',
-                'color: #4ade80',
-                'color: #fca5a5'
-            );
-            
-            // Set the original title
-            titleSpan.textContent = originalTitle;
-            shortLink.setAttribute('title', originalTitle);
-            shortLink.setAttribute('ynt', videoId);
+                
+                const videoId = extractVideoIdFromUrl(`https://www.youtube.com${href}`);
+                if (!videoId) {
+                    continue;
+                }
+                
+                // Find the title span element
+                const titleSpan = shortLink.querySelector('span');
+                if (!titleSpan) {
+                    continue;
+                }
+                
+                const currentTitle = titleSpan.textContent;
+                const titleFetchResult = await fetchOriginalTitle(videoId, shortLink, currentTitle || '');
+                const originalTitle = titleFetchResult.originalTitle;
+                if (!originalTitle) {
+                    browsingTitlesLog(`Failed to get original title from API for short: ${videoId}, keeping current title : ${normalizeText(currentTitle)}`);
+                    continue;
+                }
+                
+                if (!originalTitle) {
+                    browsingTitlesLog(`Failed to get original title from API for short: ${videoId}, keeping current title : ${normalizeText(currentTitle)}`);
+                    continue;
+                }
+                
+                if (normalizeText(currentTitle) === normalizeText(originalTitle)) {
+                    // Already showing correct title, no need to modify
+                    continue;
+                }
+                
+                // Update the title
+                browsingTitlesLog(
+                    `Updated shorts title from: %c${normalizeText(currentTitle)}%c to: %c${normalizeText(originalTitle)}%c (short id: %c${videoId}%c)`,
+                    'color: grey',
+                    'color: #fca5a5',
+                    'color: white; background: rgba(0,0,0,0.5); padding:2px 4px; border-radius:3px;',
+                    'color: #fca5a5',
+                    'color: #4ade80',
+                    'color: #fca5a5'
+                );
+                
+                // Set the original title
+                titleSpan.textContent = originalTitle;
+                shortLink.setAttribute('title', originalTitle);
+                shortLink.setAttribute('ynt', videoId);
 
-            if (!titleCache.getTitle(videoId)) {
-                titleCache.setTitle(videoId, originalTitle);
+                if (!titleCache.getTitle(videoId)) {
+                    titleCache.setTitle(videoId, originalTitle);
+                }
+                
+            } catch (error) {
+                browsingTitlesErrorLog('Error processing alternative shorts format:', error);
             }
-            
-        } catch (error) {
-            browsingTitlesErrorLog('Error processing alternative shorts format:', error);
         }
+
+        shortsAlternativeDebounceTimer = null;
+    }, TITLES_DEBOUNCE);
+}
+
+// Cleanup function for shorts debounce timer
+export function cleanupShortsAlternativeDebounce(): void {
+    if (shortsAlternativeDebounceTimer !== null) {
+        clearTimeout(shortsAlternativeDebounceTimer);
+        shortsAlternativeDebounceTimer = null;
     }
 }

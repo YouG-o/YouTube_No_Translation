@@ -20,12 +20,12 @@ import { restoreOriginalThumbnail } from '../Thumbnails/browsingThumbnails';
 
 // --- Global variables
 let browsingTitlesObserver = new Map<HTMLElement, MutationObserver>();
-let lastBrowsingTitlesRefresh = 0;
+let browsingTitlesDebounceTimer: number | null = null;
 export let lastBrowsingShortsRefresh = 0;
 export function setLastBrowsingShortsRefresh(value: number) {
     lastBrowsingShortsRefresh = value;
 }
-export const TITLES_THROTTLE = 500;
+export const TITLES_DEBOUNCE = 200;
 const browsingTitlesFallbackQueue = new Set<string>();
 const processingVideos = new Set<string>(); // Track individual videos being processed
 
@@ -47,9 +47,14 @@ export function cleanupAllBrowsingTitlesElementsObservers(): void {
     browsingTitlesObserver.clear();
     
     // Reset refresh timestamps and clear processing videos
-    lastBrowsingTitlesRefresh = 0;
     lastBrowsingShortsRefresh = 0;
     processingVideos.clear();
+    
+    // Clear debounce timer
+    if (browsingTitlesDebounceTimer !== null) {
+        clearTimeout(browsingTitlesDebounceTimer);
+        browsingTitlesDebounceTimer = null;
+    }
 }
 
 export function updateBrowsingTitleElement(element: HTMLElement, title: string, videoId: string, isBrowsingTitle: boolean = true): void {
@@ -368,104 +373,110 @@ export async function fetchOriginalTitle(
 }
 
 export async function refreshBrowsingVideos(): Promise<void> {
-    const now = Date.now();
-    if (now - lastBrowsingTitlesRefresh < TITLES_THROTTLE) {
-        return;
-    }
-    lastBrowsingTitlesRefresh = now;
-
-    // Select classic video titles
-    const classicTitles = Array.from(document.querySelectorAll('#video-title')) as HTMLElement[];
-
-    // Select recommended video titles (new format)
-    const recommendedTitles = Array.from(
-        document.querySelectorAll('a.yt-lockup-metadata-view-model__title > span.yt-core-attributed-string, a.yt-lockup-metadata-view-model-wiz__title > span.yt-core-attributed-string')
-    ) as HTMLElement[];
-
-    // Merge both lists
-    const browsingTitles = [...classicTitles, ...recommendedTitles];
-
-    // Collect all video IDs that need processing
-    const videosToProcess: Array<{ titleElement: HTMLElement; videoId: string; videoUrl: string; currentTitle: string }> = [];
-    
-    for (const titleElement of browsingTitles) {
-        const processingResult = shouldProcessBrowsingElement(titleElement);
-        if (!processingResult.shouldProcess || !processingResult.videoId) {
-            continue;
-        }
-        
-        const { videoId, videoUrl } = processingResult;
-        
-        // Skip if this video is currently being processed
-        if (processingVideos.has(videoId)) {
-            continue;
-        }
-        
-        // Skip thumbnail restoration for videos already marked as original
-        if (!titleElement.hasAttribute('ynt-original') && currentSettings?.originalThumbnails?.enabled) {
-            restoreOriginalThumbnail(videoId, titleElement);
-        }
-
-        const currentTitle = titleElement.textContent || '';
-        
-        const processingState = checkElementProcessingState(titleElement, videoId);
-        if (processingState.shouldSkip) {
-            continue;
-        }
-        if (processingState.shouldClean) {
-            titleElement.removeAttribute('ynt');
-            titleElement.removeAttribute('ynt-fail');
-            titleElement.removeAttribute('ynt-fail-retry');
-            titleElement.removeAttribute('ynt-original');
-        }
-        
-        videosToProcess.push({ titleElement, videoId, videoUrl: videoUrl as string, currentTitle });
+    // Clear existing debounce timer
+    if (browsingTitlesDebounceTimer !== null) {
+        clearTimeout(browsingTitlesDebounceTimer);
     }
 
-    // Batch fetch titles from YouTube Data API v3 if enabled
-    let preferenceFetchedTitles: Map<string, string> | undefined;
-    if (isYouTubeDataAPIEnabled(currentSettings) && videosToProcess.length > 0) {
-        const videoIds = videosToProcess.map(v => v.videoId);
-        preferenceFetchedTitles = await batchFetchTitlesFromYouTubeDataApi(videoIds);
-        browsingTitlesLog(`Batch fetched ${preferenceFetchedTitles.size} titles from YouTube Data API v3`);
-    }
+    // Set new debounce timer
+    browsingTitlesDebounceTimer = window.setTimeout(async () => {
+                browsingTitlesLog('Debounce timer triggered - starting browsing videos refresh');
 
-    // Collect translated titles for batch description processing
-    const translatedTitleElements: HTMLElement[] = [];
-    const translatedVideoIds: string[] = [];
+        // Select classic video titles
+        const classicTitles = Array.from(document.querySelectorAll('#video-title')) as HTMLElement[];
 
-    // Process each video in parallel
-    await Promise.all(
-        videosToProcess.map(async ({ titleElement, videoId, videoUrl, currentTitle }) => {
-            let isTranslated = false;
-            processingVideos.add(videoId);
-            try {
-                const titleFetchResult = await fetchOriginalTitle(videoId, titleElement, currentTitle, preferenceFetchedTitles);
-                if (titleFetchResult.shouldSkip) {
-                    return;
-                }
-                const originalTitle = titleFetchResult.originalTitle;
-                if (!originalTitle) {
-                    return;
-                }
-                try {
-                    updateBrowsingTitleElement(titleElement, originalTitle, videoId);
-                    isTranslated = true;
-                    if (shouldProcessSearchDescriptionElement(isTranslated)) {
-                        translatedTitleElements.push(titleElement);
-                        translatedVideoIds.push(videoId);
-                    }
-                } catch (error) {
-                    browsingTitlesErrorLog(`Failed to update recommended title:`, error);
-                }
-            } finally {
-                processingVideos.delete(videoId);
+        // Select recommended video titles (new format)
+        const recommendedTitles = Array.from(
+            document.querySelectorAll('a.yt-lockup-metadata-view-model__title > span.yt-core-attributed-string, a.yt-lockup-metadata-view-model-wiz__title > span.yt-core-attributed-string')
+        ) as HTMLElement[];
+
+        // Merge both lists
+        const browsingTitles = [...classicTitles, ...recommendedTitles];
+
+        // Collect all video IDs that need processing
+        const videosToProcess: Array<{ titleElement: HTMLElement; videoId: string; videoUrl: string; currentTitle: string }> = [];
+        
+        for (const titleElement of browsingTitles) {
+            const processingResult = shouldProcessBrowsingElement(titleElement);
+            if (!processingResult.shouldProcess || !processingResult.videoId) {
+                continue;
             }
-        })
-    );
+            
+            const { videoId, videoUrl } = processingResult;
+            
+            // Skip if this video is currently being processed
+            if (processingVideos.has(videoId)) {
+                continue;
+            }
+            
+            // Skip thumbnail restoration for videos already marked as original
+            if (!titleElement.hasAttribute('ynt-original') && currentSettings?.originalThumbnails?.enabled) {
+                restoreOriginalThumbnail(videoId, titleElement);
+            }
 
-    // Batch process descriptions for all translated titles
-    if (translatedTitleElements.length > 0) {
-        await batchProcessSearchDescriptions(translatedTitleElements, translatedVideoIds);
-    }
+            const currentTitle = titleElement.textContent || '';
+            
+            const processingState = checkElementProcessingState(titleElement, videoId);
+            if (processingState.shouldSkip) {
+                continue;
+            }
+            if (processingState.shouldClean) {
+                titleElement.removeAttribute('ynt');
+                titleElement.removeAttribute('ynt-fail');
+                titleElement.removeAttribute('ynt-fail-retry');
+                titleElement.removeAttribute('ynt-original');
+            }
+            
+            videosToProcess.push({ titleElement, videoId, videoUrl: videoUrl as string, currentTitle });
+        }
+
+        // Batch fetch titles from YouTube Data API v3 if enabled
+        let preferenceFetchedTitles: Map<string, string> | undefined;
+        if (isYouTubeDataAPIEnabled(currentSettings) && videosToProcess.length > 0) {
+            const videoIds = videosToProcess.map(v => v.videoId);
+            preferenceFetchedTitles = await batchFetchTitlesFromYouTubeDataApi(videoIds);
+            browsingTitlesLog(`Batch fetched ${preferenceFetchedTitles.size} titles from YouTube Data API v3`);
+        }
+
+        // Collect translated titles for batch description processing
+        const translatedTitleElements: HTMLElement[] = [];
+        const translatedVideoIds: string[] = [];
+
+        // Process each video in parallel
+        await Promise.all(
+            videosToProcess.map(async ({ titleElement, videoId, videoUrl, currentTitle }) => {
+                let isTranslated = false;
+                processingVideos.add(videoId);
+                try {
+                    const titleFetchResult = await fetchOriginalTitle(videoId, titleElement, currentTitle, preferenceFetchedTitles);
+                    if (titleFetchResult.shouldSkip) {
+                        return;
+                    }
+                    const originalTitle = titleFetchResult.originalTitle;
+                    if (!originalTitle) {
+                        return;
+                    }
+                    try {
+                        updateBrowsingTitleElement(titleElement, originalTitle, videoId);
+                        isTranslated = true;
+                        if (shouldProcessSearchDescriptionElement(isTranslated)) {
+                            translatedTitleElements.push(titleElement);
+                            translatedVideoIds.push(videoId);
+                        }
+                    } catch (error) {
+                        browsingTitlesErrorLog(`Failed to update recommended title:`, error);
+                    }
+                } finally {
+                    processingVideos.delete(videoId);
+                }
+            })
+        );
+
+        // Batch process descriptions for all translated titles
+        if (translatedTitleElements.length > 0) {
+            await batchProcessSearchDescriptions(translatedTitleElements, translatedVideoIds);
+        }
+
+        browsingTitlesDebounceTimer = null;
+    }, TITLES_DEBOUNCE);
 }

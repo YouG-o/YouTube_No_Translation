@@ -365,7 +365,12 @@ function searchResultsObserver() {
             pageName = 'Search';
         } else if (window.location.pathname === '/feed/history') {
             pageName = 'History';
+        } else if (window.location.pathname === '/feed/subscriptions') {
+            pageName = 'Subscriptions';
+        } else {
+            pageName = 'Unknown';
         }
+      
         browsingTitlesLog(`Setting up ${pageName} results videos observer`);
 
         waitForFilledVideoTitles().then(() => {
@@ -384,7 +389,7 @@ function searchResultsObserver() {
                             clearTimeout(searchDebounceTimer);
                         }
                         searchDebounceTimer = window.setTimeout(() => {
-                            browsingTitlesLog(`${pageName} results mutation debounced`);
+                            browsingTitlesLog(`${pageName} page mutation debounced`);
                             refreshShortsAlternativeFormat();
                             refreshBrowsingVideos().then(() => {
                                 setTimeout(() => {
@@ -753,6 +758,7 @@ function handleUrlChange() {
         case '/feed/subscriptions': // --- Subscriptions page
             coreLog(`[URL] Detected subscriptions page`);
             currentSettings?.titleTranslation && pageVideosObserver();
+            currentSettings?.titleTranslation && searchResultsObserver();
             break;
         case '/feed/trending':  // --- Trending page
             coreLog(`[URL] Detected trending page`);

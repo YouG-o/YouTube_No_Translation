@@ -231,7 +231,12 @@ let lastRecommendedRefresh = 0;
 let lastSearchRefresh = 0;
 let lastPlaylistRefresh = 0;
 
-const THROTTLE_DELAY = 500;
+// --- Replace throttle with debounced timers
+const OBSERVERS_DEBOUNCE_MS = 100;
+let pageVideosDebounceTimer: number | null = null;
+let recommendedDebounceTimer: number | null = null;
+let searchDebounceTimer: number | null = null;
+let playlistDebounceTimer: number | null = null;
 
 async function pageVideosObserver() {
     cleanupPageVideosObserver();
@@ -271,7 +276,7 @@ async function pageVideosObserver() {
     allGrids.forEach(grid => {
         refreshBrowsingVideos();
         refreshShortsAlternativeFormat();
-        const observer = new MutationObserver(() => handleGridMutation(pageName));
+        const observer = new MutationObserver(() => handleGridMutationDebounced(pageName));
         observer.observe(grid, {
             childList: true,
             attributes: true,
@@ -283,27 +288,28 @@ async function pageVideosObserver() {
     // Add parent grid observer (useful when clicking on filters)
     const gridParent = document.querySelector('#primary > ytd-rich-grid-renderer') as HTMLElement | null;
     if (gridParent) {
-        pageGridParentObserver = new MutationObserver(() => handleGridMutation(pageName));
+        pageGridParentObserver = new MutationObserver(() => handleGridMutationDebounced(pageName));
         pageGridParentObserver.observe(gridParent, {
             attributes: true
         });
     }
 }
 
-function handleGridMutation(pageName: string) {
-    const now = Date.now();
-    if (now - lastHomeRefresh >= THROTTLE_DELAY) {
-        coreLog(`${pageName} page mutation detected`);
-        setTimeout(() => {
-            refreshBrowsingVideos();
-            refreshShortsAlternativeFormat();
-        }, 100);
+// New debounced handler for grid mutations
+function handleGridMutationDebounced(pageName: string) {
+    if (pageVideosDebounceTimer !== null) {
+        clearTimeout(pageVideosDebounceTimer);
+    }
+    pageVideosDebounceTimer = window.setTimeout(() => {
+        coreLog(`${pageName} page mutation debounced => triggering refresh`);
+        refreshBrowsingVideos();
+        refreshShortsAlternativeFormat();
         setTimeout(() => {
             refreshBrowsingVideos();
             refreshShortsAlternativeFormat();
         }, 650);
-        lastHomeRefresh = now;
-    }
+        pageVideosDebounceTimer = null;
+    }, OBSERVERS_DEBOUNCE_MS);
 }
 
 function recommendedVideosObserver() {
@@ -324,9 +330,11 @@ function recommendedVideosObserver() {
         browsingTitlesLog(`Observing: ${targetElement === contents ? '#items directly' : 'ytd-item-section-renderer inside #items'}`);
         
         recommendedObserver = new MutationObserver(() => {
-            const now = Date.now();
-            if (now - lastRecommendedRefresh >= THROTTLE_DELAY) {
-                browsingTitlesLog('Recommended videos mutation detected (side bar)');
+            if (recommendedDebounceTimer !== null) {
+                clearTimeout(recommendedDebounceTimer);
+            }
+            recommendedDebounceTimer = window.setTimeout(() => {
+                browsingTitlesLog('Recommended videos mutation debounced (side bar)');
                 refreshBrowsingVideos().then(() => {
                     setTimeout(() => {
                         refreshBrowsingVideos();
@@ -334,9 +342,9 @@ function recommendedVideosObserver() {
                     setTimeout(() => {
                         refreshBrowsingVideos();
                     }, 2000);
-            });
-                lastRecommendedRefresh = now;
-            }
+                });
+                recommendedDebounceTimer = null;
+            }, OBSERVERS_DEBOUNCE_MS);
         });
         
         recommendedObserver.observe(targetElement, {
@@ -372,10 +380,11 @@ function searchResultsObserver() {
                     mutation.target instanceof HTMLElement) {
                     const titles = mutation.target.querySelectorAll('#video-title');
                     if (titles.length > 0) {
-                        const now = Date.now();
-                        if (now - lastSearchRefresh >= THROTTLE_DELAY) {
-                            browsingTitlesLog(`${pageName} results mutation detected`);
-                            
+                        if (searchDebounceTimer !== null) {
+                            clearTimeout(searchDebounceTimer);
+                        }
+                        searchDebounceTimer = window.setTimeout(() => {
+                            browsingTitlesLog(`${pageName} results mutation debounced`);
                             refreshShortsAlternativeFormat();
                             refreshBrowsingVideos().then(() => {
                                 setTimeout(() => {
@@ -387,9 +396,8 @@ function searchResultsObserver() {
                                     refreshShortsAlternativeFormat();
                                 }, 2000);
                             });
-
-                            lastSearchRefresh = now;
-                        }
+                            searchDebounceTimer = null;
+                        }, OBSERVERS_DEBOUNCE_MS);
                         break;
                     }
                 }
@@ -448,8 +456,14 @@ function playlistVideosObserver() {
             });
             
             if (hasVideoChange) {
-                //browsingTitlesLog('Refreshing playlist titles');
-                refreshBrowsingVideos();
+                // debounce playlist refresh to avoid multiple rapid triggers
+                if (playlistDebounceTimer !== null) {
+                    clearTimeout(playlistDebounceTimer);
+                }
+                playlistDebounceTimer = window.setTimeout(() => {
+                    refreshBrowsingVideos();
+                    playlistDebounceTimer = null;
+                }, OBSERVERS_DEBOUNCE_MS);
             }
         });
         
@@ -476,24 +490,44 @@ function cleanupPageVideosObserver() {
     pageGridParentObserver?.disconnect();
     pageGridParentObserver = null;
     lastHomeRefresh = 0;
+
+    if (pageVideosDebounceTimer !== null) {
+        clearTimeout(pageVideosDebounceTimer);
+        pageVideosDebounceTimer = null;
+    }
 }
 
 function cleanupRecommendedVideosObserver() {
     recommendedObserver?.disconnect();
     recommendedObserver = null;
     lastRecommendedRefresh = 0;
+
+    if (recommendedDebounceTimer !== null) {
+        clearTimeout(recommendedDebounceTimer);
+        recommendedDebounceTimer = null;
+    }
 }
 
 function cleanupSearchResultsVideosObserver() {
     searchObserver?.disconnect();
     searchObserver = null;
     lastSearchRefresh = 0;
+
+    if (searchDebounceTimer !== null) {
+        clearTimeout(searchDebounceTimer);
+        searchDebounceTimer = null;
+    }
 }
 
 function cleanupPlaylistVideosObserver() {
     playlistObserver?.disconnect();
     playlistObserver = null;
     lastPlaylistRefresh = 0;
+
+    if (playlistDebounceTimer !== null) {
+        clearTimeout(playlistDebounceTimer);
+        playlistDebounceTimer = null;
+    }
 }
 
 

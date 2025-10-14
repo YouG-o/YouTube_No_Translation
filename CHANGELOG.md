@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Feat
+- **InfoCards Support**: Original titles are now restored for video annotations (infocards) in video descriptions and their corresponding overlay teasers
+
 ## [2.15.2] - 2025-10-09
 
 ### Fix

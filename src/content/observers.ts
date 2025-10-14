@@ -31,6 +31,8 @@ import { refreshMainChannelName } from './channel/mainChannelName';
 import { patchChannelRendererBlocks } from './channel/ChannelRendererPatch';
 import { refreshChannelPlayer } from './channel/channelPlayer';
 import { processChannelVideoDescriptions } from './channel/ChannelVideoDescriptions';
+import { refreshInfoCardsTitles, cleanupInfoCards } from './titles/infoCards';
+import { setupInfoCardTeasersObserver, cleanupInfoCardTeasersObserver } from  './titles/infoCardsTeasers';
 
 // MAIN OBSERVERS -----------------------------------------------------------
 let videoPlayerListener: ((e: Event) => void) | null = null;
@@ -661,6 +663,9 @@ function observersCleanup() {
     cleanupPostVideoObserver();
 
     cleanupChannelDescriptionModalObserver();
+
+    cleanupInfoCards();
+    cleanupInfoCardTeasersObserver();
 }
 
 function handleUrlChange() {
@@ -782,10 +787,15 @@ function handleUrlChange() {
             if (currentSettings?.titleTranslation || currentSettings?.descriptionTranslation) {
                 setupMainVideoObserver();
             };
-            currentSettings?.titleTranslation && recommendedVideosObserver();
+
+            if (currentSettings?.titleTranslation) {
+                recommendedVideosObserver();
+                setupEndScreenObserver();
+                setupPostVideoObserver();
+                refreshInfoCardsTitles();
+                setupInfoCardTeasersObserver();
+            }
             currentSettings?.descriptionTranslation && setupTimestampClickObserver();
-            currentSettings?.titleTranslation && setupEndScreenObserver();
-            currentSettings?.titleTranslation && setupPostVideoObserver();
             
             // Handle fullscreen titles (embed titles are specific to /watch pages)
             if (currentSettings?.titleTranslation) {
@@ -820,6 +830,7 @@ export function setupVisibilityChangeListener(): void {
                 if (window.location.pathname === '/watch') {
                     refreshMainTitle();
                     refreshEndScreenTitles();
+                    refreshInfoCardsTitles();
                 }
             }
         }

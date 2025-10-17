@@ -12,7 +12,7 @@ import { Chapter } from '../../types/types';
 
 import { updateChapterButton } from './button';
 import { updateTooltipChapter } from './tooltip';
-import { setupPanelsObserver } from './pannel';
+import { setupPanelsObserver } from './sidePannel';
 
 
 // Global variables for cleanup

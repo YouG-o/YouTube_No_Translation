@@ -9,6 +9,7 @@
 
 import { chaptersLog, chaptersErrorLog } from '../../utils/logger';
 import { Chapter } from '../../types/types';
+import { normalizeText } from '../../utils/text';
 
 import { updateChapterButton } from './button';
 import { updateTooltipChapter } from './tooltip';
@@ -179,6 +180,146 @@ export function getCurrentVideoTime(): number {
     return 0;
 }
 
+/**
+ * Checks if displayed chapters are translated by comparing them with description chapters
+ * @param descriptionChapters - Chapters parsed from the original description
+ * @returns true if chapters appear to be translated, false otherwise
+ */
+function areChaptersTranslated(descriptionChapters: Chapter[]): boolean {
+    // Get displayed chapters from side panel (most reliable source)
+    const openChaptersPanel = document.querySelector('ytd-engagement-panel-section-list-renderer[target-id="engagement-panel-macro-markers-description-chapters"]');
+    
+    if (!openChaptersPanel) {
+        // Panel doesn't exist or isn't visible - try chapter button as fallback
+        chaptersLog('Chapters panel not found, checking chapter button instead');
+        
+        const chapterButton = document.querySelector('.ytp-chapter-title-content');
+        if (!chapterButton) {
+            chaptersLog('No chapter button found, assuming chapters are not translated');
+            return false;
+        }
+        
+        const displayedTitle = chapterButton.textContent?.trim();
+        if (!displayedTitle) {
+            return false;
+        }
+        
+        // Get current video time to find matching chapter
+        const currentTime = getCurrentVideoTime();
+        const matchingChapter = findChapterByTime(currentTime, descriptionChapters);
+        
+        if (!matchingChapter) {
+            chaptersLog('No matching chapter found for current time');
+            return false;
+        }
+        
+        // Compare normalized titles
+        const normalizedDisplayed = normalizeText(displayedTitle);
+        const normalizedOriginal = normalizeText(matchingChapter.title);
+        
+        const isTranslated = normalizedDisplayed !== normalizedOriginal;
+        
+        if (isTranslated) {
+            chaptersLog(`Chapter button appears translated: "${displayedTitle}" vs "${matchingChapter.title}"`);
+        } else {
+            chaptersLog('Chapter button title matches description, not translated');
+        }
+        
+        return isTranslated;
+    }
+    
+    chaptersLog('Chapters panel found, checking panel chapters');
+    
+    // Get chapter elements from panel
+    const chapterElements = openChaptersPanel.querySelectorAll('ytd-macro-markers-list-item-renderer h4.macro-markers');
+    
+    if (chapterElements.length === 0) {
+        chaptersLog('No chapter elements found in panel');
+        return false;
+    }
+    
+    chaptersLog(`Comparing ${chapterElements.length} displayed chapters with ${descriptionChapters.length} description chapters`);
+    
+    // Check if any displayed chapter differs from description chapter
+    let translatedCount = 0;
+    
+    chapterElements.forEach((element: Element) => {
+        const h4Element = element as HTMLElement;
+        const displayedTitle = h4Element.textContent?.trim();
+        
+        if (!displayedTitle) return;
+        
+        // Find corresponding chapter by time
+        const timeElement = h4Element.closest('ytd-macro-markers-list-item-renderer')?.querySelector('#time');
+        const timeText = timeElement?.textContent?.trim();
+        
+        if (!timeText) return;
+        
+        const timeInSeconds = timeStringToSeconds(timeText);
+        const matchingChapter = findChapterByTime(timeInSeconds, descriptionChapters);
+        
+        if (!matchingChapter) return;
+        
+        // Compare normalized titles
+        const normalizedDisplayed = normalizeText(displayedTitle);
+        const normalizedOriginal = normalizeText(matchingChapter.title);
+        
+        if (normalizedDisplayed !== normalizedOriginal) {
+            translatedCount++;
+            chaptersLog(`Translated chapter found: "${displayedTitle}" vs "${matchingChapter.title}" at ${timeText}`);
+        }
+    });
+    
+    const areTranslated = translatedCount > 0;
+    
+    if (areTranslated) {
+        chaptersLog(`${translatedCount} chapters are translated out of ${chapterElements.length}`);
+    } else {
+        chaptersLog('All chapters match description, not translated');
+    }
+    
+    return areTranslated;
+}
+
+/**
+ * Checks if chapters need replacement and initializes the replacement system if needed
+ * Should be called after description has been processed (replaced or verified as original)
+ * @param videoId - The video ID (used for logging only)
+ * @param description - The original description text
+ */
+export function checkAndInitializeChapters(videoId: string, description: string): void {
+    chaptersLog(`Checking chapters for video ${videoId}`);
+    
+    if (!description) {
+        chaptersLog('No description provided, cannot check chapters');
+        return;
+    }
+    
+    chaptersLog(`Description length: ${description.length} characters`);
+    
+    // Wait for chapters to be rendered in the DOM
+    setTimeout(() => {
+        // Parse chapters from description
+        const descriptionChapters = parseChaptersFromDescription(description);
+        
+        if (descriptionChapters.length === 0) {
+            chaptersLog('No chapters found in description');
+            return;
+        }
+        
+        chaptersLog(`Found ${descriptionChapters.length} chapters in description`);
+        
+        // Check if displayed chapters are translated
+        const chaptersTranslated = areChaptersTranslated(descriptionChapters);
+        
+        if (chaptersTranslated) {
+            chaptersLog('Chapters are translated, initializing replacement system');
+            initializeChaptersReplacement(description);
+        } else {
+            chaptersLog('Chapters are already original, skipping replacement system');
+        }
+    }, 500); // 500ms delay to ensure chapters are rendered
+}
 
 // Initialize chapters replacement system
 export function initializeChaptersReplacement(originalDescription: string): void {

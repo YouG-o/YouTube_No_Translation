@@ -7,7 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-
+### Fix
+- **Chapters fixes**:
+  - Check chapters translation even when description is original.
 
 ## [2.16.0] - 2025-10-16
 

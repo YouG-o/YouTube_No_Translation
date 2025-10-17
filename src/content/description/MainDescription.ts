@@ -210,12 +210,11 @@ export function updateDescriptionElement(element: HTMLElement, description: stri
     insertDescriptionSpan(snippetAttributedString, span);
 
     setupDescriptionContentObserver(id);
-    initializeChaptersReplacement(description);
 }
 
 
 // Compare description text and determine if update is needed
-export function compareDescription(element: HTMLElement, id: string): Promise<boolean> {
+export function compareDescription(element: HTMLElement, id: string): Promise<{ isOriginal: boolean; description: string | null }> {
     return new Promise(async (resolve) => {
         // Get the cached description or fetch a new one
         let description: string | null = descriptionCache.getDescription(id) || null;
@@ -227,13 +226,13 @@ export function compareDescription(element: HTMLElement, id: string): Promise<bo
         
         // If no description available, we need to update (return false)
         if (!description) {
-            resolve(false);
+            resolve({ isOriginal: false, description: null });
             return;
         }
         
         const currentText = getCurrentDescriptionText(element);
         if (!currentText) {
-            resolve(false);
+            resolve({ isOriginal: false, description });
             return;
         }
                 
@@ -242,12 +241,14 @@ export function compareDescription(element: HTMLElement, id: string): Promise<bo
 
         if (isOriginal) {
             descriptionLog('Description is already in original language, no update needed');
+            // Don't cache if already original - save memory
         } else {
+            // Only cache when description is translated (we'll replace it)
             descriptionCache.setDescription(id, description);
         }
         
-        // Return true if original (no update needed), false if update needed
-        resolve(isOriginal);
+        // Return both isOriginal flag and the description itself
+        resolve({ isOriginal, description });
     });
 }
 
@@ -258,30 +259,40 @@ let descriptionContentObserver: MutationObserver | null = null;
 
 
 // Helper function to process description for current video ID
-export function processDescriptionForVideoId(id: string): void {
+export async function processDescriptionForVideoId(id: string): Promise<string | null> {
     const descriptionElement = document.querySelector('#description-inline-expander');
     if (descriptionElement) {
-        waitForElement('#movie_player').then(() => {
-            // Instead of calling refreshDescription directly
-            // Call compareDescription first
-            
-            compareDescription(descriptionElement as HTMLElement, id).then(isOriginal => {
+        return waitForElement('#movie_player').then(() => {
+            return compareDescription(descriptionElement as HTMLElement, id).then(({ isOriginal, description }) => {
                 if (!isOriginal) {
-                    // Only refresh if not original                                 
-                    refreshDescription(id).then(() => {
+                    // Only refresh if not original
+                    return refreshDescription(id).then(() => {
                         descriptionExpandObserver(id);
                         setupDescriptionContentObserver(id);
+                        
+                        // Return the description from cache (was just set because not original)
+                        return descriptionCache.getDescription(id) ?? null;
                     });
                 } else {
-                    cleanupDescriptionObservers();
+                    // Description is already original, setup observers
+                    descriptionExpandObserver(id);
+                    setupDescriptionContentObserver(id);
+                    
+                    // Return the description directly (not cached)
+                    return description;
                 }
             });
         });
     } else {
         // If not found, wait for it
-        waitForElement('#description-inline-expander').then(() => {
-            refreshDescription(id);
-            descriptionExpandObserver(id);
+        return waitForElement('#description-inline-expander').then(() => {
+            return refreshDescription(id).then(() => {
+                descriptionExpandObserver(id);
+                setupDescriptionContentObserver(id);
+                
+                // Return the description from cache (was just set)
+                return descriptionCache.getDescription(id) ?? null;
+            });
         });
     }
 }

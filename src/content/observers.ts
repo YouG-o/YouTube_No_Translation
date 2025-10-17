@@ -22,7 +22,7 @@ import { processDescriptionForVideoId, cleanupDescriptionObservers } from './des
 import { refreshChannelName, cleanupChannelNameContentObserver } from './channel/channelName';
 import { refreshShortsAlternativeFormat, checkShortsId } from './titles/shortsTitles';
 import { setupNotificationTitlesObserver, cleanupNotificationTitlesObserver } from './titles/notificationTitles';
-import { cleanupChaptersObserver } from './chapters/chaptersIndex';
+import { checkAndInitializeChapters, cleanupChaptersObserver } from './chapters/chaptersIndex';
 import { cleanupAllSearchDescriptionsObservers } from './description/searchDescriptions';
 import { refreshEndScreenTitles, setupEndScreenObserver, cleanupEndScreenObserver } from './titles/endScreenTitles';
 import { setupPostVideoObserver, cleanupPostVideoObserver } from './titles/postVideoTitles';
@@ -144,7 +144,13 @@ export function setupMainVideoObserver() {
             if (currentVideoId) {
                 //coreLog(`FOUND A VIDEO ID: ${currentVideoId} after ${retry} retries`);
                 if (currentSettings?.descriptionTranslation) {
-                    processDescriptionForVideoId(currentVideoId);
+                    processDescriptionForVideoId(currentVideoId).then((description) => {
+                        if (description) {
+                            checkAndInitializeChapters(currentVideoId, description);
+                        } else {
+                            coreLog('No description available for chapters check');
+                        }
+                    });
                 }
                 if (currentSettings?.titleTranslation) {
                     refreshMainTitle();

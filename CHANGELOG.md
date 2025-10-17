@@ -10,6 +10,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fix
 - **Chapters fixes**:
   - Check chapters translation even when description is original.
+  
+- Improved video processing to ensure descriptions and chapters are only applied when both DOM and URL video IDs match, preventing race conditions during SPA navigation that could cause content from one video to be applied to another.
 
 ## [2.16.0] - 2025-10-16
 

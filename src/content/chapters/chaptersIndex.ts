@@ -272,11 +272,11 @@ function areChaptersTranslated(descriptionChapters: Chapter[]): boolean {
     
     const areTranslated = translatedCount > 0;
     
-    if (areTranslated) {
-        //chaptersLog(`${translatedCount} chapters are translated out of ${chapterElements.length}`);
+    /*if (areTranslated) {
+        chaptersLog(`${translatedCount} chapters are translated out of ${chapterElements.length}`);
     } else {
         chaptersLog('All chapters match description, not translated');
-    }
+    }*/
     
     return areTranslated;
 }
@@ -288,7 +288,7 @@ function areChaptersTranslated(descriptionChapters: Chapter[]): boolean {
  * @param description - The original description text
  */
 export function checkAndInitializeChapters(videoId: string, description: string): void {
-    chaptersLog(`Checking chapters for video ${videoId}`);
+    //chaptersLog(`Checking chapters for video ${videoId}`);
     
     if (!description) {
         chaptersLog('No description provided, cannot check chapters');

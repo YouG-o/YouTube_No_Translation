@@ -10,9 +10,9 @@
 // TODO: Current observer implementation could be refactored for better efficiency / performances
 // Keeping current structure for stability, needs architectural review in future updates
 
-import { coreLog, descriptionLog, browsingTitlesLog, titlesErrorLog } from '../utils/logger';
+import { coreLog, browsingTitlesLog, titlesErrorLog } from '../utils/logger';
 import { currentSettings } from './index';
-import { normalizeText, calculateSimilarity } from '../utils/text';
+import { extractVideoIdFromUrl } from '../utils/video';
 import { applyVideoPlayerSettings } from '../utils/videoSettings';
 import { waitForElement, waitForFilledVideoTitles } from '../utils/dom';
 
@@ -83,13 +83,6 @@ export function setupVideoPlayerListener() {
         if (!(e.target instanceof HTMLVideoElement)) return;
         if ((e.target as any).srcValue === e.target.src) return;
 
-        // Ignore events from our isolated players
-        const parentIframe = e.target.closest('iframe');
-        if (parentIframe && parentIframe.id.startsWith('ynt-player')) {
-            // Technical: Ignore events from isolated players used for metadata retrieval
-            return;
-        }
-
         // Skip if user initiated change
         if (userInitiatedChange) {
             coreLog('User initiated change detected - skipping default settings');
@@ -134,38 +127,89 @@ function cleanUpVideoPlayerListener() {
     userInitiatedChange = false;
 }
 
-//let mainVideoObserver: MutationObserver | null = null;
+let mainVideoObserver: MutationObserver | null = null;
+let lastProcessedVideoId: string | null = null;
 
 export function setupMainVideoObserver() {
-    //cleanupMainVideoObserver();
+    cleanupMainVideoObserver();
+    
     waitForElement('ytd-watch-flexy').then((watchFlexy) => {
-        function waitForVideoId(retry = 0) {
-            const currentVideoId = watchFlexy.getAttribute('video-id');
-            if (currentVideoId) {
-                //coreLog(`FOUND A VIDEO ID: ${currentVideoId} after ${retry} retries`);
-                if (currentSettings?.descriptionTranslation) {
-                    processDescriptionForVideoId(currentVideoId).then((description) => {
-                        if (description) {
-                            checkAndInitializeChapters(currentVideoId, description);
-                        } else {
-                            coreLog('No description available for chapters check');
-                        }
-                    });
-                }
-                if (currentSettings?.titleTranslation) {
-                    refreshMainTitle();
-                    refreshChannelName();
-                }
-            } else if (retry < 30) { // Try for up to ~ 4 seconds (30 * 100ms)
-                setTimeout(() => waitForVideoId(retry + 1), 100);
-            } else {
-                coreLog('Failed to find a video-id.');
+        function checkAndProcessVideo() {
+            // Get video ID from DOM
+            const domVideoId = watchFlexy.getAttribute('video-id');
+            
+            // Get video ID from URL
+            const urlVideoId = extractVideoIdFromUrl(window.location.href);
+            
+            // Case 1: No video ID in URL (not on a video page)
+            if (!urlVideoId) {
+                coreLog('[Video] No video ID in URL, skipping');
+                return;
+            }
+            
+            // Case 2: No video ID in DOM yet (YouTube hasn't updated)
+            if (!domVideoId) {
+                coreLog('[Video] DOM video-id not available yet, waiting for update...');
+                return;
+            }
+            
+            // Case 3: IDs don't match (YouTube hasn't synced yet)
+            if (domVideoId !== urlVideoId) {
+                coreLog(`[Video] ID mismatch - DOM: "${domVideoId}" vs URL: "${urlVideoId}", waiting...`);
+                return;
+            }
+            
+            // Case 4: Already processed this video
+            if (domVideoId === lastProcessedVideoId) {
+                coreLog(`[Video] Already processed ${domVideoId}, skipping`);
+                return;
+            }
+            
+            // IDs match and video not processed yet - safe to proceed
+            lastProcessedVideoId = domVideoId;
+            coreLog(`[Video] IDs matched: ${domVideoId}, processing...`);
+            
+            // Process video
+            if (currentSettings?.descriptionTranslation) {
+                processDescriptionForVideoId(domVideoId).then((description) => {
+                    if (description) {
+                        checkAndInitializeChapters(domVideoId, description);
+                    } else {
+                        coreLog('No description available for chapters check');
+                    }
+                });
+            }
+            
+            if (currentSettings?.titleTranslation) {
+                refreshMainTitle();
+                refreshChannelName();
             }
         }
-        waitForVideoId();
+        
+        // Initial check on setup
+        checkAndProcessVideo();
+        
+        // Setup observer for video-id attribute changes
+        mainVideoObserver = new MutationObserver(() => {
+            checkAndProcessVideo();
+        });
+        
+        mainVideoObserver.observe(watchFlexy, {
+            attributes: true,
+            attributeFilter: ['video-id']
+        });
+        
+        coreLog('[Video] Observer setup completed');
     });
 }
 
+function cleanupMainVideoObserver() {
+    if (mainVideoObserver) {
+        mainVideoObserver.disconnect();
+        mainVideoObserver = null;
+    }
+    lastProcessedVideoId = null;
+}
 
 
 let timestampClickHandler: ((event: MouseEvent) => void) | null = null;
@@ -656,6 +700,8 @@ export function setupUrlObserver() {
 function observersCleanup() {
     coreLog('Cleaning up all observers');
     
+    cleanupMainVideoObserver()
+
     cleanupMainTitleContentObserver();
     cleanupIsEmptyObserver();
     cleanupPageTitleObserver();

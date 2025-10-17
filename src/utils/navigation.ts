@@ -13,3 +13,8 @@ export function isSearchResultsPage(): boolean {
         || window.location.pathname === '/feed/history'
         || window.location.pathname === '/feed/subscriptions';
 }
+
+
+export function isVideoPage(): boolean {
+    return window.location.pathname === '/watch';
+}

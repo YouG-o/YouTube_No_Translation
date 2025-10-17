@@ -274,11 +274,7 @@ export async function processDescriptionForVideoId(id: string): Promise<string |
                         return descriptionCache.getDescription(id) ?? null;
                     });
                 } else {
-                    // Description is already original, setup observers
-                    descriptionExpandObserver(id);
-                    setupDescriptionContentObserver(id);
-                    
-                    // Return the description directly (not cached)
+                    cleanupDescriptionObservers();
                     return description;
                 }
             });

@@ -191,7 +191,7 @@ function areChaptersTranslated(descriptionChapters: Chapter[]): boolean {
     
     if (!openChaptersPanel) {
         // Panel doesn't exist or isn't visible - try chapter button as fallback
-        chaptersLog('Chapters panel not found, checking chapter button instead');
+        //chaptersLog('Chapters panel not found, checking chapter button instead');
         
         const chapterButton = document.querySelector('.ytp-chapter-title-content');
         if (!chapterButton) {
@@ -228,7 +228,7 @@ function areChaptersTranslated(descriptionChapters: Chapter[]): boolean {
         return isTranslated;
     }
     
-    chaptersLog('Chapters panel found, checking panel chapters');
+    //chaptersLog('Chapters panel found, checking panel chapters');
     
     // Get chapter elements from panel
     const chapterElements = openChaptersPanel.querySelectorAll('ytd-macro-markers-list-item-renderer h4.macro-markers');
@@ -238,7 +238,7 @@ function areChaptersTranslated(descriptionChapters: Chapter[]): boolean {
         return false;
     }
     
-    chaptersLog(`Comparing ${chapterElements.length} displayed chapters with ${descriptionChapters.length} description chapters`);
+    //chaptersLog(`Comparing ${chapterElements.length} displayed chapters with ${descriptionChapters.length} description chapters`);
     
     // Check if any displayed chapter differs from description chapter
     let translatedCount = 0;
@@ -266,14 +266,14 @@ function areChaptersTranslated(descriptionChapters: Chapter[]): boolean {
         
         if (normalizedDisplayed !== normalizedOriginal) {
             translatedCount++;
-            chaptersLog(`Translated chapter found: "${displayedTitle}" vs "${matchingChapter.title}" at ${timeText}`);
+            //chaptersLog(`Translated chapter found: "${displayedTitle}" vs "${matchingChapter.title}" at ${timeText}`);
         }
     });
     
     const areTranslated = translatedCount > 0;
     
     if (areTranslated) {
-        chaptersLog(`${translatedCount} chapters are translated out of ${chapterElements.length}`);
+        //chaptersLog(`${translatedCount} chapters are translated out of ${chapterElements.length}`);
     } else {
         chaptersLog('All chapters match description, not translated');
     }
@@ -295,7 +295,7 @@ export function checkAndInitializeChapters(videoId: string, description: string)
         return;
     }
     
-    chaptersLog(`Description length: ${description.length} characters`);
+    //chaptersLog(`Description length: ${description.length} characters`);
     
     // Wait for chapters to be rendered in the DOM
     setTimeout(() => {
@@ -307,7 +307,7 @@ export function checkAndInitializeChapters(videoId: string, description: string)
             return;
         }
         
-        chaptersLog(`Found ${descriptionChapters.length} chapters in description`);
+        //chaptersLog(`Found ${descriptionChapters.length} chapters in description`);
         
         // Check if displayed chapters are translated
         const chaptersTranslated = areChaptersTranslated(descriptionChapters);
@@ -338,7 +338,7 @@ export function initializeChaptersReplacement(originalDescription: string): void
         return;
     }
     
-    chaptersLog(`Found ${cachedChapters.length} original chapters`);
+    //chaptersLog(`Found ${cachedChapters.length} original chapters`);
     
     // Create CSS that hides chapter title text and shows custom content
     const style = document.createElement('style');
@@ -432,8 +432,6 @@ export function initializeChaptersReplacement(originalDescription: string): void
     
     // Reduced interval frequency - 200ms instead of 100ms
     chaptersUpdateInterval = setInterval(updateTooltipChapter, 200);
-    
-    chaptersLog('Optimized chapters replacement initialized with chapter button support');
 }
 
 

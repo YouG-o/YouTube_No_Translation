@@ -1,6 +1,6 @@
 {
   "name": "ynt",
-  "version": "2.17.1",
+  "version": "2.17.2",
   "description": "Keep YouTube content in its original language: titles, descriptions, audio... No more unwanted translations.",
   "scripts": {
     "clean": "rm -rf dist && rm -f manifest.json",

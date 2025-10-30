@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.17.2] - 2025-10-30
+
 ### Added
 - Added dynamic review link in support toast: displays appropriate store name (Mozilla Add-ons, Chrome Web Store, or Microsoft Store) based on detected browser.
 - Added browser detection utilities (`isFirefox()`, `isChromium()`, `isEdge()`) for platform-specific features.
@@ -534,7 +536,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 *Note: This changelog was introduced in version 2.2.30. For earlier version history, please refer to the [GitHub releases](https://github.com/YouG-o/YouTube_No_Translation/releases).*
 
-[Unreleased]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.17.1...HEAD
+[Unreleased]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.17.2...HEAD
+[2.17.2]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.17.1...v2.17.2
 [2.17.1]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.17.0...v2.17.1
 [2.17.0]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.16.0...v2.17.0
 [2.16.0]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.15.2...v2.16.0

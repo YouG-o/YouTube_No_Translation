@@ -70,7 +70,7 @@
     "description": "Title for ASR subtitles toggle"
   },
   "popup_subtitles_asrToggle_tooltip": {
-    "message": "Якщо цю функцію ввімкнено, а основні субтитри недоступні вашою бажаною мовою, використовуватимуться автоматично згенеровані (ASR) субтитри з перекладом, якщо потрібен.",
+    "message": "Якщо цю функцію ввімкнено, а основні субтитри недоступні бажаною мовою, будуть використані автоматично згенеровані (ASR) субтитри з перекладом, якщо потрібен.",
     "description": "Tooltip for ASR subtitles toggle"
   },
   
@@ -96,10 +96,11 @@
   },
   
   "popup_extraSettings_devLog": {
-    "message": "Dev Log"
+    "message": "Журнали розробника"
   },
   "popup_extraSettings_devLog_tooltip": {
-    "message": "Enable console logs for debugging."
+    "message": "Увімкнути журнали консолі для налагодження."
+    "description": "Tooltip for dev log setting"
   },
   
   "popup_clearCache": {

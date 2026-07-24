@@ -1,6 +1,6 @@
 {
   "name": "ynt",
-  "version": "2.24.3",
+  "version": "2.24.4",
   "description": "Keep YouTube content in its original language: titles, descriptions, audio... No more unwanted translations.",
   "scripts": {
     "clean": "rm -rf dist && rm -f manifest.json",
@@ -71,13 +71,13 @@
     "@types/chrome": "^0.1.30",
     "@types/webextension-polyfill": "^0.12.4",
     "autoprefixer": "^10.4.22",
-    "concurrently": "^10.0.3",
+    "concurrently": "^9.2.4",
     "esbuild": "^0.28.1",
     "postcss": "^8.5.6",
     "rimraf": "^6.1.0",
     "tailwindcss": "^3.4.17",
     "typescript": "^5.9.3",
-    "web-ext": "^10.4.0"
+    "web-ext": "^0.0.1"
   },
   "dependencies": {
     "webextension-polyfill": "^0.12.0"

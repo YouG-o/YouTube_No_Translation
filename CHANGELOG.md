@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.24.4] - 2026-07-24
+
 ### Fixed
 - Fixed mobile selector for titles
 - Prevented translated auto-generated (ASR) subtitles from being incorrectly detected as original subtitles when applying subtitle preferences across videos.
@@ -684,7 +686,8 @@ optimize waitForElement to reduce DOM queries (checking addedNodes only)
 
 *Note: This changelog was introduced in version 2.2.30. For earlier version history, please refer to the [GitHub releases](https://github.com/YouG-o/YouTube_No_Translation/releases).*
 
-[Unreleased]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.24.3...HEAD
+[Unreleased]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.24.4...HEAD
+[2.24.4]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.24.3...v2.24.4
 [2.24.3]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.24.2...v2.24.3
 [2.24.2]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.24.1...v2.24.2
 [2.24.1]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.24.0...v2.24.1

@@ -275,7 +275,7 @@ export async function refreshMainTitle(): Promise<void> {
     
     // Use appropriate selector based on site type
     const mainTitleSelector = isMobileSite() 
-        ? 'h2.slim-video-information-title span.yt-core-attributed-string'
+        ? 'h2.slim-video-information-title > span[role="text"]'
         : 'h1.ytd-watch-metadata > yt-formatted-string';
     
     const mainTitle = document.querySelector(mainTitleSelector) as HTMLElement;

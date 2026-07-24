@@ -99,7 +99,7 @@
     "message": "Журнали розробника"
   },
   "popup_extraSettings_devLog_tooltip": {
-    "message": "Увімкнути журнали консолі для налагодження."
+    "message": "Увімкнути журнали консолі для налагодження.",
     "description": "Tooltip for dev log setting"
   },
   

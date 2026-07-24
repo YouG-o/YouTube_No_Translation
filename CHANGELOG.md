@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- Fixed mobile selector for titles
+
 ## [2.24.3] - 2026-06-19
 ### Fixed
 - Ensure original chapter titles are restored even when the currently displayed chapter happens to match the original title during initialization.

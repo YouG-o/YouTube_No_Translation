@@ -393,7 +393,13 @@ export async function refreshBrowsingVideos(): Promise<void> {
         if (isMobileSite()) {
             // Mobile selectors
             const mobileTitles = Array.from(
-                document.querySelectorAll('h3[title] > a > span.yt-core-attributed-string')
+                document.querySelectorAll(
+                    'h3[title] > a[href*="/watch?v="] > span[role="text"], ' +
+                    'h3[class*="headline"] > span[role="text"], ' +
+                    'h3[class*="Title"] > span[role="text"], ' +
+                    'h4[class*="Headline"] > span[role="text"], ' +
+                    'ytm-video-card-renderer h4 > span[role="text"]'
+                )
             ) as HTMLElement[];
             
             browsingTitles = mobileTitles;

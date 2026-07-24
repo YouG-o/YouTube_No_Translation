@@ -163,11 +163,17 @@
                 }
 
                 // Skip if already on ASR track
-                if (currentTrack && languageCodesMatch(currentTrack.languageCode, asrTrack.languageCode) && currentTrack.kind === 'asr') {
+                if (
+                    currentTrack &&
+                    languageCodesMatch(currentTrack.languageCode, asrTrack.languageCode) &&
+                    currentTrack.kind === 'asr' &&
+                    !currentTrack.translationLanguage
+                ) {
                     log(`Subtitles already set to ASR: "${asrTrack.name.simpleText}"`);
                     return true;
                 }
-                log(`No manual track, using ASR: "${asrTrack.name.simpleText}"`);
+
+                log(`Using original ASR track: "${asrTrack.name.simpleText}"`);
                 player.setOption('captions', 'track', asrTrack);
                 return true;
             }
@@ -203,7 +209,12 @@
 
             if (languageCodesMatch(asrTrack.languageCode, subtitlesLanguage)) {
                 // Skip if already on this ASR track
-                if (currentTrack && languageCodesMatch(currentTrack.languageCode, subtitlesLanguage) && currentTrack.kind === 'asr') {
+                if (
+                    currentTrack &&
+                    languageCodesMatch(currentTrack.languageCode, subtitlesLanguage) &&
+                    currentTrack.kind === 'asr' &&
+                    !currentTrack.translationLanguage
+                ) {
                     log(`Subtitles already set to ASR track in target language: "${asrTrack.name.simpleText}"`);
                     return true;
                 }

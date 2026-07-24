@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - Fixed mobile selector for titles
+- Prevented translated auto-generated (ASR) subtitles from being incorrectly detected as original subtitles when applying subtitle preferences across videos.
+- Applied the original auto-generated (ASR) subtitle track when no manual subtitles are available instead of incorrectly attempting to translate subtitles to the "original" language.
 
 ## [2.24.3] - 2026-06-19
 ### Fixed

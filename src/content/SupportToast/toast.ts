@@ -167,7 +167,10 @@ async function removeToast() {
     await browser.storage.local.set({ supportToastClosed: true });
 }
 
+const SUPPORT_TOAST_ENABLED = false;
+
 export async function maybeShowSupportToast() {
+    if (!SUPPORT_TOAST_ENABLED) return;
     //console.log('[YNT] maybeShowSupportToast called');
     // Never show if not on main YouTube
     if (!window.location.hostname.match(/(^|\.)youtube\.com$/)) {

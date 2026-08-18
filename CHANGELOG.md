@@ -7,8 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.24.5] - 2026-08-18
+
 ### Fixed
 - Fixed chapter parsing issue
+- Fixed popup broken layout
 
 ## [2.24.4] - 2026-07-24
 
@@ -689,7 +692,8 @@ optimize waitForElement to reduce DOM queries (checking addedNodes only)
 
 *Note: This changelog was introduced in version 2.2.30. For earlier version history, please refer to the [GitHub releases](https://github.com/YouG-o/YouTube_No_Translation/releases).*
 
-[Unreleased]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.24.4...HEAD
+[Unreleased]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.24.5...HEAD
+[2.24.5]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.24.4...v2.24.5
 [2.24.4]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.24.3...v2.24.4
 [2.24.3]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.24.2...v2.24.3
 [2.24.2]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.24.1...v2.24.2

@@ -126,7 +126,7 @@ function parseChaptersFromDescription(description: string): Chapter[] {
         return trimmed.length > 0 && timestampRegex.test(trimmed);
     });
     
-    // Second pass: parse chapters only if surrounded by other timestamp lines
+    // Second pass: parse chapters
     lines.forEach((line, index) => {
         const trimmedLine = line.trim();
         if (!trimmedLine) return;
@@ -135,28 +135,9 @@ function parseChaptersFromDescription(description: string): Chapter[] {
         const timestampMatch = trimmedLine.match(timestampRegex);
         if (!timestampMatch) return;
         
-        // Check if there's another timestamp line before or after (skipping empty lines)
-        let hasTimestampBefore = false;
-        let hasTimestampAfter = false;
-        
-        // Look for timestamp in previous non-empty lines
-        for (let i = index - 1; i >= 0; i--) {
-            if (lines[i].trim().length === 0) continue; // Skip empty lines
-            hasTimestampBefore = linesWithTimestamps[i];
-            break;
-        }
-        
-        // Look for timestamp in next non-empty lines
-        for (let i = index + 1; i < lines.length; i++) {
-            if (lines[i].trim().length === 0) continue; // Skip empty lines
-            hasTimestampAfter = linesWithTimestamps[i];
-            break;
-        }
-        
-        // Only accept if there's a timestamp before OR after
-        if (!hasTimestampBefore && !hasTimestampAfter) {
-            return; // Isolated timestamp, not a chapter
-        }
+        // Check if there's another timestamp anywhere in the description to ensure it's a chapter list
+        const hasAnyOtherTimestamp = linesWithTimestamps.some((hasTs, idx) => hasTs && idx !== index);
+        if (!hasAnyOtherTimestamp) return;
         
         const timestamp = timestampMatch[1];
         const timestampIndex = timestampMatch.index!;

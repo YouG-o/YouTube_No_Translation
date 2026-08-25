@@ -160,14 +160,12 @@ export async function refreshMainChannelName(): Promise<void> {
         originalChannelName = await fetchChannelNameInnerTube(channelHandle);
     }
 
-    // Try new YouTube layout selector first
-    let channelNameElement = document.querySelector('h1.dynamicTextViewModelH1 > span.yt-core-attributed-string[role="text"]') as HTMLElement | null;
-
-    // Fallback to old selector if not found
-    if (!channelNameElement) {
-        channelNameElement = document.querySelector('yt-dynamic-text-view-model h1.dynamic-text-view-model-wiz__h1 > span.yt-core-attributed-string') as HTMLElement | null;
-    }
-
+    // Robust & future-proof selector for channel header title
+    const channelNameElement = document.querySelector(
+        'yt-dynamic-text-view-model h1 span[role="text"], ' +
+        'h1[class*="dynamic"] span[role="text"], ' +
+        'yt-dynamic-text-view-model h1 span'
+    ) as HTMLElement | null;
     if (!channelNameElement) {
         titlesErrorLog("Channel name element not found on the page.");
         return;

@@ -9,12 +9,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - Updated Channel Name selector on channel page (selector should be future proof)
+- Updated Shorts main title and linked video title selectors for improved compatibility with recent YouTube DOM updates.
+
 
 ## [2.24.5] - 2026-08-18
 
 ### Fixed
 - Fixed chapter parsing issue
 - Fixed popup broken layout
+
 
 ## [2.24.4] - 2026-07-24
 
@@ -23,10 +26,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Prevented translated auto-generated (ASR) subtitles from being incorrectly detected as original subtitles when applying subtitle preferences across videos.
 - Applied the original auto-generated (ASR) subtitle track when no manual subtitles are available instead of incorrectly attempting to translate subtitles to the "original" language.
 
+
 ## [2.24.3] - 2026-06-19
 ### Fixed
 - Ensure original chapter titles are restored even when the currently displayed chapter happens to match the original title during initialization.
 - Fix audio track not being applied after YouTube's black screen buffering issue, caused by the same blob URL being reused across video sessions.
+
 
 ## [2.24.2] - 2026-06-17
 

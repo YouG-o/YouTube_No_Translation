@@ -23,11 +23,17 @@ let shortsAlternativeDebounceTimer: number | null = null;
 // --- Shorts Title Function
 export async function refreshShortMainTitle(): Promise<void> {
     // Get the shorts title element
-    const shortTitle = document.querySelector('yt-shorts-video-title-view-model h2.ytShortsVideoTitleViewModelShortsVideoTitle span') as HTMLElement;
-    
+    const shortTitle = document.querySelector(
+        'yt-shorts-video-title-view-model h1 span[role="text"], ' +
+        'yt-shorts-video-title-view-model h2 span[role="text"], ' +
+        'yt-shorts-video-title-view-model [class*="ShortsVideoTitle"] span'
+    ) as HTMLElement;    
     // Get the linked video title element (additional title to translate)
-    const linkedVideoTitle = document.querySelector('.ytReelMultiFormatLinkViewModelTitle span') as HTMLElement;
-    
+    const linkedVideoTitle = document.querySelector(
+        '.ytReelMultiFormatLinkViewModelTitle span, ' +
+        'yt-reel-carousel-view-model .ytSpecButtonShapeNextButtonTextContent span[role="text"], ' +
+        '.ytReelCarouselViewModelHostButton .ytSpecButtonShapeNextButtonTextContent span'
+    ) as HTMLElement;    
     if (window.location.pathname.startsWith('/shorts')) {
         //mainTitleLog('Processing shorts title elements');
         
@@ -59,7 +65,7 @@ export async function refreshShortMainTitle(): Promise<void> {
                 const currentLinkedTitle = linkedVideoTitle.textContent;
                 
                 // Get the linked video ID from the parent anchor element
-                const linkedVideoAnchor = linkedVideoTitle.closest('a.ytReelMultiFormatLinkViewModelEndpoint') as HTMLAnchorElement;
+                const linkedVideoAnchor = linkedVideoTitle.closest('a.ytReelMultiFormatLinkViewModelEndpoint, a[href*="/watch?v="], a[href*="/shorts/"]') as HTMLAnchorElement;                
                 if (linkedVideoAnchor) {
                     const linkedVideoUrl = linkedVideoAnchor.getAttribute('href');
                     if (linkedVideoUrl) {
@@ -97,7 +103,11 @@ export async function refreshShortMainTitle(): Promise<void> {
 
 export const checkShortsId = () => {
     if (window.location.pathname.startsWith('/shorts')) {
-        waitForElement('yt-shorts-video-title-view-model h2.ytShortsVideoTitleViewModelShortsVideoTitle span')
+        waitForElement(
+            'yt-shorts-video-title-view-model h1 span[role="text"], ' +
+            'yt-shorts-video-title-view-model h2 span[role="text"], ' +
+            'yt-shorts-video-title-view-model [class*="ShortsVideoTitle"] span'
+        )
         .then(() => {
             const currentVideoId = extractVideoIdFromUrl(window.location.href);
             

@@ -7,20 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+
+## [2.24.6] - 2026-09-04
 ### Fixed
 - Updated Channel Name selector on channel page (selector should be future proof)
 - Updated Shorts main title and linked video title selectors for improved compatibility with recent YouTube DOM updates.
 
 
 ## [2.24.5] - 2026-08-18
-
 ### Fixed
 - Fixed chapter parsing issue
 - Fixed popup broken layout
 
 
 ## [2.24.4] - 2026-07-24
-
 ### Fixed
 - Fixed mobile selector for titles
 - Prevented translated auto-generated (ASR) subtitles from being incorrectly detected as original subtitles when applying subtitle preferences across videos.
@@ -34,7 +34,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 
 ## [2.24.2] - 2026-06-17
-
 ### Fixed
 - Prevent TypeError when setting some observers if document.body is not available during early script execution.
 - Avoid repeated audio track processing and duplicate logs for the same video source during SPA navigation.
@@ -46,206 +45,182 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 
 ## [2.24.1] - 2026-05-26
-
 ### Fixed
 - Issue where audio track settings were skipped if the player triggered events in an unexpected order.
 - Subtitle detection now correctly distinguishes between original manual tracks and translated ASR tracks, preventing incorrect re-application of settings when a translated ASR track is already active.
-
 ### Changed
 - Refactored video player logic to apply audio tracks immediately upon source detection, restoring legacy reliability.
 - Optimized event listeners during SPA navigation to reduce browser overhead.
 
 
 ## [2.24.0] - 2026-05-20
-
 ### Changed
 - Safari : All page-context script injections now support dual-mode loading (URL for Chrome/Firefox, inline execution fallback for Safari).
 - Audio track and subtitle/embed title settings now use dedicated listeners instead of a single combined listener, allowing each to trigger at the optimal moment. (as soon as possible for audio to avoid user hearing a cut when changing audio track, later for the rest to let the player load fully)
 - Simplified subtitles injection script by removing API orchestration and polling logic.
-
 ### Fixed
 - Safari 26 CSP now blocks execution of extension scripts injected via script.src; added Safari-specific inline script execution using textContent.
 - Subtitle and audio track settings being overridden by YouTube's own initialization sequence on initial page load.
 
 
 ## [2.23.0] - 2026-04-17
-
 ### Added
 - Portuguese translation. (Thanks to [Felipe](https://github.com/felipdsa21))
-
 ### Fix
 Avoid conflict with other extension by using strict selector for channel short description
 
 
 ## [2.22.2] - 2026-04-11
-
 Now uses the global selector h3[title] > a > span[class][role="text"] to capture all video titles, including new class variants, for improved robustness against YouTube DOM changes.
 
 
 ## [2.22.1] - 2026-04-09
-
 ### Fix
 Prevent playlist titles from being replaced with first video title when using the global h3[title] selector.
 
 ## [2.22.0] - 2026-04-08
-
 ### Changed
 - Simplified browsing video title selectors: now uses global structural selector `h3[title] > a > span.yt-core-attributed-string` instead of specific parent class variants (kebab-case, camelCase, etc.). This reduces maintenance burden and improves resilience to future YouTube DOM structure changes without sacrificing precision.
 
-## [2.21.5] - 2026-04-08
 
+## [2.21.5] - 2026-04-08
 ### Fixed
 - When subtitle preference is set to original language but no ASR track is found. (used to determine original language by our current method), extension now uses the single available subtitle track if only one exists (because it must be the original trakc). Before, subtitles were disabled in this scenario.
 
-## [2.21.4] - 2026-03-19
 
+## [2.21.4] - 2026-03-19
 ### Params
 - Extension initialization is now completely blocked in irrelevant iframes (like live chat, background auth pages)
-
 ### Added
 - Polish translation (Thanks to [pilar4](https://github.com/pilar4))
 
-## [2.21.3] - 2026-03-16
 
+## [2.21.3] - 2026-03-16
 ### Fixed
 - Audio and subtitles translation scripts are no longer injected when the feature is disabled, preventing automatic track switching back to the original.
-
 ### Performances
 - Url changes are now ignored in irrelevant iframes (such as live chat and background authentication pages), preventing unnecessary URL change detections and observer cleanup.
 
-## [2.21.2] - 2026-03-09
 
+## [2.21.2] - 2026-03-09
 ### Added
 - Added "Dev Log" toggle in extra settings (popup and settings page): enables/disables console logs for debugging. Disabled by default.
-
 ### Fixed
 - Extension is now fully disabled on YouTube Music (music.youtube.com) to prevent slowdowns and unnecessary interactions, as the extension is not intended to operate on this domain for now.
 
-## [2.21.1] - 2026-03-05
 
+## [2.21.1] - 2026-03-05
 ### Performances
 optimize waitForElement to reduce DOM queries (checking addedNodes only)
 
 
 ## [2.21.0] - 2026-02-24
-
 ### Added
 - Japanese (ja) translation (Thanks to [monta-gh](https://github.com/monta-gh))
 
-## [2.20.1] - 2026-02-05
 
+## [2.20.1] - 2026-02-05
 ### Fixed
 - Fixed main description: the expanded description is now only filled when actually expanded, preventing the original (untranslated) description from being visible in collapsed mode. This restores the correct collapsed/expanded behavior and prevents double rendering or early reveal of the original text.
 
-## [2.20.0] - 2025-12-03
 
+## [2.20.0] - 2025-12-03
 ### Added
 - Spanish language locales for the extension. (Thanks to [Seva41](https://github.com/Seva41))
 - Support for YouTube embeds inside external iframes (e.g., watch2gether or any site hosting an inline player).
 
-## [2.19.0] - 2025-11-27
 
+## [2.19.0] - 2025-11-27
 ### Added
 - Feedback card title (on home page "What did you think of this video") are now replaced by original title if needed.
 - Added locales support. Added French and Ukrainian translation (thanks to [btncua](https://github.com/btncua) for Ukrainian translation).
 
-## [2.18.2] - 2025-11-18
 
+## [2.18.2] - 2025-11-18
 ### Added 
 - Ukrainian language is now available for audio & subtitles tracks
-
 ### Fixed
 - Reverted changes on description from 2.18.0. (Added debounce back for description replacement : this means the flash on hovering translated description is bac -for now-, but no risk of infinite loop)
 
-## [2.18.1] - 2025-11-12
 
+## [2.18.1] - 2025-11-12
 ### Fixed 
 - Removed hard coded white color for main description font (for light theme)
 - Allow dots in channel handle extraction for channel renderer
 
-## [2.18.0] - 2025-11-10
 
+## [2.18.0] - 2025-11-10
 ### Added
 - **Mobile support**: All main features (Titles, Descriptions, Channel name & description, Thumbnails, Subtitles) are now supported on mobile YouTube (m.youtube.com). Except for Audio Tracks feature, it remains **DESKTOP-ONLY** for now; mobile support is not planned yet.
-
 ### Fixed
 - **Description hover flash**: Eliminated visual flash when hovering over short description
 
-## [2.17.2] - 2025-10-30
 
+## [2.17.2] - 2025-10-30
 ### Added
 - Added dynamic review link in support toast: displays appropriate store name (Mozilla Add-ons, Chrome Web Store, or Microsoft Store) based on detected browser.
 - Added browser detection utilities (`isFirefox()`, `isChromium()`, `isEdge()`) for platform-specific features.
-
 ### Fixed
 - Fixed subtitle track matching to handle regional language variants: tracks like "en-US" and "en-GB" now correctly match ASR tracks with base language code "en". This resolves cases where manual subtitles in original language were not detected due to region-specific language codes.
 - Fixed race conditions in description processing during SPA navigation. This prevents incorrect descriptions from being displayed or cached when users navigate rapidly between videos, especially when moving from a translated video to a non-translated one.
 
-## [2.17.1] - 2025-10-20
 
+## [2.17.1] - 2025-10-20
 ### Fix
 - Improved chapter detection in video descriptions: timestamps at the end of lines are now recognized as valid chapters.
 - Isolated timestamps (not surrounded by at least an other chapter lines) are no longer considered chapters, reducing false positives in descriptions with time mentions.
 
-## [2.17.0] - 2025-10-17
 
+## [2.17.0] - 2025-10-17
 ### Fix
 - **Chapters fixes**:
   - Check chapters translation even when description is original.
-  
 - Improved video processing to ensure descriptions and chapters are only applied when both DOM and URL video IDs match, preventing race conditions during SPA navigation that could cause content from one video to be applied to another.
-
 ### Changed
 - Updated application logo.
 
-## [2.16.0] - 2025-10-16
 
+## [2.16.0] - 2025-10-16
 ### Feat
 - **InfoCards Support**: Original titles are now restored for video annotations (infocards) in video descriptions and their corresponding overlay teasers
-
 ### Fix
 - Fixed missing observer initialization after full page reload by manually calling `handleUrlChange()` in `setupUrlObserver`. This ensures all observers and features are correctly set up whether the user navigates via SPA or refreshes the browser.
 - Thumbnail Lazy Loading Support: Added passive observation system for lazy-loaded thumbnails. Loaded video with thumbnails ouside of viewport were not processed.
-
 ### Performances
 - Removed redundant call to browsing videos refresher in observers.
 
-## [2.15.2] - 2025-10-09
 
+## [2.15.2] - 2025-10-09
 ### Fix
 - Added debounce timers to mutation observers that didn't have them yet (titles, descriptions, chapters, channel info) to prevent infinite loops and improve performance stability when conflicting with other extensions or rapid DOM changes.
 
-## [2.15.1] - 2025-10-03
 
+## [2.15.1] - 2025-10-03
 ### Fix
 - Updated channel name selector to support the latest YouTube channel page layout (new h1.dynamicTextViewModelH1 structure).
 
-## [2.15.0] - 2025-09-26
 
+## [2.15.0] - 2025-09-26
 ### Feat
 - Support for restoring original titles in post video suggestions grid (the videos shown after the main video ends, in the fullscreen grid overlay).
 
-## [2.14.2] - 2025-09-24
 
+## [2.14.2] - 2025-09-24
 ### Fix
 - Support all language codes in thumbnail restoration
 - Ensure settings completeness and type safety during initialization and migration
-
 ### Changed
 - Centralized settings sanitization logic: all settings (content, background, popup) now use the new `sanitizeSettings` utility to auto-fill missing keys, remove unknown keys, and fix type mismatches. This improves robustness and maintainability.
 
 
 ## [2.14.1] - 2025-09-19
-
 ### Fix
 - Prevented unnecessary page title updates in `refreshMainTitle` and `refreshEmbedTitle` functions when the page title is already correct. Avoids redundant DOM updates and logs.
 
 
 ## [2.14.0] - 2025-09-16
-
 ### Feat
 - Added an 'Original Thumbnails' toggle to popup / settings page.
-
 ### Fix 
 - Updated channel description selectors to support the latest YouTube channel page DOM structure.
 - On subscription page, video descriptions are now original when videos are displayed as List.
@@ -253,35 +228,30 @@ optimize waitForElement to reduce DOM queries (checking addedNodes only)
 
 
 ## [2.13.0] - 2025-09-06
-
 ### Feat
 - Translated thumbnails are now back to original
-
 ### Fix
 - YNT now handles YT's new player : fixed chapters tooltip and video title in full screen. (kept it working with old player for now)
 
-## [2.12.4] - 2025-09-04
 
+## [2.12.4] - 2025-09-04
 ### Fixed
 - Fixed a conflict with SponsorBlock: chapter button in the player now always displays the original current chapter title.
-
 ### Style
 - Improved popup / settings page (features name)
 
-### Fixed
 
 ## [2.12.3] - 2025-08-27
-
 ### Fixed
 - Fixed some browsing video titles not being processed due to YouTube HTML structure changes: added support for new `yt-lockup-metadata-view-model__title` class selector alongside existing ones for improved compatibility
 
-## [2.12.2] - 2025-08-26
 
+## [2.12.2] - 2025-08-26
 ### Fix
 - Fixed Auto Generated Subtitles not being displayed when subtitles language was "original" & Auto Generated Subtitles feature enabled.
 
-## [2.12.1] - 2025-08-24
 
+## [2.12.1] - 2025-08-24
 ### Fixed
 - Fixed cache timestamp persistence by storing cleanup timestamps in local storage instead of memory variables
 - Cache expiration now works correctly after browser restarts (24h)
@@ -289,14 +259,13 @@ optimize waitForElement to reduce DOM queries (checking addedNodes only)
 
 
 ## [2.12.0] - 2025-08-23
-
 ### Added
 - Added a "Clear cache" button in the popup and settings page to allow users to clear cached titles and descriptions when experiencing incorrect content
-
 ### Fixed
 - Improved cache priority order: cache is now checked first, then pre-fetched titles only if cache is empty
 - Fixed cache overwriting issues where pre-fetched titles were incorrectly overwritten by empty cache values
 - Removed redundant description caching in content observer to centralize cache logic in validation function
+
 
 ## [2.11.0] - 2025-08-21
 
@@ -700,7 +669,8 @@ optimize waitForElement to reduce DOM queries (checking addedNodes only)
 
 *Note: This changelog was introduced in version 2.2.30. For earlier version history, please refer to the [GitHub releases](https://github.com/YouG-o/YouTube_No_Translation/releases).*
 
-[Unreleased]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.24.5...HEAD
+[Unreleased]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.24.6...HEAD
+[2.24.6]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.24.5...v2.24.6
 [2.24.5]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.24.4...v2.24.5
 [2.24.4]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.24.3...v2.24.4
 [2.24.3]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.24.2...v2.24.3

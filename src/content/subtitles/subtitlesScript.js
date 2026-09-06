@@ -20,11 +20,11 @@
  * 
  * YouTube provides different types of subtitle tracks:
  * - Manual tracks: Can be original language or translated
- * - ASR (Automatic Speech Recognition) tracks: Always in original video language
+ * - ASR (Automatic Speech Recognition) tracks: May also exist for dubbed audio
  * - Translated tracks: Generated from ASR track
  * 
  * Strategy to get original subtitles track:
- * 1. Find ASR track to determine original video language
+ * 1. Match ASR to the default/original audio language (or use a sole ASR track)
  * 2. Look for manual track in same language (matching base language code)
  * 3. Apply original language track if found
  */
@@ -119,11 +119,19 @@
 
             // If preference is "original", look for original language
             if (subtitlesLanguage === 'original') {
-                const asrTrack = captionTracks.find(track => track.kind === 'asr');
+                // Dubbed audio can have its own ASR tracks, so array order is not
+                // an indication of the original language. Audio IDs use lang.variant.
+                const originalAudio = response.streamingData?.adaptiveFormats
+                    ?.find(format => format.audioTrack?.audioIsDefault)?.audioTrack;
+                const originalLanguage = originalAudio?.id?.split('.')[0];
+                const asrTracks = captionTracks.filter(track => track.kind === 'asr');
+                const asrTrack = originalLanguage
+                    ? asrTracks.find(track => languageCodesMatch(track.languageCode, originalLanguage))
+                    : (asrTracks.length === 1 ? asrTracks[0] : undefined);
 
                 if (!asrTrack) {
                     // Fallback: if there's only one subtitle track, assume it's the original
-                    if (captionTracks.length === 1) {
+                    if (captionTracks.length === 1 && !captionTracks[0].kind) {
                         const singleTrack = captionTracks[0];
                         // Skip if already on this track
                         if (currentTrack && languageCodesMatch(currentTrack.languageCode, singleTrack.languageCode) && !currentTrack.kind && !currentTrack.translationLanguage) {

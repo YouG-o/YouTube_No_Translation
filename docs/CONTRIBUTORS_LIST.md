@@ -8,3 +8,4 @@
       - Disabled extension on YouTube Music domain to prevent slowdowns.
       - Polish translation
   - **[Felipe](https://github.com/felipdsa21)**: Portuguese translation.
+  - **[mooons](https://github.com/mooons)**: Fixed original-language auto-generated subtitles selection with dubbed audio.

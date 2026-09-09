@@ -7,8 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+
+## [2.25.0] - 2026-09-09
 ### Fixed
-- Select original-language auto-generated subtitles when dubbed audio also has auto-generated subtitle tracks.
+- Select original-language auto-generated subtitles when dubbed audio also has auto-generated subtitle tracks. (Thanks to [mooons](https://github.com/mooons))
 
 
 ## [2.24.6] - 2026-09-04
@@ -672,7 +674,8 @@ optimize waitForElement to reduce DOM queries (checking addedNodes only)
 
 *Note: This changelog was introduced in version 2.2.30. For earlier version history, please refer to the [GitHub releases](https://github.com/YouG-o/YouTube_No_Translation/releases).*
 
-[Unreleased]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.24.6...HEAD
+[Unreleased]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.25.0...HEAD
+[2.25.0]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.24.6...v2.25.0
 [2.24.6]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.24.5...v2.24.6
 [2.24.5]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.24.4...v2.24.5
 [2.24.4]: https://github.com/YouG-o/YouTube_No_Translation/compare/v2.24.3...v2.24.4

@@ -24,9 +24,8 @@
  * - Translated tracks: Generated from ASR track
  * 
  * Strategy to get original subtitles track:
- * 1. Match ASR to the default/original audio language (or use a sole ASR track)
- * 2. Look for manual track in same language (matching base language code)
- * 3. Apply original language track if found
+ * 1. Identify the default/original audio track language from player response.
+ * 2. Find the ASR track matching that original audio language (or fallback to a single ASR track).
  */
 
 
